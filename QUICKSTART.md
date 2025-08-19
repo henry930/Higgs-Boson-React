@@ -21,6 +21,19 @@ chmod +x setup.sh
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000/api
 
+## ✅ Verify Everything Works
+
+```bash
+# Quick development tests (30 seconds)
+npm run test:quick
+
+# Comprehensive test suite (2-5 minutes)  
+npm run test:comprehensive
+
+# Check environment setup
+npm run test:env
+```
+
 ## 🛠 What the Setup Script Does
 
 The `./setup.sh` script automatically:
@@ -31,6 +44,24 @@ The `./setup.sh` script automatically:
 - ✅ Loads sample service data
 - ✅ Creates `.env` configuration file
 - ✅ Generates convenient start scripts
+- ✅ Configures testing environment
+
+## 🧪 Testing Quick Reference
+
+```bash
+# Daily development tests
+npm run test:quick
+
+# Before commits
+npm run test:comprehensive
+
+# Specific test types
+npm run test:api        # API endpoints
+npm run test:components # React components
+npm run test:pages      # Page components
+npm run test:routing    # Navigation/routing
+npm run test:env        # Environment validation
+```
 
 ## 📁 Key Files & Scripts
 

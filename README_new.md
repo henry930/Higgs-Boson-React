@@ -48,6 +48,24 @@ The setup script will:
 - **Backend API**: http://localhost:8000/api
 - **Django Admin**: http://localhost:8000/admin
 
+### Run Tests
+
+```bash
+# Quick tests for daily development
+npm run test:quick
+
+# Comprehensive test suite (recommended before commits)
+npm run test:comprehensive
+
+# Specific test categories
+npm run test:api        # API tests only
+npm run test:components # Component tests only
+npm run test:pages      # Page tests only
+npm run test:routing    # Routing tests only
+```
+
+📋 **See [TESTING.md](TESTING.md) for complete testing guide**
+
 ## 📁 Project Structure
 
 ```

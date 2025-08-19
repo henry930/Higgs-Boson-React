@@ -13,7 +13,20 @@
     "preview": "vite preview",
     "db:seed": "cd server && source venv/bin/activate && python migrate_data.py",
     "db:migrate": "cd server && source venv/bin/activate && python manage.py migrate",
-    "db:generate": "cd server && source venv/bin/activate && python manage.py makemigrations"
+    "db:generate": "cd server && source venv/bin/activate && python manage.py makemigrations",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:api": "vitest run src/test/api.test.ts",
+    "test:components": "vitest run src/test/components/",
+    "test:pages": "vitest run src/test/pages/",
+    "test:routing": "vitest run src/test/routing.test.tsx",
+    "test:env": "node scripts/test-environment.js",
+    "test:all": "npm run test:env && npm run test:run",
+    "test:quick": "./scripts/quick-test.sh",
+    "test:comprehensive": "./scripts/run-all-tests.sh"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
@@ -22,7 +35,6 @@
     "@types/dompurify": "^3.0.5",
     "dompurify": "^3.2.6",
     "isomorphic-dompurify": "^2.26.0",
-    "jsdom": "^26.1.0",
     "prisma": "^6.14.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -33,17 +45,22 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^5.0.1",
     "concurrently": "^9.2.0",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "jsdom": "^26.1.0",
     "tsx": "^4.20.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vitest": "^3.2.4"
   }
 }
