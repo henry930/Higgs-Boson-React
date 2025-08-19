@@ -1,0 +1,50 @@
+@import '../../styles/variables';
+
+.card {
+  background: white;
+  border-radius: $radius-lg;
+  transition: all $transition-normal $ease-out;
+  
+  &.hover {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-xl;
+    }
+  }
+  
+  // Padding variants
+  &.padding-sm {
+    padding: $space-md;
+  }
+  
+  &.padding-md {
+    padding: $space-lg;
+  }
+  
+  &.padding-lg {
+    padding: $space-xl;
+  }
+  
+  &.padding-xl {
+    padding: $space-2xl;
+  }
+  
+  // Shadow variants
+  &.shadow-sm {
+    box-shadow: $shadow-sm;
+  }
+  
+  &.shadow-md {
+    box-shadow: $shadow-md;
+  }
+  
+  &.shadow-lg {
+    box-shadow: $shadow-lg;
+  }
+  
+  &.shadow-xl {
+    box-shadow: $shadow-xl;
+  }
+}

@@ -1,0 +1,109 @@
+@import '../../styles/variables';
+
+.carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.carouselContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carouselTrack {
+  display: flex;
+  transition: transform $transition-slow $ease-in-out;
+  width: 100%;
+  height: 100%;
+}
+
+.carouselSlide {
+  flex: 0 0 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: $radius-full;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  color: $dark-color;
+  cursor: pointer;
+  transition: all $transition-normal $ease-out;
+  z-index: 2;
+  box-shadow: $shadow-md;
+  
+  &:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: $shadow-lg;
+  }
+  
+  &.arrowLeft {
+    left: $space-lg;
+    
+    @media (max-width: $breakpoint-md) {
+      left: $space-md;
+    }
+  }
+  
+  &.arrowRight {
+    right: $space-lg;
+    
+    @media (max-width: $breakpoint-md) {
+      right: $space-md;
+    }
+  }
+  
+  @media (max-width: $breakpoint-sm) {
+    width: 40px;
+    height: 40px;
+    font-size: $font-lg;
+  }
+}
+
+.carouselDots {
+  display: flex;
+  justify-content: center;
+  gap: $space-sm;
+  margin-top: $space-xl;
+  
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: $radius-full;
+    border: none;
+    background: $gray-300;
+    cursor: pointer;
+    transition: all $transition-normal $ease-out;
+    
+    &:hover {
+      background: $gray-400;
+      transform: scale(1.2);
+    }
+    
+    &.active {
+      background: $primary-color;
+      transform: scale(1.3);
+    }
+    
+    @media (max-width: $breakpoint-sm) {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}

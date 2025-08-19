@@ -1,0 +1,26 @@
+@import '../../styles/variables';
+
+.benefitCard {
+  text-align: center;
+  
+  .icon {
+    font-size: $font-5xl;
+    margin-bottom: $space-lg;
+    display: block;
+  }
+  
+  .title {
+    font-family: $font-heading;
+    font-size: $font-xl;
+    font-weight: $font-semibold;
+    margin-bottom: $space-md;
+    color: $dark-color;
+    line-height: 1.3;
+  }
+  
+  .description {
+    color: $gray-600;
+    line-height: 1.6;
+    margin: 0;
+  }
+}

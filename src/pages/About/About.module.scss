@@ -1,0 +1,438 @@
+@import '../../styles/variables';
+
+.about {
+  width: 100%;
+}
+
+.hero {
+  background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
+  color: white;
+  padding: $space-4xl 0;
+  text-align: center;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  .title {
+    font-family: $font-heading;
+    font-size: $font-5xl;
+    font-weight: $font-bold;
+    margin-bottom: $space-lg;
+    
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-4xl;
+    }
+  }
+  
+  .subtitle {
+    font-size: $font-lg;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+}
+
+.missionSection {
+  padding: $space-4xl 0;
+  background: $gray-50;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  .missionGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $space-4xl;
+    align-items: center;
+    
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: 1fr;
+      gap: $space-3xl;
+    }
+  }
+  
+  .missionContent {
+    h2 {
+      font-family: $font-heading;
+      font-size: $font-3xl;
+      font-weight: $font-bold;
+      margin-bottom: $space-xl;
+      color: $dark-color;
+    }
+    
+    p {
+      font-size: $font-lg;
+      line-height: 1.7;
+      color: $gray-700;
+      margin-bottom: $space-lg;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .missionStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-xl;
+    
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .stat {
+    text-align: center;
+    
+    .statNumber {
+      font-family: $font-heading;
+      font-size: $font-4xl;
+      font-weight: $font-bold;
+      color: $primary-color;
+      margin-bottom: $space-xs;
+    }
+    
+    .statLabel {
+      font-size: $font-sm;
+      color: $gray-600;
+      font-weight: $font-medium;
+    }
+  }
+}
+
+.valuesSection {
+  padding: $space-4xl 0;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    text-align: center;
+    margin-bottom: $space-3xl;
+    color: $dark-color;
+  }
+  
+  .valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $space-xl;
+  }
+  
+  .valueCard {
+    text-align: center;
+    padding: $space-xl;
+    background: white;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+    transition: transform $transition-normal $ease-out, box-shadow $transition-normal $ease-out;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-xl;
+    }
+    
+    .valueIcon {
+      font-size: $font-4xl;
+      margin-bottom: $space-lg;
+    }
+    
+    h3 {
+      font-family: $font-heading;
+      font-size: $font-xl;
+      font-weight: $font-semibold;
+      margin-bottom: $space-md;
+      color: $dark-color;
+    }
+    
+    p {
+      color: $gray-600;
+      line-height: 1.6;
+    }
+  }
+}
+
+.timelineSection {
+  padding: $space-4xl 0;
+  background: $gray-50;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    text-align: center;
+    margin-bottom: $space-3xl;
+    color: $dark-color;
+  }
+  
+  .timeline {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 100%;
+      background: $primary-color;
+      
+      @media (max-width: $breakpoint-md) {
+        left: 20px;
+      }
+    }
+  }
+  
+  .timelineItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: $space-3xl;
+    position: relative;
+    
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-left: 50px;
+    }
+    
+    &:nth-child(odd) {
+      flex-direction: row-reverse;
+      text-align: right;
+      
+      @media (max-width: $breakpoint-md) {
+        flex-direction: column;
+        text-align: left;
+      }
+      
+      .timelineContent {
+        margin-right: $space-xl;
+        
+        @media (max-width: $breakpoint-md) {
+          margin-right: 0;
+        }
+      }
+    }
+    
+    &:nth-child(even) {
+      .timelineContent {
+        margin-left: $space-xl;
+        
+        @media (max-width: $breakpoint-md) {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+  
+  .timelineYear {
+    background: $primary-color;
+    color: white;
+    padding: $space-md $space-lg;
+    border-radius: $radius-full;
+    font-weight: $font-bold;
+    font-size: $font-lg;
+    min-width: 80px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    
+    @media (max-width: $breakpoint-md) {
+      position: absolute;
+      left: -70px;
+      top: 0;
+    }
+  }
+  
+  .timelineContent {
+    max-width: 350px;
+    
+    h3 {
+      font-family: $font-heading;
+      font-size: $font-xl;
+      font-weight: $font-semibold;
+      margin-bottom: $space-sm;
+      color: $dark-color;
+    }
+    
+    p {
+      color: $gray-600;
+      line-height: 1.6;
+    }
+  }
+}
+
+.teamSection {
+  padding: $space-4xl 0;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    text-align: center;
+    margin-bottom: $space-lg;
+    color: $dark-color;
+  }
+  
+  .teamIntro {
+    text-align: center;
+    font-size: $font-lg;
+    color: $gray-600;
+    max-width: 800px;
+    margin: 0 auto $space-3xl auto;
+    line-height: 1.6;
+  }
+  
+  .teamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $space-xl;
+  }
+  
+  .teamCard {
+    text-align: center;
+    padding: $space-xl;
+    background: white;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+    transition: transform $transition-normal $ease-out, box-shadow $transition-normal $ease-out;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-xl;
+    }
+    
+    .memberImage {
+      font-size: $font-6xl;
+      margin-bottom: $space-lg;
+    }
+    
+    h3 {
+      font-family: $font-heading;
+      font-size: $font-xl;
+      font-weight: $font-semibold;
+      margin-bottom: $space-xs;
+      color: $dark-color;
+    }
+    
+    .memberRole {
+      color: $primary-color;
+      font-weight: $font-medium;
+      margin-bottom: $space-md;
+      font-size: $font-sm;
+    }
+    
+    p {
+      color: $gray-600;
+      line-height: 1.6;
+      font-size: $font-sm;
+    }
+  }
+}
+
+.ctaSection {
+  padding: $space-4xl 0;
+  background: linear-gradient(135deg, $dark-color 0%, $gray-800 100%);
+  color: white;
+  text-align: center;
+  
+  .container {
+    max-width: $container-max-width;
+    margin: 0 auto;
+    padding: 0 $container-padding;
+  }
+  
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    margin-bottom: $space-lg;
+  }
+  
+  p {
+    font-size: $font-lg;
+    margin-bottom: $space-xl;
+    opacity: 0.9;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .ctaButtons {
+    display: flex;
+    gap: $space-lg;
+    justify-content: center;
+    
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    padding: $space-md $space-xl;
+    border-radius: $radius-md;
+    font-weight: $font-medium;
+    text-decoration: none;
+    transition: all $transition-normal $ease-out;
+    font-size: $font-base;
+    
+    @media (max-width: $breakpoint-sm) {
+      width: 200px;
+      text-align: center;
+    }
+  }
+  
+  .primaryButton {
+    background: $primary-color;
+    color: white;
+    
+    &:hover {
+      background: $primary-dark;
+      transform: translateY(-2px);
+    }
+  }
+  
+  .secondaryButton {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+    
+    &:hover {
+      background: white;
+      color: $dark-color;
+      transform: translateY(-2px);
+    }
+  }
+}
