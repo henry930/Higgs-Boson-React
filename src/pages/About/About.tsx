@@ -1,3 +1,4 @@
+import BenefitCard from '../../components/BenefitCard/BenefitCard';
 import styles from './About.module.scss';
 
 const About = () => {
@@ -134,11 +135,12 @@ const About = () => {
           <h2>Our Values</h2>
           <div className={styles.valuesGrid}>
             {values.map((value, index) => (
-              <div key={index} className={styles.valueCard}>
-                <div className={styles.valueIcon}>{value.icon}</div>
-                <h3>{value.title}</h3>
-                <p>{value.description}</p>
-              </div>
+              <BenefitCard
+                key={index}
+                icon={value.icon}
+                title={value.title}
+                description={value.description}
+              />
             ))}
           </div>
         </div>
