@@ -1,33 +1,99 @@
+import { useEffect, useState } from 'react';
 import BenefitCard from '../../components/BenefitCard/BenefitCard';
+import { useTeam } from '../../hooks/about/useTeam';
 import styles from './About.module.scss';
 
+// Fallback dummy data for team members
+const fallbackTeamMembers = [
+  {
+    id: 1,
+    name: "Dr. Sarah Chen",
+    position: "Chief AI Scientist",
+    bio: "Dr. Chen leads our AI research initiatives with over 15 years of experience in machine learning and neural networks. She holds a PhD in Computer Science from MIT and has published 50+ papers in top-tier conferences.",
+    image_url: "",
+    linkedin_url: "",
+    twitter_url: "",
+    email: "",
+    specialties: "Machine Learning, Deep Learning, Natural Language Processing, Computer Vision",
+    years_experience: 15,
+    education: "PhD Computer Science, MIT; MS Mathematics, Stanford",
+    order: 1,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  },
+  {
+    id: 2,
+    name: "Marcus Johnson",
+    position: "Lead Software Engineer",
+    bio: "Marcus is a full-stack development expert with 12 years of experience building scalable web applications and leading engineering teams. He specializes in modern web technologies and cloud architecture.",
+    image_url: "",
+    linkedin_url: "",
+    twitter_url: "",
+    email: "",
+    specialties: "Full-Stack Development, Cloud Architecture, DevOps, Team Leadership",
+    years_experience: 12,
+    education: "MS Computer Science, Carnegie Mellon",
+    order: 2,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  },
+  {
+    id: 3,
+    name: "Dr. Emily Rodriguez",
+    position: "Data Science Director",
+    bio: "Emily brings over 10 years of experience in data science and business intelligence. She has led data transformation projects for Fortune 500 companies and specializes in predictive analytics.",
+    image_url: "",
+    linkedin_url: "",
+    twitter_url: "",
+    email: "",
+    specialties: "Data Science, Business Intelligence, Predictive Analytics, Machine Learning",
+    years_experience: 10,
+    education: "PhD Statistics, Berkeley; MS Data Science, Northwestern",
+    order: 3,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  },
+  {
+    id: 4,
+    name: "James Kim",
+    position: "DevOps Engineer",
+    bio: "James is a cloud infrastructure specialist with expertise in AWS, Azure, and containerization technologies. He ensures our development and deployment processes are efficient and scalable.",
+    image_url: "",
+    linkedin_url: "",
+    twitter_url: "",
+    email: "",
+    specialties: "Cloud Infrastructure, Containerization, CI/CD, Infrastructure as Code",
+    years_experience: 8,
+    education: "BS Computer Engineering, UCLA",
+    order: 4,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  }
+];
+
 const About = () => {
-  const teamMembers = [
-    {
-      name: 'Dr. Sarah Chen',
-      role: 'Chief AI Officer',
-      image: '👩‍💼',
-      bio: 'Former Google AI researcher with 15+ years in machine learning and enterprise AI solutions.'
-    },
-    {
-      name: 'Marcus Rodriguez',
-      role: 'Lead Full-Stack Developer',
-      image: '👨‍💻',
-      bio: 'Full-stack architect specializing in scalable web applications and cloud infrastructure.'
-    },
-    {
-      name: 'Dr. Emily Watson',
-      role: 'Data Science Director',
-      image: '👩‍🔬',
-      bio: 'PhD in Statistics, expert in predictive analytics and business intelligence solutions.'
-    },
-    {
-      name: 'James Kim',
-      role: 'DevOps Engineer',
-      image: '👨‍🔧',
-      bio: 'Cloud infrastructure specialist with expertise in AWS, Azure, and containerization.'
+  const { teamMembers, loading, actions, error } = useTeam();
+  const [displayTeamMembers, setDisplayTeamMembers] = useState(fallbackTeamMembers);
+  const [usingFallback, setUsingFallback] = useState(false);
+
+  useEffect(() => {
+    actions.fetch();
+  }, [actions]);
+
+  useEffect(() => {
+    if (teamMembers && teamMembers.length > 0) {
+      setDisplayTeamMembers(teamMembers);
+      setUsingFallback(false);
+    } else if (error) {
+      console.log('API error, using fallback team data:', error);
+      setDisplayTeamMembers(fallbackTeamMembers);
+      setUsingFallback(true);
     }
-  ];
+  }, [teamMembers, error]);
 
   const values = [
     {
@@ -165,18 +231,34 @@ const About = () => {
 
       <div className={styles.teamSection}>
         <div className={styles.container}>
+          {usingFallback && (
+            <div className={styles.notification}>
+              <p>⚠️ Unable to connect to server. Showing sample team data.</p>
+            </div>
+          )}
           <h2>Meet Our Team</h2>
           <p className={styles.teamIntro}>
             Our diverse team of AI researchers, software engineers, and business strategists
             brings together decades of experience from top technology companies and research institutions.
           </p>
           <div className={styles.teamGrid}>
-            {teamMembers.map((member, index) => (
-              <div key={index} className={styles.teamCard}>
-                <div className={styles.memberImage}>{member.image}</div>
+            {displayTeamMembers.map((member, index) => (
+              <div key={member.id || index} className={styles.teamCard}>
+                <div className={styles.memberImage}>
+                  {member.image_url ? (
+                    <img src={member.image_url} alt={member.name} />
+                  ) : (
+                    <div className={styles.placeholder}>👤</div>
+                  )}
+                </div>
                 <h3>{member.name}</h3>
-                <div className={styles.memberRole}>{member.role}</div>
+                <div className={styles.memberRole}>{member.position}</div>
                 <p>{member.bio}</p>
+                {member.specialties && (
+                  <div className={styles.specialties}>
+                    <strong>Specialties:</strong> {member.specialties}
+                  </div>
+                )}
               </div>
             ))}
           </div>

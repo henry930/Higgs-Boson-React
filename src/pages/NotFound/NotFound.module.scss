@@ -1,0 +1,144 @@
+@import '../../styles/variables';
+
+.notFound {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  max-width: 1000px;
+  width: 100%;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+}
+
+.content {
+  color: white;
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 900;
+  margin: 0 0 1rem 0;
+  opacity: 0.9;
+  
+  @media (max-width: 768px) {
+    font-size: 3rem;
+  }
+}
+
+.subtitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+  opacity: 0.9;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.homeBtn {
+  background: white;
+  color: var(--color-primary);
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+  }
+}
+
+.adminBtn {
+  background: transparent;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: 2px solid white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: white;
+    color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+}
+
+.illustration {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  
+  @media (max-width: 768px) {
+    height: 200px;
+  }
+}
+
+.circle {
+  width: 200px;
+  height: 200px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  position: absolute;
+  animation: float 3s ease-in-out infinite;
+  
+  @media (max-width: 768px) {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+.text {
+  font-size: 6rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.1);
+  user-select: none;
+  
+  @media (max-width: 768px) {
+    font-size: 4rem;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}

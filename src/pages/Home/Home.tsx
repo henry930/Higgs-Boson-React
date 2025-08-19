@@ -1,11 +1,20 @@
 import { Link } from 'react-router-dom';
 import BenefitCard from '../../components/BenefitCard/BenefitCard';
 import Carousel from '../../components/Carousel/Carousel';
-import { useHomeData } from '../../hooks/useHomeData';
+import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
+import { useAppSelector } from '../../store/hooks';
 import styles from './Home.module.scss';
 
 const Home = () => {
-  const { benefits, processSteps, testimonials, heroSlides, loading, error, isUsingFallback } = useHomeData();
+  const { data, loading, error, apiConnected } = useHomeDataRedux();
+  const { benefits, processSteps, testimonials, heroSlides } = data;
+  
+  // Debug logging
+  console.log('Home component data:', { benefits, processSteps, testimonials, heroSlides });
+  console.log('Home component state:', { loading, error, apiConnected });
+  
+  // Show notification for offline mode
+  const isUsingFallback = !apiConnected;
 
   // Convert data for carousel format
   const testimonialSlides = testimonials.map(testimonial => ({
@@ -16,8 +25,8 @@ const Home = () => {
           <p>"{testimonial.quote}"</p>
           <div className={styles.testimonialAuthor}>
             <div className={styles.authorInfo}>
-              <h4>{testimonial.authorName}</h4>
-              <span>{testimonial.authorTitle}</span>
+              <h4>{testimonial.author_name}</h4>
+              <span>{testimonial.author_title}</span>
             </div>
           </div>
         </div>
@@ -27,7 +36,7 @@ const Home = () => {
 
   const heroCarouselSlides = heroSlides.map(slide => ({
     id: slide.id.toString(),
-    backgroundClass: slide.backgroundClass,
+    backgroundClass: slide.background_class,
     content: (
       <div className={styles.heroSlide}>
         <div className={styles.heroContent}>
@@ -38,11 +47,11 @@ const Home = () => {
             {slide.subtitle}
           </p>
           <div className={styles.heroButtons}>
-            <Link to={slide.primaryButtonLink} className={styles.primaryButton}>
-              {slide.primaryButtonText}
+            <Link to={slide.primary_button_link} className={styles.primaryButton}>
+              {slide.primary_button_text}
             </Link>
-            <Link to={slide.secondaryButtonLink} className={styles.secondaryButton}>
-              {slide.secondaryButtonText}
+            <Link to={slide.secondary_button_link} className={styles.secondaryButton}>
+              {slide.secondary_button_text}
             </Link>
           </div>
         </div>

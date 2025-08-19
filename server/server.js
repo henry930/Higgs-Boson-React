@@ -1,10 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+const createDOMPurify = require('isomorphic-dompurify');
+const { JSDOM } = require('jsdom');
 const { PrismaClient } = require('../src/generated/prisma');
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
+
+// Setup DOMPurify for server-side HTML sanitization
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // Middleware
 app.use(cors());
@@ -74,6 +80,7 @@ app.delete('/api/benefits/:id', async (req, res) => {
 app.get('/api/process-steps', async (req, res) => {
   try {
     const processSteps = await prisma.processStep.findMany({
+      where: { active: true },
       orderBy: { order: 'asc' }
     });
     res.json({ status: 'success', data: processSteps });
@@ -92,6 +99,34 @@ app.post('/api/process-steps', async (req, res) => {
     res.json({ status: 'success', data: processStep });
   } catch (error) {
     console.error('Error creating process step:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.put('/api/process-steps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { number, title, description, order } = req.body;
+    const processStep = await prisma.processStep.update({
+      where: { id: parseInt(id) },
+      data: { number, title, description, order }
+    });
+    res.json({ status: 'success', data: processStep });
+  } catch (error) {
+    console.error('Error updating process step:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.delete('/api/process-steps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.processStep.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ status: 'success' });
+  } catch (error) {
+    console.error('Error deleting process step:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
@@ -159,6 +194,191 @@ app.post('/api/hero-slides', async (req, res) => {
     res.json({ status: 'success', data: heroSlide });
   } catch (error) {
     console.error('Error creating hero slide:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.put('/api/hero-slides/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const heroSlide = await prisma.heroSlide.update({
+      where: { id: parseInt(id) },
+      data: updateData
+    });
+    res.json({ status: 'success', data: heroSlide });
+  } catch (error) {
+    console.error('Error updating hero slide:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.delete('/api/hero-slides/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.heroSlide.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ status: 'success' });
+  } catch (error) {
+    console.error('Error deleting hero slide:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// Pages endpoints
+app.get('/api/pages', async (req, res) => {
+  try {
+    const pages = await prisma.page.findMany({
+      orderBy: { updatedAt: 'desc' }
+    });
+    res.json({ status: 'success', data: pages });
+  } catch (error) {
+    console.error('Error fetching pages:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.get('/api/pages/slug/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const page = await prisma.page.findUnique({
+      where: { slug }
+    });
+    if (!page) {
+      return res.status(404).json({ status: 'error', message: 'Page not found' });
+    }
+    res.json({ status: 'success', data: page });
+  } catch (error) {
+    console.error('Error fetching page by slug:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.post('/api/pages', async (req, res) => {
+  try {
+    const { 
+      title, 
+      slug, 
+      content, 
+      metaTitle, 
+      metaDescription, 
+      published = false, 
+      featured = false,
+      authorName,
+      coverImage,
+      excerpt,
+      tags
+    } = req.body;
+
+    // Sanitize HTML content
+    const sanitizedContent = DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'table', 'thead', 'tbody',
+        'tr', 'td', 'th', 'div', 'span', 'pre', 'code'
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'src', 'alt', 'title', 'class', 'id', 'style']
+    });
+
+    // Check if slug already exists
+    const existingPage = await prisma.page.findUnique({
+      where: { slug }
+    });
+    if (existingPage) {
+      return res.status(400).json({ status: 'error', message: 'Page with this slug already exists' });
+    }
+
+    const page = await prisma.page.create({
+      data: {
+        title,
+        slug,
+        content: sanitizedContent,
+        metaTitle,
+        metaDescription,
+        published: Boolean(published),
+        featured: Boolean(featured),
+        authorName,
+        coverImage,
+        excerpt,
+        tags
+      }
+    });
+    res.json({ status: 'success', data: page });
+  } catch (error) {
+    console.error('Error creating page:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.put('/api/pages/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+    
+    // Sanitize HTML content if provided
+    if (updateData.content) {
+      updateData.content = DOMPurify.sanitize(updateData.content, {
+        ALLOWED_TAGS: [
+          'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+          'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'table', 'thead', 'tbody',
+          'tr', 'td', 'th', 'div', 'span', 'pre', 'code'
+        ],
+        ALLOWED_ATTR: ['href', 'target', 'src', 'alt', 'title', 'class', 'id', 'style']
+      });
+    }
+
+    // Check if slug already exists (if slug is being updated)
+    if (updateData.slug) {
+      const existingPage = await prisma.page.findFirst({
+        where: { 
+          slug: updateData.slug,
+          NOT: { id: parseInt(id) }
+        }
+      });
+      if (existingPage) {
+        return res.status(400).json({ status: 'error', message: 'Page with this slug already exists' });
+      }
+    }
+
+    const page = await prisma.page.update({
+      where: { id: parseInt(id) },
+      data: updateData
+    });
+    res.json({ status: 'success', data: page });
+  } catch (error) {
+    console.error('Error updating page:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.delete('/api/pages/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.page.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ status: 'success' });
+  } catch (error) {
+    console.error('Error deleting page:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+app.post('/api/pages/slug/:slug/views', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const page = await prisma.page.update({
+      where: { slug },
+      data: {
+        viewCount: {
+          increment: 1
+        }
+      }
+    });
+    res.json({ status: 'success', data: page });
+  } catch (error) {
+    console.error('Error incrementing page views:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 });

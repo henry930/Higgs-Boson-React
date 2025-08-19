@@ -66,6 +66,18 @@
 .content {
   max-width: 1200px;
   margin: 0 auto;
+  flex: 1;
+  overflow: auto;
+}
+
+.comingSoon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
+  font-style: italic;
 }
 
 .section {

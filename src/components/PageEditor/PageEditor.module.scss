@@ -1,0 +1,210 @@
+@import '../../styles/variables';
+
+.pageEditor {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  background: var(--color-background);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  
+  h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  
+  button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.cancelBtn {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  
+  &:hover:not(:disabled) {
+    background: var(--color-surface-hover);
+  }
+}
+
+.saveBtn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  
+  &:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+  }
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  padding: 2rem;
+  overflow: auto;
+  flex: 1;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+}
+
+.mainFields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    order: -1;
+  }
+}
+
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: var(--color-text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .field {
+    margin-bottom: 1rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  label {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  input, textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
+    &::placeholder {
+      color: var(--color-text-secondary);
+    }
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  small {
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.checkboxField {
+  margin-bottom: 0.75rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: normal;
+    
+    input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+  }
+}
+
+// TinyMCE editor styling adjustments
+:global(.tox-tinymce) {
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+}
+
+:global(.tox-toolbar__overflow) {
+  background: var(--color-surface) !important;
+}
+
+:global(.tox-edit-area__iframe) {
+  background: var(--color-background) !important;
+}
+
+// Dark theme support
+:global([data-theme="dark"]) {
+  .pageEditor {
+    :global(.tox-tinymce) {
+      background: var(--color-surface) !important;
+    }
+    
+    :global(.tox-toolbar) {
+      background: var(--color-surface) !important;
+      border-color: var(--color-border) !important;
+    }
+    
+    :global(.tox-toolbar__group) {
+      border-color: var(--color-border) !important;
+    }
+  }
+}
