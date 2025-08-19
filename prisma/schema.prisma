@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Benefit {
+  id          Int      @id @default(autoincrement())
+  icon        String
+  title       String
+  description String
+  order       Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("benefits")
+}
+
+model ProcessStep {
+  id          Int      @id @default(autoincrement())
+  number      String
+  title       String
+  description String
+  order       Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("process_steps")
+}
+
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+  quote       String
+  authorName  String   @map("author_name")
+  authorTitle String   @map("author_title")
+  authorImage String?  @map("author_image")
+  order       Int
+  active      Boolean  @default(true)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model HeroSlide {
+  id                    Int      @id @default(autoincrement())
+  title                 String
+  subtitle              String
+  primaryButtonText     String   @map("primary_button_text")
+  primaryButtonLink     String   @map("primary_button_link")
+  secondaryButtonText   String   @map("secondary_button_text")
+  secondaryButtonLink   String   @map("secondary_button_link")
+  backgroundClass       String   @map("background_class")
+  backgroundImage       String   @map("background_image")
+  order                 Int
+  active                Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("hero_slides")
+}

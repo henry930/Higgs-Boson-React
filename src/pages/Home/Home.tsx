@@ -1,128 +1,94 @@
 import { Link } from 'react-router-dom';
 import BenefitCard from '../../components/BenefitCard/BenefitCard';
 import Carousel from '../../components/Carousel/Carousel';
+import { useHomeData } from '../../hooks/useHomeData';
 import styles from './Home.module.scss';
 
 const Home = () => {
-  const benefits = [
-    {
-      icon: '💰',
-      title: '70% Cost Reduction',
-      description: 'Dramatically reduce development costs while maintaining enterprise-quality standards and faster delivery times.'
-    },
-    {
-      icon: '⚡',
-      title: '75% Faster Delivery',
-      description: 'Deploy large-scale applications in weeks, not months, with our AI-accelerated development process.'
-    },
-    {
-      icon: '👥',
-      title: 'Lean Expert Teams',
-      description: 'Achieve superior results with smaller teams focused on strategy, management, and quality oversight.'
-    },
-    {
-      icon: '⭐',
-      title: 'Enterprise Quality',
-      description: 'AI-assisted development with human expertise ensures exceptional quality and reliability.'
-    }
-  ];
+  const { benefits, processSteps, testimonials, heroSlides, loading, error, isUsingFallback } = useHomeData();
 
-  const processSteps = [
-    {
-      number: '1',
-      title: 'Discovery & Strategy',
-      description: 'We analyze your requirements and create a comprehensive development strategy using AI-assisted project planning and risk assessment.'
-    },
-    {
-      number: '2',
-      title: 'AI-Accelerated Development',
-      description: 'Our expert teams leverage cutting-edge AI tools to accelerate coding, testing, and deployment while ensuring quality standards.'
-    },
-    {
-      number: '3',
-      title: 'Delivery & Evolution',
-      description: 'Expert project managers ensure seamless delivery and provide ongoing maintenance, updates, and feature enhancements.'
-    }
-  ];
+  // Convert data for carousel format
+  const testimonialSlides = testimonials.map(testimonial => ({
+    id: testimonial.id.toString(),
+    content: (
+      <div className={styles.testimonial}>
+        <div className={styles.testimonialContent}>
+          <p>"{testimonial.quote}"</p>
+          <div className={styles.testimonialAuthor}>
+            <div className={styles.authorInfo}>
+              <h4>{testimonial.authorName}</h4>
+              <span>{testimonial.authorTitle}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }));
 
-  const testimonials = [
-    {
-      id: '1',
-      content: (
-        <div className={styles.testimonial}>
-          <div className={styles.testimonialContent}>
-            <p>"Higgs Boson Consultancy transformed our development process completely. We delivered our major product launch 3 months ahead of schedule with 60% cost savings."</p>
-            <div className={styles.testimonialAuthor}>
-              <div className={styles.authorInfo}>
-                <h4>Sarah Johnson</h4>
-                <span>CTO, TechFlow Solutions</span>
-              </div>
-            </div>
+  const heroCarouselSlides = heroSlides.map(slide => ({
+    id: slide.id.toString(),
+    backgroundClass: slide.backgroundClass,
+    content: (
+      <div className={styles.heroSlide}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>
+            {slide.title}
+          </h1>
+          <p className={styles.heroSubtitle}>
+            {slide.subtitle}
+          </p>
+          <div className={styles.heroButtons}>
+            <Link to={slide.primaryButtonLink} className={styles.primaryButton}>
+              {slide.primaryButtonText}
+            </Link>
+            <Link to={slide.secondaryButtonLink} className={styles.secondaryButton}>
+              {slide.secondaryButtonText}
+            </Link>
           </div>
         </div>
-      )
-    },
-    {
-      id: '2',
-      content: (
-        <div className={styles.testimonial}>
-          <div className={styles.testimonialContent}>
-            <p>"The AI-powered development approach is revolutionary. Our team productivity increased by 75% while maintaining the highest quality standards."</p>
-            <div className={styles.testimonialAuthor}>
-              <div className={styles.authorInfo}>
-                <h4>Michael Chen</h4>
-                <span>VP Engineering, DataVision Corp</span>
-              </div>
-            </div>
-          </div>
+      </div>
+    )
+  }));
+
+  if (loading) {
+    return (
+      <div className={styles.home}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading...</p>
         </div>
-      )
-    },
-    {
-      id: '3',
-      content: (
-        <div className={styles.testimonial}>
-          <div className={styles.testimonialContent}>
-            <p>"Working with Higgs Boson was a game-changer. They delivered enterprise-grade solutions that would have taken our team 12 months in just 3 months."</p>
-            <div className={styles.testimonialAuthor}>
-              <div className={styles.authorInfo}>
-                <h4>Emily Rodriguez</h4>
-                <span>Product Director, InnovateLab</span>
-              </div>
-            </div>
-          </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.home}>
+        <div className={styles.errorContainer}>
+          <h2>Error Loading Content</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
-      )
-    }
-  ];
+      </div>
+    );
+  }
 
   return (
     <div className={styles.home}>
-      <section className={styles.heroSection}>
-        <div className="container">
-          <div className={styles.heroContent}>
-            <div className={styles.heroText}>
-              <h1 className={styles.heroTitle}>
-                Revolutionizing Software Development with AI
-              </h1>
-              <p className={styles.heroSubtitle}>
-                Transform your business with our innovative AI-powered software development approach. 
-                Reduce costs by up to 70%, accelerate delivery, and maintain excellence with fewer resources.
-              </p>
-              <div className={styles.heroButtons}>
-                <Link to="/services" className={styles.primaryButton}>
-                  🚀 Explore Our Services
-                </Link>
-                <Link to="/contact" className={styles.secondaryButton}>
-                  → Get Started Today
-                </Link>
-              </div>
-            </div>
-            <div className={styles.heroVisual}>
-              <div className={styles.brainIcon}>🧠</div>
-            </div>
-          </div>
+      {isUsingFallback && (
+        <div className={styles.fallbackNotice}>
+          <p>⚠️ Using offline content - some features may be limited</p>
         </div>
+      )}
+      <section className={styles.heroSection}>
+        <Carousel 
+          items={heroCarouselSlides}
+          autoPlay={true}
+          autoPlayInterval={8000}
+          showDots={true}
+          showArrows={true}
+          className={styles.heroCarousel}
+        />
       </section>
 
       <section className={styles.benefitsSection}>
@@ -176,7 +142,7 @@ const Home = () => {
               Don't just take our word for it. Hear from industry leaders who have transformed their businesses with our AI-powered solutions.
             </p>
             <Carousel 
-              items={testimonials}
+              items={testimonialSlides}
               autoPlay={true}
               autoPlayInterval={6000}
               showDots={true}

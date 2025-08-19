@@ -1,0 +1,258 @@
+@use 'sass:color';
+@use '../../styles/variables' as *;
+
+.admin {
+  min-height: 100vh;
+  background: $gray-50;
+  padding: $space-xl;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $space-2xl;
+
+  h1 {
+    font-family: $font-heading;
+    font-size: $font-4xl;
+    color: $dark-color;
+    margin-bottom: $space-md;
+  }
+
+  p {
+    color: $gray-600;
+    font-size: $font-lg;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: $font-xl;
+  color: $gray-600;
+}
+
+.tabs {
+  display: flex;
+  gap: $space-md;
+  margin-bottom: $space-2xl;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .tab {
+    padding: $space-md $space-lg;
+    border: 2px solid $gray-300;
+    background: white;
+    border-radius: $radius-md;
+    cursor: pointer;
+    font-weight: $font-medium;
+    transition: all $transition-normal;
+    color: $gray-700;
+
+    &:hover {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+
+    &.active {
+      background: $primary-color;
+      border-color: $primary-color;
+      color: white;
+    }
+  }
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section {
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-2xl;
+    color: $dark-color;
+    margin-bottom: $space-xl;
+    text-align: center;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: $space-lg;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $space-md;
+  }
+}
+
+.card {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  box-shadow: $shadow-sm;
+  border: 2px solid transparent;
+  transition: all $transition-normal;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $primary-color;
+  }
+
+  &.inactive {
+    opacity: 0.6;
+    background: $gray-100;
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-md;
+
+    .icon {
+      font-size: $font-2xl;
+    }
+
+    .stepNumber {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: $primary-color;
+      color: white;
+      border-radius: 50%;
+      font-weight: $font-bold;
+    }
+
+    .order {
+      font-size: $font-sm;
+      color: $gray-600;
+      background: $gray-100;
+      padding: $space-xs $space-sm;
+      border-radius: $radius-sm;
+    }
+
+    .featured {
+      font-size: $font-sm;
+      color: white;
+      background: $accent-color;
+      padding: $space-xs $space-sm;
+      border-radius: $radius-sm;
+      font-weight: $font-medium;
+    }
+
+    .backgroundClass {
+      font-size: $font-xs;
+      color: $gray-600;
+      background: $gray-200;
+      padding: $space-xs $space-sm;
+      border-radius: $radius-sm;
+      font-family: monospace;
+    }
+  }
+
+  h3 {
+    font-family: $font-heading;
+    font-size: $font-lg;
+    color: $dark-color;
+    margin-bottom: $space-sm;
+  }
+
+  p, blockquote {
+    color: $gray-700;
+    line-height: 1.6;
+    margin-bottom: $space-md;
+  }
+
+  blockquote {
+    font-style: italic;
+    border-left: 4px solid $primary-color;
+    padding-left: $space-md;
+    margin-left: 0;
+  }
+
+  .author {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+    margin-bottom: $space-md;
+
+    strong {
+      color: $dark-color;
+    }
+
+    span {
+      color: $gray-600;
+      font-size: $font-sm;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+    margin-bottom: $space-md;
+
+    span {
+      font-size: $font-sm;
+      color: $gray-600;
+    }
+  }
+
+  .cardActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid $gray-200;
+    padding-top: $space-md;
+
+    .toggleBtn {
+      padding: $space-xs $space-md;
+      border: none;
+      border-radius: $radius-sm;
+      cursor: pointer;
+      font-weight: $font-medium;
+      transition: all $transition-normal;
+
+      &.active {
+        background: $success-color;
+        color: white;
+
+        &:hover {
+          background: color.adjust($success-color, $lightness: -10%);
+        }
+      }
+
+      &.inactive {
+        background: $gray-300;
+        color: $gray-700;
+
+        &:hover {
+          background: $gray-400;
+        }
+      }
+    }
+
+    .status {
+      padding: $space-xs $space-md;
+      border-radius: $radius-sm;
+      font-size: $font-sm;
+      font-weight: $font-medium;
+
+      &.active {
+        background: $success-color;
+        color: white;
+      }
+
+      &.inactive {
+        background: $gray-300;
+        color: $gray-700;
+      }
+    }
+  }
+}

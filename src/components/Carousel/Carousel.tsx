@@ -4,6 +4,7 @@ import styles from './Carousel.module.scss';
 interface CarouselItem {
   id: string;
   content: React.ReactNode;
+  backgroundClass?: string;
 }
 
 interface CarouselProps {
@@ -63,7 +64,10 @@ const Carousel = ({
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {items.map((item) => (
-            <div key={item.id} className={styles.carouselSlide}>
+            <div 
+              key={item.id} 
+              className={`${styles.carouselSlide} ${item.backgroundClass ? styles[item.backgroundClass] : ''}`}
+            >
               {item.content}
             </div>
           ))}
