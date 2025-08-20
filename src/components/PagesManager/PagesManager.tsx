@@ -156,10 +156,10 @@ const PagesManager: React.FC = () => {
                     )}
                   </div>
                   <div className={styles.viewsCell}>
-                    {page.viewCount || 0}
+                    {page.view_count || 0}
                   </div>
                   <div className={styles.dateCell}>
-                    {formatDate(page.updatedAt)}
+                    {formatDate(page.updated_at)}
                   </div>
                   <div className={styles.actionsCell}>
                     <button

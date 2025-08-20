@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import BenefitCard from '../../components/BenefitCard/BenefitCard';
 import Carousel from '../../components/Carousel/Carousel';
 import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
-import { useAppSelector } from '../../store/hooks';
 import styles from './Home.module.scss';
 
 const Home = () => {

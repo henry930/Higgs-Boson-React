@@ -76,7 +76,7 @@ const fallbackTeamMembers = [
 ];
 
 const About = () => {
-  const { teamMembers, loading, actions, error } = useTeam();
+  const { teamMembers, actions, error } = useTeam();
   const [displayTeamMembers, setDisplayTeamMembers] = useState(fallbackTeamMembers);
   const [usingFallback, setUsingFallback] = useState(false);
 

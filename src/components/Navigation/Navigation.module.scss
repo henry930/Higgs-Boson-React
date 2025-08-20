@@ -115,6 +115,19 @@
       &.active {
         color: #6366f1;
       }
+
+      &.adminLink {
+        color: #059669;
+        font-weight: 600;
+
+        &:hover {
+          color: #065f46;
+        }
+
+        &.active {
+          color: #065f46;
+        }
+      }
     }
 
     .themeToggle {
@@ -185,6 +198,21 @@
         &.active {
           color: #6366f1;
           background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        &.adminLink {
+          color: #059669;
+          font-weight: 600;
+
+          &:hover {
+            color: #065f46;
+            background-color: rgba(5, 150, 105, 0.1);
+          }
+
+          &.active {
+            color: #065f46;
+            background-color: rgba(5, 150, 105, 0.1);
+          }
         }
       }
 

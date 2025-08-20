@@ -8,8 +8,19 @@ const DynamicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { currentPage, loading, error, fetchPageBySlug, incrementPageViews, clearCurrentPage } = usePages();
 
+  console.log('DynamicPage Debug:', {
+    slug,
+    currentPage,
+    loading,
+    error,
+    hasCurrentPage: !!currentPage,
+    currentPageData: currentPage
+  });
+
   useEffect(() => {
+    console.log('DynamicPage useEffect triggered with slug:', slug);
     if (slug) {
+      console.log('Calling fetchPageBySlug for slug:', slug);
       fetchPageBySlug(slug);
       
       // Increment page views after a short delay (to avoid counting quick navigation away)
@@ -67,12 +78,12 @@ const DynamicPage: React.FC = () => {
   return (
     <div className={styles.dynamicPage}>
       {/* SEO Meta Tags */}
-      <title>{currentPage.metaTitle || currentPage.title}</title>
-      <meta name="description" content={currentPage.metaDescription || currentPage.excerpt || ''} />
+      <title>{currentPage.meta_title || currentPage.title}</title>
+      <meta name="description" content={currentPage.meta_description || currentPage.excerpt || ''} />
       
-      {currentPage.coverImage && (
+      {currentPage.cover_image && (
         <div className={styles.coverImage}>
-          <img src={currentPage.coverImage} alt={currentPage.title} />
+          <img src={currentPage.cover_image} alt={currentPage.title} />
         </div>
       )}
       
@@ -81,17 +92,17 @@ const DynamicPage: React.FC = () => {
           <h1 className={styles.title}>{currentPage.title}</h1>
           
           <div className={styles.meta}>
-            {currentPage.authorName && (
-              <span className={styles.author}>By {currentPage.authorName}</span>
+            {currentPage.author_name && (
+              <span className={styles.author}>By {currentPage.author_name}</span>
             )}
-            {currentPage.createdAt && (
+            {currentPage.created_at && (
               <span className={styles.date}>
-                Published on {formatDate(currentPage.createdAt)}
+                Published on {formatDate(currentPage.created_at)}
               </span>
             )}
-            {currentPage.viewCount > 0 && (
+            {currentPage.view_count > 0 && (
               <span className={styles.views}>
-                {currentPage.viewCount} view{currentPage.viewCount !== 1 ? 's' : ''}
+                {currentPage.view_count} view{currentPage.view_count !== 1 ? 's' : ''}
               </span>
             )}
           </div>

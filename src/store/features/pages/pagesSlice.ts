@@ -38,12 +38,17 @@ export const fetchPageBySlug = createAsyncThunk(
   'pages/fetchPageBySlug',
   async (slug: string, { rejectWithValue }) => {
     try {
+      console.log('fetchPageBySlug called with slug:', slug);
       const response = await apiService.getPageBySlug(slug);
+      console.log('fetchPageBySlug API response:', response);
       if (response.status === 'success' && response.data) {
+        console.log('fetchPageBySlug success, returning data:', response.data);
         return response.data;
       }
+      console.log('fetchPageBySlug failed, throwing error:', response.message);
       throw new Error(response.message || 'Page not found');
     } catch (error) {
+      console.log('fetchPageBySlug caught error:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
     }
   }

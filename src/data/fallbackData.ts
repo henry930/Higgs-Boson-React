@@ -40,27 +40,33 @@ export const fallbackData = {
   processSteps: [
     {
       id: 1,
-      number: "1",
+      number: 1,
       title: "Discovery & Strategy",
       description: "We analyze your requirements and create a comprehensive development strategy using AI-assisted project planning and risk assessment.",
       order: 1,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 2, 
-      number: "2",
+      number: 2,
       title: "AI-Accelerated Development",
       description: "Our expert teams leverage cutting-edge AI tools to accelerate coding, testing, and deployment while ensuring quality standards.",
       order: 2,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 3,
-      number: "3", 
+      number: 3, 
       title: "Delivery & Evolution",
       description: "Expert project managers ensure seamless delivery and provide ongoing maintenance, updates, and feature enhancements.",
       order: 3,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   ] as ProcessStep[],
 
@@ -68,32 +74,41 @@ export const fallbackData = {
     {
       id: 1,
       quote: "Higgs Boson Consultancy transformed our development process completely. We delivered our major product launch 3 months ahead of schedule with 60% cost savings.",
-      authorName: "Sarah Johnson",
-      authorTitle: "CTO, TechFlow Solutions", 
-      authorImage: "",
+      author_name: "Sarah Johnson",
+      author_title: "CTO", 
+      company: "TechFlow Solutions",
+      rating: 5,
       order: 1,
       active: true,
-      featured: true
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 2,
       quote: "The AI-powered development approach is revolutionary. Our team productivity increased by 75% while maintaining the highest quality standards.",
-      authorName: "Michael Chen",
-      authorTitle: "VP Engineering, DataVision Corp",
-      authorImage: "",
+      author_name: "Michael Chen",
+      author_title: "VP Engineering",
+      company: "DataVision Corp",
+      rating: 5,
       order: 2,
       active: true,
-      featured: true
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 3,
       quote: "Working with Higgs Boson was a game-changer. They delivered enterprise-grade solutions that would have taken our team 12 months in just 3 months.",
-      authorName: "Emily Rodriguez", 
-      authorTitle: "Product Director, InnovateLab",
-      authorImage: "",
+      author_name: "Emily Rodriguez", 
+      author_title: "Product Director",
+      company: "InnovateLab",
+      rating: 5,
       order: 3,
       active: true,
-      featured: true
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   ] as Testimonial[],
 
@@ -102,40 +117,43 @@ export const fallbackData = {
       id: 1,
       title: "Revolutionize Your Software Development with AI",
       subtitle: "Accelerate delivery by 75% and reduce costs by 70% with our AI-powered development platform. Experience the future of software engineering today.",
-      primaryButtonText: "Start Your Project",
-      primaryButtonLink: "/contact",
-      secondaryButtonText: "View Services", 
-      secondaryButtonLink: "/services",
-      backgroundClass: "aiDevelopment",
-      backgroundImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+      primary_button_text: "Start Your Project",
+      primary_button_link: "/contact",
+      secondary_button_text: "View Services", 
+      secondary_button_link: "/services",
+      background_class: "aiDevelopment",
       order: 1,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 2,
       title: "Enterprise-Grade AI Solutions",
       subtitle: "Transform your business with cutting-edge AI technologies. From machine learning to automation, we deliver solutions that scale with your growth.", 
-      primaryButtonText: "Get Started",
-      primaryButtonLink: "/contact",
-      secondaryButtonText: "Learn More",
-      secondaryButtonLink: "/about",
-      backgroundClass: "enterpriseSolutions",
-      backgroundImage: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+      primary_button_text: "Get Started",
+      primary_button_link: "/contact",
+      secondary_button_text: "Learn More",
+      secondary_button_link: "/about",
+      background_class: "enterpriseSolutions",
       order: 2,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     },
     {
       id: 3,
       title: "Expert Teams, Proven Results",
       subtitle: "Work with seasoned AI researchers and developers who have delivered 100+ successful projects for companies ranging from startups to Fortune 500 enterprises.",
-      primaryButtonText: "Schedule Consultation", 
-      primaryButtonLink: "/contact",
-      secondaryButtonText: "See Case Studies",
-      secondaryButtonLink: "/services",
-      backgroundClass: "expertTeams",
-      backgroundImage: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+      primary_button_text: "Schedule Consultation", 
+      primary_button_link: "/contact",
+      secondary_button_text: "See Case Studies",
+      secondary_button_link: "/services",
+      background_class: "expertTeams",
       order: 3,
-      active: true
+      active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   ] as HeroSlide[]
 };

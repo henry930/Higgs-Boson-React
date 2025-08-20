@@ -197,7 +197,7 @@ class ApiService {
   }
 
   async getPageBySlug(slug: string) {
-    return this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}`);
+    return this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}/`);
   }
 
   async createPage(page: any) {

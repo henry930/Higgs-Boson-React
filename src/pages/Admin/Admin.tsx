@@ -1,69 +1,81 @@
-import { useState } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import PagesManager from '../../components/PagesManager/PagesManager';
+import PageEditor from '../../components/PageEditor/PageEditor';
 import styles from './Admin.module.scss';
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'pages' | 'benefits' | 'process' | 'testimonials' | 'hero'>('pages');
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'pages':
-        return <PagesManager />;
-      case 'benefits':
-        return <div className={styles.comingSoon}>Benefits management coming soon...</div>;
-      case 'process':
-        return <div className={styles.comingSoon}>Process steps management coming soon...</div>;
-      case 'testimonials':
-        return <div className={styles.comingSoon}>Testimonials management coming soon...</div>;
-      case 'hero':
-        return <div className={styles.comingSoon}>Hero slides management coming soon...</div>;
-      default:
-        return <PagesManager />;
-    }
-  };
-
+  const location = useLocation();
+  
   return (
     <div className={styles.admin}>
       <div className={styles.header}>
         <h1>Admin Panel</h1>
-        <p>Manage your website content and settings</p>
-      </div>
-
-      <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'pages' ? styles.active : ''}`}
-          onClick={() => setActiveTab('pages')}
-        >
-          Pages
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'benefits' ? styles.active : ''}`}
-          onClick={() => setActiveTab('benefits')}
-        >
-          Benefits
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'process' ? styles.active : ''}`}
-          onClick={() => setActiveTab('process')}
-        >
-          Process Steps
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'testimonials' ? styles.active : ''}`}
-          onClick={() => setActiveTab('testimonials')}
-        >
-          Testimonials
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'hero' ? styles.active : ''}`}
-          onClick={() => setActiveTab('hero')}
-        >
-          Hero Slides
-        </button>
+        <p>Manage your website content and create articles</p>
+        <div className={styles.nav}>
+          <Link 
+            to="/admin" 
+            className={location.pathname === '/admin' ? styles.active : ''}
+          >
+            Dashboard
+          </Link>
+          <Link 
+            to="/admin/pages" 
+            className={location.pathname === '/admin/pages' ? styles.active : ''}
+          >
+            Manage Pages
+          </Link>
+          <Link 
+            to="/admin/create-article" 
+            className={`${styles.createBtn} ${location.pathname === '/admin/create-article' ? styles.active : ''}`}
+          >
+            ✍️ Create Article
+          </Link>
+        </div>
       </div>
 
       <div className={styles.content}>
-        {renderTabContent()}
+        <Routes>
+          <Route path="/" element={<AdminDashboard />} />
+          <Route path="/pages" element={<PagesManager />} />
+          <Route path="/create-article" element={<PageEditor isStandalone={true} />} />
+        </Routes>
+      </div>
+    </div>
+  );
+};
+
+const AdminDashboard = () => {
+  return (
+    <div className={styles.dashboard}>
+      <h2>Welcome to Your Article Creation System!</h2>
+      <p>Create dynamic pages and articles for your website with our HTML editor.</p>
+      
+      <div className={styles.quickActions}>
+        <Link to="/admin/create-article" className={styles.primaryAction}>
+          <div className={styles.actionIcon}>✍️</div>
+          <div>
+            <h3>Create New Article</h3>
+            <p>Write and publish articles with our rich HTML editor</p>
+          </div>
+        </Link>
+        
+        <Link to="/admin/pages" className={styles.secondaryAction}>
+          <div className={styles.actionIcon}>📄</div>
+          <div>
+            <h3>Manage Pages</h3>
+            <p>Edit, delete, or view all your created pages</p>
+          </div>
+        </Link>
+      </div>
+
+      <div className={styles.howItWorks}>
+        <h3>How to Create Articles:</h3>
+        <ol>
+          <li><strong>Click "Create New Article"</strong> - Start with our rich HTML editor</li>
+          <li><strong>Write Your Content</strong> - Use the editor to format text, add images, and create beautiful layouts</li>
+          <li><strong>Set URL Slug</strong> - Choose a custom URL like "my-awesome-article"</li>
+          <li><strong>Publish</strong> - Your article will be live at <code>/page/your-slug</code></li>
+        </ol>
       </div>
     </div>
   );

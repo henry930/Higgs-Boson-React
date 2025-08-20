@@ -10,6 +10,10 @@
 .header {
   text-align: center;
   margin-bottom: $space-2xl;
+  background: white;
+  padding: $space-xl;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
 
   h1 {
     font-family: $font-heading;
@@ -21,6 +25,194 @@
   p {
     color: $gray-600;
     font-size: $font-lg;
+    margin-bottom: $space-lg;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: $space-lg;
+    flex-wrap: wrap;
+
+    a {
+      padding: $space-md $space-xl;
+      background: $gray-100;
+      color: $dark-color;
+      text-decoration: none;
+      border-radius: $border-radius-md;
+      transition: all 0.3s ease;
+      font-weight: 500;
+
+      &:hover {
+        background: $primary-color;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      &.active {
+        background: $primary-color;
+        color: white;
+      }
+
+      &.createBtn {
+        background: $success-color;
+        color: white;
+
+        &:hover {
+          background: darken($success-color, 10%);
+        }
+      }
+    }
+  }
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard {
+  background: white;
+  padding: $space-2xl;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+
+  h2 {
+    font-family: $font-heading;
+    font-size: $font-3xl;
+    color: $dark-color;
+    margin-bottom: $space-md;
+    text-align: center;
+  }
+
+  > p {
+    text-align: center;
+    color: $gray-600;
+    font-size: $font-lg;
+    margin-bottom: $space-2xl;
+  }
+
+  .quickActions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $space-xl;
+    margin-bottom: $space-2xl;
+
+    .primaryAction,
+    .secondaryAction {
+      display: flex;
+      align-items: center;
+      gap: $space-lg;
+      padding: $space-xl;
+      border-radius: $border-radius-lg;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+
+      .actionIcon {
+        font-size: 3rem;
+        flex-shrink: 0;
+      }
+
+      h3 {
+        font-family: $font-heading;
+        font-size: $font-xl;
+        margin-bottom: $space-sm;
+      }
+
+      p {
+        color: $gray-600;
+        margin: 0;
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: $shadow-lg;
+      }
+    }
+
+    .primaryAction {
+      background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+      color: white;
+
+      h3, p {
+        color: white;
+      }
+
+      p {
+        opacity: 0.9;
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, darken($primary-color, 5%), $primary-color);
+      }
+    }
+
+    .secondaryAction {
+      background: $gray-50;
+      color: $dark-color;
+      border-color: $gray-200;
+
+      &:hover {
+        border-color: $primary-color;
+        background: $gray-100;
+      }
+    }
+  }
+
+  .howItWorks {
+    background: $gray-50;
+    padding: $space-xl;
+    border-radius: $border-radius-lg;
+    border-left: 4px solid $primary-color;
+
+    h3 {
+      font-family: $font-heading;
+      color: $dark-color;
+      margin-bottom: $space-lg;
+    }
+
+    ol {
+      list-style: none;
+      counter-reset: step-counter;
+      padding: 0;
+
+      li {
+        counter-increment: step-counter;
+        margin-bottom: $space-lg;
+        padding-left: $space-2xl;
+        position: relative;
+
+        &:before {
+          content: counter(step-counter);
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: $primary-color;
+          color: white;
+          width: 2rem;
+          height: 2rem;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: $font-sm;
+        }
+
+        strong {
+          color: $primary-color;
+        }
+
+        code {
+          background: $gray-200;
+          padding: 0.25rem 0.5rem;
+          border-radius: $border-radius-sm;
+          font-family: monospace;
+          font-size: $font-sm;
+        }
+      }
+    }
   }
 }
 

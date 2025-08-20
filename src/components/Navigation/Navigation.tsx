@@ -44,6 +44,7 @@ const Navigation = () => {
     { path: '/about', label: 'About' },
     { path: '/services', label: 'Services' },
     { path: '/contact', label: 'Contact' },
+    { path: '/admin', label: 'Admin', isAdmin: true },
   ];
 
   const toggleMobileMenu = () => {
@@ -73,10 +74,10 @@ const Navigation = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`${styles.navLink} ${location.pathname === item.path ? styles.active : ''}`}
+                className={`${styles.navLink} ${location.pathname === item.path ? styles.active : ''} ${item.isAdmin ? styles.adminLink : ''}`}
                 onClick={() => handleNavClick(item.label)}
               >
-                {item.label}
+                {item.isAdmin && '⚙️ '}{item.label}
               </Link>
             ))}
             
@@ -106,10 +107,10 @@ const Navigation = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`${styles.mobileNavLink} ${location.pathname === item.path ? styles.active : ''}`}
+                className={`${styles.mobileNavLink} ${location.pathname === item.path ? styles.active : ''} ${item.isAdmin ? styles.adminLink : ''}`}
                 onClick={() => handleNavClick(item.label)}
               >
-                {item.label}
+                {item.isAdmin && '⚙️ '}{item.label}
               </Link>
             ))}
             
