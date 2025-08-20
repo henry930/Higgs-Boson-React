@@ -1,21 +1,20 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '../test/test-utils'
-import Services from '../pages/Services/Services'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '../test-utils'
+import Services from '../../pages/Services/Services'
 
 // Mock the API service
-vi.mock('../services/apiService', () => ({
+vi.mock('../../services/apiService', () => ({
   apiService: {
     getServices: vi.fn()
   }
 }))
 
 // Mock the useServices hook
-vi.mock('../hooks/services/useServices', () => ({
+vi.mock('../../hooks/services/useServices', () => ({
   useServices: vi.fn()
 }))
 
-import { useServices } from '../hooks/services/useServices'
-import { apiService } from '../services/apiService'
+import { useServices } from '../../hooks/services/useServices'
 
 describe('Services Component', () => {
   const mockServices = [
