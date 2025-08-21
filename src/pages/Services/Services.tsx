@@ -72,6 +72,7 @@ const fallbackServices: Service[] = [
 ];
 
 const Services = () => {
+  console.log('✅ Services component loaded');
   const { services, loading, error, actions } = useServices();
   const [usingFallback, setUsingFallback] = useState(false);
   const [displayServices, setDisplayServices] = useState<Service[]>([]);

@@ -8,15 +8,11 @@ const DynamicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { currentPage, loading, error, fetchPageBySlug, incrementPageViews } = usePages();
 
+  console.log('🔍 DynamicPage loaded with slug:', slug);
+
   // If there's no slug or it's empty, redirect to home
   if (!slug || slug.trim() === '') {
     return <Navigate to="/" replace />;
-  }
-
-  // Reserved route names that should not be handled as dynamic pages
-  const reservedRoutes = ['about', 'services', 'contact', 'admin', '404'];
-  if (reservedRoutes.includes(slug.toLowerCase())) {
-    return <Navigate to="/404" replace />;
   }
 
   useEffect(() => {
