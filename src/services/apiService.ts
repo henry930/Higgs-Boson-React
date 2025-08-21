@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export interface ApiResponse<T> {
   status: 'success' | 'error';
@@ -17,7 +17,8 @@ class ApiService {
       
       const response = await fetch(url, {
         headers: {
-          'Content-Type': 'application/json',
+          // Only add Content-Type for non-GET requests
+          ...(options.method && options.method !== 'GET' ? { 'Content-Type': 'application/json' } : {}),
           ...options.headers,
         },
         ...options,
@@ -34,6 +35,11 @@ class ApiService {
       return data;
     } catch (error) {
       console.error(`API Error for ${endpoint}:`, error);
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       return {
         status: 'error',
         message: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -197,7 +203,10 @@ class ApiService {
   }
 
   async getPageBySlug(slug: string) {
-    return this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}/`);
+    console.log('📡 ApiService.getPageBySlug called with slug:', slug);
+    const result = await this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}/`);
+    console.log('📥 ApiService.getPageBySlug result:', result);
+    return result;
   }
 
   async createPage(page: any) {
@@ -221,7 +230,7 @@ class ApiService {
   }
 
   async incrementPageViews(slug: string) {
-    return this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}/views`, {
+    return this.request<any>(`/api/pages/slug/${encodeURIComponent(slug)}/views/`, {
       method: 'POST',
     });
   }

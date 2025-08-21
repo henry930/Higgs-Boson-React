@@ -30,10 +30,9 @@ function App() {
                   <Route path="/services" element={<Services />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/admin/*" element={<Admin />} />
-                  {/* Dynamic page route for user-created articles */}
-                  <Route path="/page/:slug" element={<DynamicPage />} />
-                  {/* 404 fallback */}
                   <Route path="/404" element={<NotFound />} />
+                  {/* Dynamic page route for user-created articles - must be last before catch-all */}
+                  <Route path="/:slug" element={<DynamicPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

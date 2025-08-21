@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-&)7^c+1)@#j&5icv(ti#7vh#co-z%7ypxfzqjhudi_!78$0d!w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -63,7 +63,26 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5175",
 ]
 
+# For development, allow all origins (remove in production)
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Disable CSRF for API endpoints in development
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
 # REST Framework configuration
 REST_FRAMEWORK = {

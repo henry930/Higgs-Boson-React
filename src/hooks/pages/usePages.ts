@@ -18,7 +18,10 @@ export const usePages = () => {
 
   const handleFetchPages = () => dispatch(fetchPages());
   
-  const handleFetchPageBySlug = (slug: string) => dispatch(fetchPageBySlug(slug));
+  const handleFetchPageBySlug = (slug: string) => {
+    const action = dispatch(fetchPageBySlug(slug));
+    return action;
+  };
   
   const handleCreatePage = (pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt' | 'viewCount'>) => 
     dispatch(createPage(pageData));

@@ -6,21 +6,21 @@ import styles from './DynamicPage.module.scss';
 
 const DynamicPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { currentPage, loading, error, fetchPageBySlug, incrementPageViews, clearCurrentPage } = usePages();
+  const { currentPage, loading, error, fetchPageBySlug, incrementPageViews } = usePages();
 
-  console.log('DynamicPage Debug:', {
-    slug,
-    currentPage,
-    loading,
-    error,
-    hasCurrentPage: !!currentPage,
-    currentPageData: currentPage
-  });
+  // If there's no slug or it's empty, redirect to home
+  if (!slug || slug.trim() === '') {
+    return <Navigate to="/" replace />;
+  }
+
+  // Reserved route names that should not be handled as dynamic pages
+  const reservedRoutes = ['about', 'services', 'contact', 'admin', '404'];
+  if (reservedRoutes.includes(slug.toLowerCase())) {
+    return <Navigate to="/404" replace />;
+  }
 
   useEffect(() => {
-    console.log('DynamicPage useEffect triggered with slug:', slug);
     if (slug) {
-      console.log('Calling fetchPageBySlug for slug:', slug);
       fetchPageBySlug(slug);
       
       // Increment page views after a short delay (to avoid counting quick navigation away)
@@ -32,11 +32,7 @@ const DynamicPage: React.FC = () => {
         clearTimeout(viewTimer);
       };
     }
-    
-    return () => {
-      clearCurrentPage();
-    };
-  }, [slug, fetchPageBySlug, incrementPageViews, clearCurrentPage]);
+  }, [slug]); // Remove fetchPageBySlug and incrementPageViews from dependencies to prevent infinite loop
 
   if (loading) {
     return (
@@ -47,13 +43,34 @@ const DynamicPage: React.FC = () => {
     );
   }
 
-  if (error || !currentPage) {
-    return <Navigate to="/404" replace />;
+  if (error) {
+    return (
+      <div className={styles.errorState}>
+        <h2>Page Not Found</h2>
+        <p>Sorry, the page you're looking for doesn't exist or has been moved.</p>
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  // If we don't have currentPage yet but no error, keep showing loading
+  if (!currentPage) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading page...</p>
+      </div>
+    );
   }
 
   // Don't show unpublished pages to regular users
   if (!currentPage.published) {
-    return <Navigate to="/404" replace />;
+    return (
+      <div className={styles.errorState}>
+        <h2>Page Not Available</h2>
+        <p>This page is not currently published.</p>
+      </div>
+    );
   }
 
   // Sanitize HTML content before rendering
@@ -115,7 +132,7 @@ const DynamicPage: React.FC = () => {
           
           {currentPage.tags && (
             <div className={styles.tags}>
-              {currentPage.tags.split(',').map((tag, index) => (
+              {currentPage.tags.split(',').map((tag: string, index: number) => (
                 <span key={index} className={styles.tag}>
                   {tag.trim()}
                 </span>

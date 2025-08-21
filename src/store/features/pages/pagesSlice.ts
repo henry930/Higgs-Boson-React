@@ -38,18 +38,29 @@ export const fetchPageBySlug = createAsyncThunk(
   'pages/fetchPageBySlug',
   async (slug: string, { rejectWithValue }) => {
     try {
-      console.log('fetchPageBySlug called with slug:', slug);
-      const response = await apiService.getPageBySlug(slug);
-      console.log('fetchPageBySlug API response:', response);
-      if (response.status === 'success' && response.data) {
-        console.log('fetchPageBySlug success, returning data:', response.data);
-        return response.data;
+      // Use direct fetch since it's proven to work reliably
+      const response = await fetch(`http://127.0.0.1:8000/api/pages/slug/${encodeURIComponent(slug)}/`);
+      
+      if (response.status === 404) {
+        return rejectWithValue(`Page with slug "${slug}" not found`);
       }
-      console.log('fetchPageBySlug failed, throwing error:', response.message);
-      throw new Error(response.message || 'Page not found');
+      
+      if (!response.ok) {
+        return rejectWithValue(`Server error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.data) {
+        return data.data;
+      } else {
+        return rejectWithValue(data.message || `Page "${slug}" not found`);
+      }
     } catch (error) {
-      console.log('fetchPageBySlug caught error:', error);
-      return rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        return rejectWithValue('Unable to connect to server');
+      }
+      return rejectWithValue(error instanceof Error ? error.message : 'Unknown error occurred');
     }
   }
 );
@@ -149,15 +160,18 @@ const pagesSlice = createSlice({
       })
       // Fetch page by slug
       .addCase(fetchPageBySlug.pending, (state) => {
+        console.log('🔄 Redux: fetchPageBySlug.pending');
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchPageBySlug.fulfilled, (state, action: PayloadAction<Page>) => {
+        console.log('✅ Redux: fetchPageBySlug.fulfilled with payload:', action.payload);
         state.loading = false;
         state.currentPage = action.payload;
         state.error = null;
       })
       .addCase(fetchPageBySlug.rejected, (state, action) => {
+        console.log('❌ Redux: fetchPageBySlug.rejected with error:', action.payload);
         state.loading = false;
         state.error = action.payload as string;
         state.currentPage = null;
