@@ -11,7 +11,7 @@ import logging
 
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
-    Customer, ProjectRequirement, Conversation, Quote, Contract
+    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings
 )
 from .serializers import (
     BenefitSerializer, ProcessStepSerializer, TestimonialSerializer,
@@ -19,8 +19,10 @@ from .serializers import (
     PageSerializer, PageListSerializer, CustomerSerializer,
     ConversationSerializer, ProjectRequirementSerializer,
     ProjectRequirementCreateSerializer, QuoteSerializer, ContractSerializer,
-    ChatMessageSerializer, ChatResponseSerializer
+    ChatMessageSerializer, ChatResponseSerializer, AdminSettingsSerializer
 )
+from .utils import api_response
+from .email_service import send_customer_estimate_email, send_admin_notification_email
 
 class StandardResultsSetPagination:
     """Standard pagination for all viewsets"""
@@ -482,6 +484,27 @@ Is there anything specific about the development process you'd like to know more
             
             response_data['requirement_complete'] = True
             response_data['quote_ready'] = True
+            
+            # Send emails when estimate is complete
+            try:
+                # Send detailed estimate to customer
+                if customer.email:
+                    customer_email_sent = send_customer_estimate_email(customer, current_requirement, evaluation)
+                    if customer_email_sent:
+                        logger.info(f"Customer estimate email sent to {customer.email}")
+                    else:
+                        logger.warning(f"Failed to send customer email to {customer.email}")
+                
+                # Send notification to admin
+                admin_email_sent = send_admin_notification_email(customer, current_requirement, evaluation)
+                if admin_email_sent:
+                    logger.info("Admin notification email sent successfully")
+                else:
+                    logger.warning("Failed to send admin notification email")
+                    
+            except Exception as e:
+                logger.error(f"Error sending emails: {str(e)}")
+                # Don't fail the response if email sending fails
         
         return response_data
     

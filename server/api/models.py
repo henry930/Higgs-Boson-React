@@ -164,6 +164,31 @@ class Page(models.Model):
 
 
 # AI Customer Service Models
+
+class AdminSettings(models.Model):
+    admin_email = models.EmailField(default='henry930@gmail.com')
+    company_name = models.CharField(max_length=255, default='Higgs Boson Consultancy')
+    email_notifications = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Admin Settings"
+        verbose_name_plural = "Admin Settings"
+    
+    def __str__(self):
+        return f"Admin Settings - {self.admin_email}"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create admin settings"""
+        settings, created = cls.objects.get_or_create(
+            id=1,
+            defaults={'admin_email': 'henry930@gmail.com'}
+        )
+        return settings
+
+
 class Customer(models.Model):
     name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)

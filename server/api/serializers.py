@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
-    Customer, ProjectRequirement, Conversation, Quote, Contract
+    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings
 )
 
 class BenefitSerializer(serializers.ModelSerializer):
@@ -114,3 +114,11 @@ class ChatResponseSerializer(serializers.Serializer):
     next_step = serializers.CharField(required=False)
     requirement_complete = serializers.BooleanField(default=False)
     quote_ready = serializers.BooleanField(default=False)
+
+
+class AdminSettingsSerializer(serializers.ModelSerializer):
+    """Serializer for admin settings"""
+    class Meta:
+        model = AdminSettings
+        fields = ['id', 'admin_email', 'company_name', 'email_notifications', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
