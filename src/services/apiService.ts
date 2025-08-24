@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 console.log('🔧 API_BASE_URL configured as:', API_BASE_URL);
 
@@ -51,7 +51,7 @@ class ApiService {
 
   // Benefits
   async getBenefits() {
-    return this.request<any[]>('/api/benefits');
+    return this.request<any[]>('/api/benefits/');
   }
 
   async createBenefit(benefit: any) {
@@ -76,7 +76,7 @@ class ApiService {
 
   // Process Steps
   async getProcessSteps() {
-    return this.request<any[]>('/api/process-steps');
+    return this.request<any[]>('/api/process-steps/');
   }
 
   async createProcessStep(step: any) {
@@ -176,7 +176,7 @@ class ApiService {
 
   // Services
   async getServices() {
-    return this.request<any[]>('/api/services');
+    return this.request<any[]>('/api/services/');
   }
 
   async createService(service: any) {

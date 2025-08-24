@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page
+from .models import (
+    Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
+    Customer, ProjectRequirement, Conversation, Quote, Contract
+)
 
 class BenefitSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,3 +47,70 @@ class PageListSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'slug', 'meta_title', 'meta_description', 
                  'published', 'featured', 'author_name', 'excerpt', 'tags',
                  'view_count', 'created_at', 'updated_at']
+
+
+# AI Customer Service Serializers
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conversation
+        fields = '__all__'
+        read_only_fields = ['created_at']
+
+
+class ProjectRequirementSerializer(serializers.ModelSerializer):
+    conversations = ConversationSerializer(many=True, read_only=True)
+    customer = CustomerSerializer(read_only=True)
+    
+    class Meta:
+        model = ProjectRequirement
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class ProjectRequirementCreateSerializer(serializers.ModelSerializer):
+    """Simplified serializer for creating requirements"""
+    class Meta:
+        model = ProjectRequirement
+        fields = ['project_title', 'project_type', 'description', 'budget_range', 
+                 'timeline', 'priority', 'status']
+
+
+class QuoteSerializer(serializers.ModelSerializer):
+    requirement = ProjectRequirementSerializer(read_only=True)
+    
+    class Meta:
+        model = Quote
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class ContractSerializer(serializers.ModelSerializer):
+    quote = QuoteSerializer(read_only=True)
+    
+    class Meta:
+        model = Contract
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
+
+
+# Chat Interface Serializers
+class ChatMessageSerializer(serializers.Serializer):
+    """Serializer for incoming chat messages"""
+    session_id = serializers.CharField(max_length=100)
+    message = serializers.CharField()
+    customer_info = serializers.JSONField(required=False)
+
+
+class ChatResponseSerializer(serializers.Serializer):
+    """Serializer for AI chat responses"""
+    response = serializers.CharField()
+    next_step = serializers.CharField(required=False)
+    requirement_complete = serializers.BooleanField(default=False)
+    quote_ready = serializers.BooleanField(default=False)

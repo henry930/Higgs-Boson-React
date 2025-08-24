@@ -6,3 +6,7 @@ export { default as BenefitCard } from './BenefitCard/BenefitCard';
 export { default as ContactForm } from './ContactForm/ContactForm';
 export { default as Carousel } from './Carousel/Carousel';
 export { default as Navigation } from './Navigation/Navigation';
+
+// AI Customer Service Components
+export { default as AICustomerService } from './AICustomerService/AICustomerService';
+export { default as AdminDashboard } from './AdminDashboard/AdminDashboard';

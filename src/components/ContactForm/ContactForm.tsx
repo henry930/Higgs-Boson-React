@@ -30,6 +30,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    console.log(`I am changing ${name} ${value}`);
     setFormData(prev => ({
       ...prev,
       [name]: value

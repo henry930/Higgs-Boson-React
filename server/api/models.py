@@ -161,3 +161,149 @@ class Page(models.Model):
         """Increment the view count for this page."""
         self.view_count += 1
         self.save(update_fields=['view_count'])
+
+
+# AI Customer Service Models
+class Customer(models.Model):
+    name = models.CharField(max_length=200, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    company = models.CharField(max_length=200, blank=True)
+    session_id = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name or 'Anonymous'} ({self.email or self.session_id})"
+
+
+class ProjectRequirement(models.Model):
+    PROJECT_TYPES = [
+        ('web_app', 'Web Application'),
+        ('mobile_app', 'Mobile Application'),
+        ('ai_solution', 'AI Solution'),
+        ('cloud_infrastructure', 'Cloud Infrastructure'),
+        ('other', 'Other'),
+    ]
+    
+    PRIORITY_LEVELS = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('gathering', 'Gathering Requirements'),
+        ('evaluating', 'Evaluating Feasibility'),
+        ('quote_ready', 'Quote Ready'),
+        ('quote_sent', 'Quote Sent'),
+        ('approved', 'Approved'),
+        ('contract_sent', 'Contract Sent'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='requirements')
+    project_title = models.CharField(max_length=300, blank=True)
+    project_type = models.CharField(max_length=50, choices=PROJECT_TYPES, blank=True)
+    description = models.TextField(blank=True)
+    budget_range = models.CharField(max_length=100, blank=True)
+    timeline = models.CharField(max_length=100, blank=True)
+    priority = models.CharField(max_length=20, choices=PRIORITY_LEVELS, default='medium')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='gathering')
+    
+    # AI Evaluation Results
+    feasibility_score = models.IntegerField(null=True, blank=True, help_text="1-10 scale")
+    estimated_days = models.IntegerField(null=True, blank=True)
+    estimated_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    ai_evaluation = models.TextField(blank=True, help_text="AI analysis of the requirements")
+    
+    # Detailed Evaluation Data (new fields)
+    detected_features = models.JSONField(default=list, blank=True, help_text="List of detected features")
+    complexity_level = models.CharField(max_length=20, blank=True, help_text="simple, medium, complex, enterprise")
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=125)
+    
+    # Agent Assignment
+    assigned_agent = models.CharField(max_length=200, blank=True)
+    agent_notes = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.project_title or 'Untitled Project'} - {self.customer.name or self.customer.session_id}"
+
+
+class Conversation(models.Model):
+    SPEAKER_CHOICES = [
+        ('customer', 'Customer'),
+        ('ai', 'AI Assistant'),
+        ('agent', 'Human Agent'),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='conversations')
+    requirement = models.ForeignKey(ProjectRequirement, on_delete=models.CASCADE, related_name='conversations', null=True, blank=True)
+    speaker = models.CharField(max_length=20, choices=SPEAKER_CHOICES)
+    message = models.TextField()
+    metadata = models.JSONField(default=dict, blank=True)  # Store additional data like AI confidence, etc.
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.speaker}: {self.message[:50]}..."
+
+
+class Quote(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('viewed', 'Viewed'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),
+    ]
+
+    requirement = models.ForeignKey(ProjectRequirement, on_delete=models.CASCADE, related_name='quotes')
+    quote_number = models.CharField(max_length=50, unique=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    estimated_days = models.IntegerField()
+    timeline = models.CharField(max_length=200)
+    terms_and_conditions = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    valid_until = models.DateTimeField()
+    sent_at = models.DateTimeField(null=True, blank=True)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Quote {self.quote_number} - {self.requirement.project_title}"
+
+
+class Contract(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('signed', 'Signed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    quote = models.OneToOneField(Quote, on_delete=models.CASCADE, related_name='contract')
+    contract_number = models.CharField(max_length=50, unique=True)
+    contract_content = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    sent_at = models.DateTimeField(null=True, blank=True)
+    signed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Contract {self.contract_number} - {self.quote.requirement.project_title}"

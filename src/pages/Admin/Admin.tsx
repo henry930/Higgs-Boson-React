@@ -1,6 +1,7 @@
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import PagesManager from '../../components/PagesManager/PagesManager';
 import PageEditor from '../../components/PageEditor/PageEditor';
+import AICustomerServiceDashboard from '../../components/AdminDashboard/AdminDashboard';
 import styles from './Admin.module.scss';
 
 const Admin = () => {
@@ -25,6 +26,12 @@ const Admin = () => {
             Manage Pages
           </Link>
           <Link 
+            to="/admin/ai-service" 
+            className={location.pathname === '/admin/ai-service' ? styles.active : ''}
+          >
+            AI Customer Service
+          </Link>
+          <Link 
             to="/admin/create-article" 
             className={`${styles.createBtn} ${location.pathname === '/admin/create-article' ? styles.active : ''}`}
           >
@@ -37,6 +44,7 @@ const Admin = () => {
         <Routes>
           <Route path="/" element={<AdminDashboard />} />
           <Route path="/pages" element={<PagesManager />} />
+          <Route path="/ai-service" element={<AICustomerServiceDashboard />} />
           <Route path="/create-article" element={<PageEditor isStandalone={true} />} />
         </Routes>
       </div>

@@ -64,13 +64,19 @@ const initialState: BenefitsState = {
 export const fetchBenefits = createAsyncThunk(
   'benefits/fetchBenefits',
   async (_, { rejectWithValue }) => {
+    console.log('🚀 fetchBenefits thunk called');
     try {
+      console.log('📡 Calling apiService.getBenefits()');
       const response = await apiService.getBenefits();
+      console.log('📊 getBenefits response:', response);
       if (response.status === 'success' && response.data) {
+        console.log('✅ Benefits fetch successful:', response.data);
         return response.data;
       }
+      console.log('❌ Benefits fetch failed - invalid response:', response);
       throw new Error(response.message || 'Failed to fetch benefits');
     } catch (error) {
+      console.log('💥 Benefits fetch error:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
     }
   }

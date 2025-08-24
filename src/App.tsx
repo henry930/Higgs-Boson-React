@@ -5,6 +5,7 @@ import Navigation from './components/Navigation/Navigation';
 import Footer from './components/Footer/Footer';
 import NotificationCenter from './components/NotificationCenter/NotificationCenter';
 import DynamicPage from './components/DynamicPage/DynamicPage';
+import AICustomerService from './components/AICustomerService/AICustomerService';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Services from './pages/Services/Services';
@@ -37,6 +38,9 @@ function App() {
                 </Routes>
               </main>
               <Footer />
+              
+              {/* AI Customer Service Chat Widget - Available on all pages */}
+              <AICustomerService />
             </div>
           </Router>
         </AppProvider>
