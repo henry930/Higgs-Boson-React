@@ -7,6 +7,8 @@ from .views import (
     ConversationViewSet, AdminSettingsViewSet, ProjectEstimationViewSet,
     dashboard_stats, test_email, AIUsageStatsView, AIConfigurationView
 )
+from .dashboard_views import DashboardViewSet
+from .auth_views import login_view, register_view, logout_view, user_profile
 
 router = DefaultRouter()
 router.register(r'benefits', BenefitViewSet)
@@ -24,8 +26,17 @@ router.register(r'conversations', ConversationViewSet)
 router.register(r'admin-settings', AdminSettingsViewSet)
 router.register(r'estimations', ProjectEstimationViewSet)
 
+# Dashboard endpoints
+router.register(r'dashboard', DashboardViewSet, basename='dashboard')
+
 urlpatterns = [
     path('', include(router.urls)),
+    
+    # Authentication endpoints
+    path('auth/login/', login_view, name='auth-login'),
+    path('auth/register/', register_view, name='auth-register'),
+    path('auth/logout/', logout_view, name='auth-logout'),
+    path('auth/profile/', user_profile, name='auth-profile'),
     
     # AI Customer Service endpoints
     path('ai-chat/', AICustomerServiceView.as_view(), name='ai-chat'),

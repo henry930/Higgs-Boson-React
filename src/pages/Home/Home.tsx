@@ -1,62 +1,13 @@
 import { Link } from 'react-router-dom';
-import BenefitCard from '../../components/BenefitCard/BenefitCard';
-import Carousel from '../../components/Carousel/Carousel';
 import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
 import styles from './Home.module.scss';
 
 const Home = () => {
   const { data, loading, error, apiConnected } = useHomeDataRedux();
-  const { benefits, processSteps, testimonials, heroSlides } = data;
-  
-  // Debug logging
-  console.log('Home component data:', { benefits, processSteps, testimonials, heroSlides });
-  console.log('Home component state:', { loading, error, apiConnected });
+  const { benefits, processSteps, testimonials } = data;
   
   // Show notification for offline mode
   const isUsingFallback = !apiConnected;
-
-  // Convert data for carousel format
-  const testimonialSlides = testimonials.map(testimonial => ({
-    id: testimonial.id.toString(),
-    content: (
-      <div className={styles.testimonial}>
-        <div className={styles.testimonialContent}>
-          <p>"{testimonial.quote}"</p>
-          <div className={styles.testimonialAuthor}>
-            <div className={styles.authorInfo}>
-              <h4>{testimonial.author_name}</h4>
-              <span>{testimonial.author_title}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }));
-
-  const heroCarouselSlides = heroSlides.map(slide => ({
-    id: slide.id.toString(),
-    backgroundClass: slide.background_class,
-    content: (
-      <div className={styles.heroSlide}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>
-            {slide.title}
-          </h1>
-          <p className={styles.heroSubtitle}>
-            {slide.subtitle}
-          </p>
-          <div className={styles.heroButtons}>
-            <Link to={slide.primary_button_link} className={styles.primaryButton}>
-              {slide.primary_button_text}
-            </Link>
-            <Link to={slide.secondary_button_link} className={styles.secondaryButton}>
-              {slide.secondary_button_text}
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }));
 
   if (loading) {
     return (
@@ -73,7 +24,7 @@ const Home = () => {
     return (
       <div className={styles.home}>
         <div className={styles.errorContainer}>
-          <h2>Error Loading Content</h2>
+          <h3>Error Loading Content</h3>
           <p>{error}</p>
           <button onClick={() => window.location.reload()}>Retry</button>
         </div>
@@ -88,91 +39,160 @@ const Home = () => {
           <p>⚠️ Using offline content - some features may be limited</p>
         </div>
       )}
-      <section className={styles.heroSection}>
-        <Carousel 
-          items={heroCarouselSlides}
-          autoPlay={true}
-          autoPlayInterval={8000}
-          showDots={true}
-          showArrows={true}
-          className={styles.heroCarousel}
-        />
-      </section>
 
-      <section className={styles.benefitsSection}>
+      {/* Hero Section - CloudEmployee Style */}
+      <section className="hero-section">
         <div className="container">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              Why Choose Higgs Boson Consultancy?
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              The future of software development is here. Experience unprecedented efficiency, quality, and cost-effectiveness.
+          <div className="text-center">
+            <h1 className="display-1 hero-title">
+              AI-powered development that feels <em>in-house</em>
+            </h1>
+            <p className="lead hero-subtitle">
+              We build software teams that work in your tools, follow your rituals, and fit your culture—so they feel like part of the team, not an outsourced add-on.
             </p>
-          </div>
-          
-          <div className={styles.benefitsGrid}>
-            {benefits.map((benefit, index) => (
-              <BenefitCard
-                key={index}
-                icon={benefit.icon}
-                title={benefit.title}
-                description={benefit.description}
-              />
-            ))}
+            <div className="hero-buttons">
+              <Link to="/contact" className="btn btn-primary btn-lg">
+                Start Your Project
+              </Link>
+              <Link to="/services" className="btn btn-outline btn-lg">
+                Learn More
+              </Link>
+            </div>
+            <div className="mt-5">
+              <p className="text-muted">
+                <strong>Trusted by 100+ innovative companies</strong> • <span className="text-primary">70% cost reduction</span> • <span className="text-primary">75% faster delivery</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className={styles.processSection}>
+      {/* Benefits Section - CloudEmployee Style */}
+      <section className="section-lg bg-gradient">
         <div className="container">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>How We Transform Your Development</h2>
-            <p className={styles.sectionSubtitle}>Our revolutionary approach to software development combines AI efficiency with human expertise</p>
+          <div className="section-header">
+            <h2>Why Choose Higgs Boson Consultancy?</h2>
+            <p className="lead">
+              The future of software development is here. Experience unprecedented efficiency, quality, and cost-effectiveness with our AI-powered approach.
+            </p>
           </div>
           
-          <div className={styles.processGrid}>
-            {processSteps.map((step, index) => (
-              <div key={index} className={styles.processStep}>
-                <div className={styles.stepNumber}>{step.number}</div>
-                <h4 className={styles.stepTitle}>{step.title}</h4>
-                <p className={styles.stepDescription}>{step.description}</p>
+          <div className="feature-grid">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="feature-card">
+                <div className="feature-icon">
+                  {benefit.icon}
+                </div>
+                <h3 className="feature-title">{benefit.title}</h3>
+                <p className="feature-text">{benefit.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className={styles.testimonialsSection}>
+      {/* Process Section - CloudEmployee Style */}
+      <section className="section-lg">
         <div className="container">
-          <div className={styles.testimonialsContent}>
-            <h2 className={styles.testimonialsTitle}>What Our Clients Say</h2>
-            <p className={styles.testimonialsSubtitle}>
-              Don't just take our word for it. Hear from industry leaders who have transformed their businesses with our AI-powered solutions.
-            </p>
-            <Carousel 
-              items={testimonialSlides}
-              autoPlay={true}
-              autoPlayInterval={6000}
-              showDots={true}
-              showArrows={true}
-              className={styles.testimonialsCarousel}
-            />
+          <div className="section-header">
+            <h2>We build the team that you'd build yourself</h2>
+            <p className="lead">Our revolutionary 3-step process combines AI efficiency with human expertise to deliver exceptional results</p>
+          </div>
+          
+          <div className="feature-grid">
+            {processSteps.map((step, index) => (
+              <div key={index} className="card card-hover">
+                <div className="card-body text-center">
+                  <div className="feature-icon mb-4">
+                    {step.number}
+                  </div>
+                  <h3 className="card-title">{step.title}</h3>
+                  <p className="card-text">{step.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className={styles.ctaSection}>
+      {/* Stats Section - CloudEmployee Style */}
+      <section className="section-lg bg-gradient">
         <div className="container">
-          <div className={styles.ctaContent}>
-            <h2 className={styles.ctaTitle}>
-              Ready to Transform Your Development Process?
-            </h2>
-            <p className={styles.ctaSubtitle}>
+          <div className="section-header">
+            <h2>Less recruitment. More releases.</h2>
+            <p className="lead">Our AI-powered approach delivers measurable results that transform your development process</p>
+          </div>
+          
+          <div className="stats-grid">
+            <div className="stat-item">
+              <div className="stat-number">70%</div>
+              <div className="stat-label">Cost Reduction</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">75%</div>
+              <div className="stat-label">Faster Delivery</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">100+</div>
+              <div className="stat-label">Projects Delivered</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">98%</div>
+              <div className="stat-label">Client Satisfaction</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section - CloudEmployee Style */}
+      <section className="section-lg">
+        <div className="container">
+          <div className="section-header">
+            <h2>What the difference feels like</h2>
+            <p className="lead">
+              Don't just take our word for it. Hear from industry leaders who have transformed their businesses with our AI-powered solutions.
+            </p>
+          </div>
+          
+          <div className="feature-grid">
+            {testimonials.slice(0, 3).map((testimonial, index) => (
+              <div key={index} className="card card-hover">
+                <div className="card-body">
+                  <div className="mb-4">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" className="text-primary">
+                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+                    </svg>
+                  </div>
+                  <p className="card-text mb-4">"{testimonial.quote}"</p>
+                  <div className="d-flex align-items-center">
+                    <div>
+                      <div className="fw-bold text-dark">{testimonial.author_name}</div>
+                      <div className="text-muted">{testimonial.author_title}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - CloudEmployee Style */}
+      <section className="section-lg bg-dark">
+        <div className="container">
+          <div className="text-center">
+            <h2 className="mb-4">Ready to transform your development process?</h2>
+            <p className="lead mb-5">
               Join forward-thinking companies that have already revolutionized their software development with our AI-powered approach. Experience faster delivery, lower costs, and superior quality.
             </p>
-            <Link to="/contact" className={styles.ctaButton}>
-              Start Your Transformation
-            </Link>
+            <div className="d-flex flex-column align-items-center gap-4">
+              <Link to="/contact" className="btn btn-primary btn-lg">
+                Start Your Transformation
+              </Link>
+              <p className="text-muted mb-0">
+                No upfront fees • No long-term contracts • Cancel anytime
+              </p>
+            </div>
           </div>
         </div>
       </section>

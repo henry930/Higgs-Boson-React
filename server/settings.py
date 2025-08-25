@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
-    'django_ratelimit',
+    # 'django_ratelimit',  # Temporarily disabled
     'api',
 ]
 
@@ -82,6 +83,13 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Allow public access by default
     ],
 }
 
@@ -174,16 +182,16 @@ ADMIN_EMAIL = 'henry930@gmail.com'
 import os
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your-openai-api-key-here')
 
-# Redis Configuration for Usage Control & Rate Limiting
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+# Redis Configuration for Usage Control & Rate Limiting (temporarily disabled)
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
 
 # AI Usage Control Settings
 AI_USAGE_SETTINGS = {
