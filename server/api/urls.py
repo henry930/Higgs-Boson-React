@@ -4,7 +4,8 @@ from .views import (
     BenefitViewSet, ProcessStepViewSet, TestimonialViewSet,
     HeroSlideViewSet, TeamMemberViewSet, ServiceViewSet, PageViewSet,
     AICustomerServiceView, CustomerViewSet, ProjectRequirementViewSet,
-    ConversationViewSet, dashboard_stats
+    ConversationViewSet, AdminSettingsViewSet, ProjectEstimationViewSet,
+    dashboard_stats, test_email, AIUsageStatsView, AIConfigurationView
 )
 
 router = DefaultRouter()
@@ -20,6 +21,8 @@ router.register(r'pages', PageViewSet)
 router.register(r'customers', CustomerViewSet)
 router.register(r'requirements', ProjectRequirementViewSet)
 router.register(r'conversations', ConversationViewSet)
+router.register(r'admin-settings', AdminSettingsViewSet)
+router.register(r'estimations', ProjectEstimationViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -27,4 +30,9 @@ urlpatterns = [
     # AI Customer Service endpoints
     path('ai-chat/', AICustomerServiceView.as_view(), name='ai-chat'),
     path('dashboard/stats/', dashboard_stats, name='dashboard-stats'),
+    path('test-email/', test_email, name='test-email'),
+    
+    # AI Management endpoints
+    path('ai/usage-stats/', AIUsageStatsView.as_view(), name='ai-usage-stats'),
+    path('ai/configuration/', AIConfigurationView.as_view(), name='ai-configuration'),
 ]

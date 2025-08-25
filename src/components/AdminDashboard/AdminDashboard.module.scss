@@ -405,3 +405,190 @@
     flex-direction: column;
   }
 }
+
+// Settings styles
+.settings {
+  .settingsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .settingsCard {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    
+    h3 {
+      margin: 0 0 1.5rem 0;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    h4 {
+      margin: 1.5rem 0 0.75rem 0;
+      color: #555;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+  
+  .settingsForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .formGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      
+      label {
+        font-weight: 500;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        input[type="checkbox"] {
+          margin: 0;
+        }
+      }
+      
+      input[type="email"],
+      input[type="text"] {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        
+        &:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+      }
+      
+      small {
+        color: #666;
+        font-size: 0.875rem;
+      }
+    }
+    
+    .formActions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      
+      button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+      
+      .saveButton {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+      }
+      
+      .testButton {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+        
+        &:hover {
+          background: #e9ecef;
+        }
+      }
+    }
+  }
+  
+  .systemStatus {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .statusItem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      
+      .statusLabel {
+        font-weight: 500;
+        color: #555;
+      }
+      
+      .statusValue {
+        font-weight: 600;
+        
+        &.enabled {
+          color: #28a745;
+        }
+        
+        &.disabled {
+          color: #dc3545;
+        }
+      }
+    }
+  }
+  
+  .emailInfo {
+    margin-top: 1.5rem;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.75rem 0;
+      
+      li {
+        padding: 0.5rem 0;
+        color: #555;
+        
+        &:before {
+          content: '';
+          margin-right: 0.5rem;
+        }
+      }
+    }
+    
+    p {
+      color: #666;
+      margin: 0.75rem 0;
+    }
+    
+    code {
+      display: block;
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.875rem;
+      color: #333;
+      line-height: 1.4;
+      margin-top: 0.5rem;
+    }
+  }
+}

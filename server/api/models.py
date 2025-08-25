@@ -332,3 +332,97 @@ class Contract(models.Model):
 
     def __str__(self):
         return f"Contract {self.contract_number} - {self.quote.requirement.project_title}"
+
+
+class ProjectEstimation(models.Model):
+    """Stores confirmed project estimations with complete conversation context"""
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending Confirmation'),
+        ('confirmed', 'Confirmed by Customer'),
+        ('revised', 'Needs Revision'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    COMPANY_TYPE_CHOICES = [
+        ('ngo', 'NGO'),
+        ('startup', 'Startup'),
+        ('social_enterprise', 'Social Enterprise (B Corp)'),
+        ('corporate', 'Corporate'),
+        ('government', 'Government'),
+        ('other', 'Other'),
+    ]
+    
+    # Project Information
+    project_name = models.CharField(max_length=200)
+    company_name = models.CharField(max_length=200)
+    company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES)
+    description = models.TextField()
+    tech_stack = models.JSONField(default=list, help_text="Array of technologies proposed")
+    
+    # Estimation Details
+    breakdown_details = models.JSONField(default=dict, help_text="Detailed cost breakdown")
+    total_estimate = models.DecimalField(max_digits=12, decimal_places=2)
+    estimated_days = models.IntegerField()
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=170)
+    
+    # Contact Information
+    contact_email = models.EmailField()
+    contact_phone = models.CharField(max_length=20, blank=True)
+    
+    # Agent & Referral
+    refer_agent_code = models.CharField(max_length=50, blank=True, help_text="Agent referral code")
+    assigned_agent = models.CharField(max_length=200, blank=True)
+    
+    # Conversation Context
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='estimations')
+    conversation_history = models.JSONField(default=list, help_text="Full conversation that led to estimation")
+    session_id = models.CharField(max_length=100)
+    
+    # Status & Tracking
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    terms_acknowledged = models.BooleanField(default=False, help_text="Customer acknowledged terms and conditions")
+    terms_acknowledged_at = models.DateTimeField(null=True, blank=True)
+    
+    # Additional Metadata
+    discount_applied = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Discount percentage applied")
+    special_requirements = models.TextField(blank=True)
+    timeline_requirements = models.CharField(max_length=200, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.project_name} - {self.company_name} (£{self.total_estimate})"
+    
+    def get_breakdown_summary(self):
+        """Return a formatted summary of the cost breakdown"""
+        if not self.breakdown_details:
+            return "No breakdown available"
+        
+        summary = []
+        for item, details in self.breakdown_details.items():
+            if isinstance(details, dict) and 'cost' in details:
+                summary.append(f"{item}: £{details['cost']}")
+            else:
+                summary.append(f"{item}: £{details}")
+        return "\n".join(summary)
+    
+    def apply_company_discount(self):
+        """Apply discount based on company type"""
+        discount_rates = {
+            'ngo': 20,  # 20% for NGOs
+            'startup': 15,  # 15% for startups
+            'social_enterprise': 18,  # 18% for social enterprises
+        }
+        
+        if self.company_type in discount_rates:
+            self.discount_applied = discount_rates[self.company_type]
+            original_total = self.total_estimate
+            self.total_estimate = original_total * (1 - self.discount_applied / 100)
+            return True
+        return False

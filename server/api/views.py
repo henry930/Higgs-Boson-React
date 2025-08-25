@@ -11,7 +11,8 @@ import logging
 
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
-    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings
+    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings,
+    ProjectEstimation
 )
 from .serializers import (
     BenefitSerializer, ProcessStepSerializer, TestimonialSerializer,
@@ -19,10 +20,21 @@ from .serializers import (
     PageSerializer, PageListSerializer, CustomerSerializer,
     ConversationSerializer, ProjectRequirementSerializer,
     ProjectRequirementCreateSerializer, QuoteSerializer, ContractSerializer,
-    ChatMessageSerializer, ChatResponseSerializer, AdminSettingsSerializer
+    ChatMessageSerializer, ChatResponseSerializer, AdminSettingsSerializer,
+    ProjectEstimationSerializer, EstimationConfirmationSerializer
 )
 from .utils import api_response
 from .email_service import send_customer_estimate_email, send_admin_notification_email
+from .ai_usage_control import AIUsageController, CustomerTypeDetector
+from .estimation_service import ProjectEstimationService
+
+# Import AI services (will gracefully handle if packages not installed)
+try:
+    from .ai_service import AIServiceManager
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+    AIServiceManager = None
 
 class StandardResultsSetPagination:
     """Standard pagination for all viewsets"""
@@ -188,10 +200,21 @@ logger = logging.getLogger(__name__)
 
 
 class AICustomerServiceView(APIView):
-    """Main AI customer service chat interface"""
+    """Main AI customer service chat interface with AI integration and usage control"""
+    
+    def __init__(self):
+        super().__init__()
+        self.usage_controller = AIUsageController()
+        self.customer_detector = CustomerTypeDetector()
+        self.ai_service = AIServiceManager() if AI_AVAILABLE else None
+        self.estimation_service = ProjectEstimationService()
     
     def post(self, request):
-        """Handle incoming chat messages"""
+        """Handle incoming chat messages with usage control and AI integration"""
+        
+        # Get IP address for rate limiting
+        ip_address = self.get_client_ip(request)
+        
         serializer = ChatMessageSerializer(data=request.data)
         if not serializer.is_valid():
             return api_response(
@@ -204,6 +227,19 @@ class AICustomerServiceView(APIView):
         session_id = data['session_id']
         message = data['message']
         customer_info = data.get('customer_info', {})
+        use_ai = data.get('use_ai', True)  # Default to AI (ChatGPT) now
+        
+        # Check usage limits if AI is requested
+        if use_ai and self.ai_service and self.ai_service.client:
+            allowed, limit_message = self.usage_controller.check_usage_limits(session_id, ip_address)
+            if not allowed:
+                return api_response(
+                    message=limit_message,
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS
+                )
+        elif use_ai and not (self.ai_service and self.ai_service.client):
+            # AI requested but not available, use rule-based instead
+            use_ai = False
         
         try:
             # Get or create customer
@@ -231,27 +267,246 @@ class AICustomerServiceView(APIView):
                 message=message
             )
             
-            # Generate AI response
-            ai_response = self.generate_ai_response(customer, message)
+            # Generate AI response (with choice between AI and rule-based)
+            if use_ai and self.ai_service:
+                # Record AI usage
+                self.usage_controller.record_usage(session_id, ip_address)
+                
+                # Get conversation history for AI context
+                conversation_history = []
+                recent_conversations = Conversation.objects.filter(customer=customer).order_by('-created_at')[:10]
+                for conv in reversed(recent_conversations):
+                    conversation_history.append({
+                        'content': conv.message,
+                        'is_user': conv.speaker == 'customer'
+                    })
+                
+                # Get AI response with business context
+                ai_response_text = self.ai_service.get_ai_response(conversation_history, message)
+                
+                # Apply customer type detection and discounts
+                customer_type, discount_rate, max_discount = self.customer_detector.detect_customer_type(
+                    customer_info, message
+                )
+                
+                ai_response = {
+                    'response': ai_response_text,
+                    'ai_powered': True,
+                    'usage_stats': self.usage_controller.get_usage_stats()
+                }
+                
+                if customer_type:
+                    ai_response['customer_type'] = customer_type
+                    ai_response['discount_available'] = f"{int(discount_rate * 100)}% discount available for {customer_type.replace('_', ' ').title()}"
+                
+                # Check for estimation confirmation and handle project estimation
+                estimation_result = self.handle_estimation_logic(customer, conversation_history, message, ai_response_text)
+                if estimation_result:
+                    ai_response.update(estimation_result)
+                
+            else:
+                # Use rule-based system (existing logic)
+                ai_response = self.generate_ai_response(customer, message, customer_info)
+                ai_response['ai_powered'] = False
+                if not self.ai_service or not self.ai_service.client:
+                    ai_response['ai_status'] = 'Configuration needed - using enhanced rule-based system'
+            
+            # Handle estimation addendum if present
+            final_response = ai_response['response']
+            if 'response_addendum' in ai_response:
+                final_response += ai_response['response_addendum']
+                ai_response['response'] = final_response
             
             # Save AI response
             Conversation.objects.create(
                 customer=customer,
                 speaker='ai',
-                message=ai_response['response'],
+                message=final_response,
                 metadata=ai_response.get('metadata', {})
             )
             
             return api_response(data=ai_response)
             
         except Exception as e:
+            import traceback
             logger.error(f"Error in AI customer service: {str(e)}")
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             return api_response(
                 message="Internal server error", 
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
-    def generate_ai_response(self, customer, message):
+    def get_client_ip(self, request):
+        """Get client IP address for rate limiting"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+    
+    def handle_estimation_logic(self, customer, conversation_history, current_message, ai_response_text):
+        """Handle project estimation logic and confirmation detection"""
+        
+        # Check if disclaimers have been shown (look for disclaimers in recent AI messages)
+        recent_ai_messages = []
+        for conv in conversation_history[-5:]:  # Last 5 messages
+            if not conv.get('is_user', True):  # AI message
+                recent_ai_messages.append(conv['content'].lower())
+        
+        recent_ai_text = ' '.join(recent_ai_messages)
+        disclaimers_shown = 'estimation terms & conditions' in recent_ai_text or 'quote binding' in recent_ai_text
+        
+        # Check for estimation confirmation keywords
+        confirmation_keywords = [
+            'sounds good', 'i accept', "let's proceed", 'yes please', 'confirm', 
+            'i agree', 'that works', 'perfect', 'go ahead', 'yes', 'okay', 'ok',
+            'looks good', 'proceed', 'move forward', 'i understand', 'agree to these terms'
+        ]
+        
+        current_message_lower = current_message.lower()
+        is_confirmation = any(keyword in current_message_lower for keyword in confirmation_keywords)
+        
+        # Check if we recently provided an estimation (look for cost mentions in recent AI responses)
+        has_recent_estimate = any(word in recent_ai_text for word in ['£', 'cost', 'estimate', 'price', 'total'])
+        
+        # If customer wants to proceed but disclaimers haven't been shown, show them first
+        if is_confirmation and has_recent_estimate and not disclaimers_shown:
+            return {
+                'show_disclaimers': True,
+                'response_addendum': '''\n\n📋 **Before we proceed, please review these important terms:**
+
+**Estimation Terms & Conditions:**
+
+1. **Quote Binding**: This detailed quote will be binding for our future contract. Once a contract is signed, any appendices, alterations, or clarifications may induce extra costs.
+
+2. **Final Estimation Process**: This estimation is preliminary. Our specialist will contact you for further assessment and send you the final contract to kickstart the project.
+
+3. **Payment Structure**: We require 30% of the total project amount as a deposit. Our project manager will provide weekly progress reports, and customers pay for 5 man-days as installments to keep the project continuing until all bills are settled. Late or non-payment will delay or potentially terminate project progress.
+
+4. **No Extra Charges**: If we need additional man-days for the project beyond our estimate, we will not charge you any extra costs.
+
+✅ **Do you understand and agree to these terms?** If yes, I can proceed with creating your formal estimation.'''
+            }
+        
+        # If customer is confirming and we have a recent estimate, create formal estimation
+        if is_confirmation and has_recent_estimate and disclaimers_shown:
+            try:
+                # Extract project information from conversation
+                project_info = self.estimation_service.extract_project_info(conversation_history)
+                
+                # Check what information is missing
+                missing_fields = self.estimation_service.get_missing_fields(project_info)
+                
+                if missing_fields:
+                    # Ask for missing information
+                    missing_readable = []
+                    field_map = {
+                        'project_name': 'project name',
+                        'company_name': 'company name',
+                        'company_type': 'company type (NGO, Startup, Social Enterprise, Corporate, etc.)',
+                        'contact_email': 'contact email',
+                        'tech_stack': 'preferred technology stack',
+                        'description': 'project description'
+                    }
+                    
+                    for field in missing_fields:
+                        missing_readable.append(field_map.get(field, field))
+                    
+                    return {
+                        'estimation_status': 'missing_info',
+                        'missing_fields': missing_fields,
+                        'response_addendum': f"\n\nTo prepare your formal estimation, I need a few more details:\n• {chr(10).join('• ' + field for field in missing_readable)}\n\nCould you please provide these details?"
+                    }
+                
+                else:
+                    # Calculate estimation
+                    estimation_data = self.estimation_service.calculate_estimation(project_info)
+                    
+                    # Create ProjectEstimation record
+                    estimation = ProjectEstimation.objects.create(
+                        customer=customer,
+                        session_id=customer.session_id,
+                        project_name=project_info['project_name'],
+                        company_name=project_info['company_name'],
+                        company_type=project_info.get('company_type', 'other'),
+                        description=project_info['description'],
+                        tech_stack=project_info['tech_stack'],
+                        contact_email=project_info['contact_email'],
+                        contact_phone=project_info.get('contact_phone', ''),
+                        refer_agent_code=project_info.get('refer_agent_code', ''),
+                        breakdown_details=estimation_data['breakdown_details'],
+                        total_estimate=estimation_data['total_estimate'],
+                        estimated_days=estimation_data['estimated_days'],
+                        hourly_rate=estimation_data['hourly_rate'],
+                        discount_applied=estimation_data['discount_applied'],
+                        special_requirements=project_info.get('special_requirements', ''),
+                        timeline_requirements=project_info.get('timeline_requirements', ''),
+                        terms_acknowledged=True,
+                        terms_acknowledged_at=timezone.now(),
+                        conversation_history=[{
+                            'content': conv['content'],
+                            'is_user': conv.get('is_user', True),
+                            'timestamp': timezone.now().isoformat()
+                        } for conv in conversation_history]
+                    )
+                    
+                    # Apply company discount if applicable
+                    estimation.apply_company_discount()
+                    estimation.save()
+                    
+                    # Generate summary
+                    summary = self.estimation_service.generate_estimation_summary(
+                        {
+                            'estimated_days': estimation.estimated_days,
+                            'hourly_rate': estimation.hourly_rate,
+                            'total_estimate': estimation.total_estimate,
+                            'discount_applied': estimation.discount_applied,
+                            'breakdown_details': estimation.breakdown_details,
+                            'original_cost': estimation.total_estimate / (1 - estimation.discount_applied / 100) if estimation.discount_applied > 0 else estimation.total_estimate
+                        },
+                        project_info
+                    )
+                    
+                    # Send notification emails
+                    try:
+                        send_customer_estimate_email(estimation)
+                        send_admin_notification_email(
+                            f"New Project Estimation: {estimation.project_name}",
+                            f"A new project estimation has been created:\n\n{summary}"
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to send estimation emails: {str(e)}")
+                    
+                    return {
+                        'estimation_created': True,
+                        'estimation_id': estimation.id,
+                        'estimation_summary': summary,
+                        'response_addendum': f"\n\n✅ **Formal Estimation Created!**\n\nI've prepared your detailed project estimation and saved it to our system. You should receive a copy via email shortly.\n\n**Estimation ID:** {estimation.id}\n**Status:** Pending your confirmation\n\nWould you like to proceed with this estimation?"
+                    }
+                    
+            except Exception as e:
+                logger.error(f"Error creating estimation: {str(e)}")
+                return {
+                    'estimation_error': str(e),
+                    'response_addendum': "\n\nI encountered an issue creating your formal estimation. Let me connect you with our team for personalized assistance."
+                }
+        
+        # If mentioning estimation but not confirming, check if we can extract project info
+        estimation_keywords = ['estimate', 'quote', 'cost', 'price', 'budget', 'how much']
+        if any(keyword in current_message_lower for keyword in estimation_keywords):
+            project_info = self.estimation_service.extract_project_info(conversation_history + [{'content': current_message, 'is_user': True}])
+            missing_fields = self.estimation_service.get_missing_fields(project_info)
+            
+            if len(missing_fields) <= 2:  # If we have most info, suggest creating formal estimation
+                return {
+                    'estimation_ready': True,
+                    'response_addendum': "\n\nBased on our conversation, I have enough information to prepare a detailed project estimation for you. Would you like me to create a formal estimate that we can save to our system?"
+                }
+        
+        return None
+    
+    def generate_ai_response(self, customer, message, customer_info=None):
         """Generate AI response based on customer message and conversation history"""
         # Get conversation history
         conversations = Conversation.objects.filter(customer=customer).order_by('created_at')
@@ -286,6 +541,24 @@ I can assist you with:
 To get started, could you tell me about your project? What kind of application or solution are you looking to build?"""
             response_data['next_step'] = 'project_type'
             return response_data
+        
+        # Check for customer intent patterns (natural language)
+        customer_intents = {
+            # Options/Alternatives inquiry
+            'options': ['options', 'alternatives', 'choices', 'different ways', 'other approaches', 'what can we do'],
+            'recommendations': ['recommend', 'suggest', 'advice', 'what would you', 'best approach', 'your opinion'],
+            'cost_comparison': ['cheaper', 'less expensive', 'save money', 'budget options', 'cost difference', 'more affordable'],
+            'speed_inquiry': ['faster', 'quicker', 'speed up', 'timeline', 'how long', 'time difference'],
+            'quality_inquiry': ['better', 'higher quality', 'more reliable', 'best option', 'premium'],
+        }
+        
+        # Detect customer intent
+        detected_intent = None
+        message_lower = message.lower()
+        for intent, patterns in customer_intents.items():
+            if any(pattern in message_lower for pattern in patterns):
+                detected_intent = intent
+                break
         
         # Check for project type information
         project_types = {
@@ -398,6 +671,27 @@ To get started, could you tell me about your project? What kind of application o
             
             current_requirement.save()
         
+        # Check if customer is asking for options/recommendations
+        if detected_intent in ['options', 'recommendations', 'cost_comparison'] and current_requirement:
+            if current_requirement.project_type and current_requirement.budget_range:
+                # Generate tech stack recommendations
+                detected_features = []
+                if current_requirement.description:
+                    # Extract features from description for better recommendations
+                    feature_patterns = ['e-commerce', 'payment', 'login', 'dashboard', 'database', 'api']
+                    detected_features = [f for f in feature_patterns if f in current_requirement.description.lower()]
+                
+                recommendations = self.generate_tech_stack_recommendations(
+                    current_requirement.project_type, 
+                    current_requirement.budget_range, 
+                    detected_features
+                )
+                
+                if recommendations:
+                    response_data['response'] = self.format_tech_recommendations_response(recommendations, detected_intent)
+                    response_data['next_step'] = 'tech_choice'
+                    return response_data
+        
         # Determine what information we still need
         missing_info = []
         if not current_requirement.project_title:
@@ -443,9 +737,25 @@ To get started, could you tell me about your project? What kind of application o
         else:
             # All basic info collected, generate evaluation
             evaluation = self.evaluate_project(current_requirement)
+            
+            # Apply customer type discounts
+            customer_type, discount_rate, max_discount = self.customer_detector.detect_customer_type(
+                customer_info, current_requirement.description or ''
+            )
+            
+            if customer_type and discount_rate > 0:
+                discount_info = self.customer_detector.apply_discount(
+                    evaluation['estimated_cost'], customer_type, discount_rate, max_discount
+                )
+                final_cost = discount_info['final_cost']
+                savings_message = discount_info['savings_message']
+            else:
+                final_cost = evaluation['estimated_cost']
+                savings_message = ""
+            
             current_requirement.feasibility_score = evaluation['feasibility_score']
             current_requirement.estimated_days = evaluation['estimated_days']
-            current_requirement.estimated_cost = evaluation['estimated_cost']
+            current_requirement.estimated_cost = final_cost  # Save discounted cost
             current_requirement.ai_evaluation = evaluation['analysis']
             current_requirement.detected_features = evaluation['detected_features']
             current_requirement.complexity_level = evaluation['complexity_level']
@@ -461,7 +771,9 @@ To get started, could you tell me about your project? What kind of application o
 
 **📊 Detailed Estimate:**
 • **Development Time:** {evaluation['estimated_days']} working days
-• **Estimated Cost:** £{evaluation['estimated_cost']:,.2f}
+• **Base Cost:** £{evaluation['estimated_cost']:,.2f}
+{f"• **{savings_message}**" if savings_message else ""}
+• **Final Cost:** £{final_cost:,.2f}
 • **Daily Rate:** £170 per day
 • **Key Features:** {', '.join(evaluation['detected_features'][:3])}{'...' if len(evaluation['detected_features']) > 3 else ''}
 
@@ -508,6 +820,142 @@ Is there anything specific about the development process you'd like to know more
         
         return response_data
     
+    def generate_tech_stack_recommendations(self, project_type, budget_range, detected_features):
+        """Generate tech stack recommendations based on project requirements"""
+        
+        recommendations = []
+        
+        if project_type == 'web_app':
+            # Budget-based recommendations for web applications
+            if budget_range in ['Under £3,000', '£3,000 - £10,000']:
+                recommendations = [
+                    {
+                        'name': 'WordPress + Custom Theme',
+                        'description': 'Cost-effective solution using WordPress with custom design',
+                        'timeline_days': 15,
+                        'cost_estimate': 2550,  # 15 * £170
+                        'pros': ['Quick development', 'Easy to maintain', 'Many plugins available'],
+                        'cons': ['Limited scalability', 'Performance constraints'],
+                        'best_for': 'Small businesses, content-heavy sites'
+                    },
+                    {
+                        'name': 'React + Firebase',
+                        'description': 'Modern single-page application with cloud backend',
+                        'timeline_days': 25,
+                        'cost_estimate': 4250,  # 25 * £170
+                        'pros': ['Fast performance', 'Real-time features', 'Automatic scaling'],
+                        'cons': ['Vendor lock-in', 'Learning curve for updates'],
+                        'best_for': 'Startups, interactive applications'
+                    }
+                ]
+            
+            elif budget_range in ['£10,000 - £35,000', '£35,000+']:
+                recommendations = [
+                    {
+                        'name': 'React + Node.js + PostgreSQL',
+                        'description': 'Full-stack JavaScript solution with robust database',
+                        'timeline_days': 45,
+                        'cost_estimate': 7650,  # 45 * £170
+                        'pros': ['Highly scalable', 'Great performance', 'Large talent pool'],
+                        'cons': ['More complex setup', 'Requires DevOps knowledge'],
+                        'best_for': 'Growing businesses, complex applications'
+                    },
+                    {
+                        'name': 'Vue.js + Django + PostgreSQL',
+                        'description': 'Python-powered backend with modern frontend',
+                        'timeline_days': 40,
+                        'cost_estimate': 6800,  # 40 * £170
+                        'pros': ['Rapid development', 'Strong security', 'Admin panel included'],
+                        'cons': ['Fewer JavaScript developers', 'Two different languages'],
+                        'best_for': 'Data-heavy applications, admin-intensive systems'
+                    },
+                    {
+                        'name': 'Next.js + Supabase',
+                        'description': 'Modern full-stack with integrated backend services',
+                        'timeline_days': 35,
+                        'cost_estimate': 5950,  # 35 * £170
+                        'pros': ['Very fast development', 'Built-in authentication', 'Excellent SEO'],
+                        'cons': ['Newer ecosystem', 'Less customization'],
+                        'best_for': 'Modern web apps, content + database needs'
+                    }
+                ]
+        
+        elif project_type == 'mobile_app':
+            if budget_range in ['Under £3,000', '£3,000 - £10,000']:
+                recommendations = [
+                    {
+                        'name': 'React Native',
+                        'description': 'Cross-platform mobile app (iOS + Android)',
+                        'timeline_days': 35,
+                        'cost_estimate': 5950,
+                        'pros': ['One codebase for both platforms', 'Faster development', 'Web developer friendly'],
+                        'cons': ['Performance limitations', 'Platform-specific features harder'],
+                        'best_for': 'Budget-conscious projects, simple to medium complexity'
+                    }
+                ]
+            else:
+                recommendations = [
+                    {
+                        'name': 'React Native + Backend API',
+                        'description': 'Cross-platform mobile with custom backend',
+                        'timeline_days': 55,
+                        'cost_estimate': 9350,
+                        'pros': ['Full control', 'Scalable', 'Rich features'],
+                        'cons': ['More complex', 'Longer development time'],
+                        'best_for': 'Complex apps, user accounts, real-time features'
+                    },
+                    {
+                        'name': 'Flutter + Firebase',
+                        'description': 'Google\'s cross-platform solution with cloud backend',
+                        'timeline_days': 50,
+                        'cost_estimate': 8500,
+                        'pros': ['Excellent performance', 'Beautiful UI', 'Growing ecosystem'],
+                        'cons': ['Dart language learning curve', 'Newer technology'],
+                        'best_for': 'High-performance apps, custom animations'
+                    }
+                ]
+        
+        return recommendations
+    
+    def format_tech_recommendations_response(self, recommendations, detected_intent):
+        """Format tech stack recommendations into customer-friendly response"""
+        
+        if detected_intent == 'cost_comparison':
+            intro = "Here are different approaches to build your project, organized by cost:\n\n"
+        elif detected_intent == 'speed_inquiry':
+            intro = "Here are your options organized by development speed:\n\n"
+        else:
+            intro = "Based on your requirements, here are the recommended approaches:\n\n"
+        
+        response = intro
+        
+        for i, rec in enumerate(recommendations, 1):
+            response += f"**Option {i}: {rec['name']}**\n"
+            response += f"💰 **Cost:** £{rec['cost_estimate']:,} ({rec['timeline_days']} days)\n"
+            response += f"📝 **What it is:** {rec['description']}\n\n"
+            
+            response += f"✅ **Advantages:**\n"
+            for pro in rec['pros']:
+                response += f"• {pro}\n"
+            
+            response += f"\n⚠️ **Considerations:**\n"
+            for con in rec['cons']:
+                response += f"• {con}\n"
+            
+            response += f"\n🎯 **Best for:** {rec['best_for']}\n\n"
+            response += "─" * 50 + "\n\n"
+        
+        response += "**💡 My Recommendation:**\n"
+        if len(recommendations) > 0:
+            best_option = recommendations[0]  # First option is usually best value
+            response += f"For your budget and requirements, I'd recommend **{best_option['name']}**. "
+            response += f"It offers the best balance of cost (£{best_option['cost_estimate']:,}), "
+            response += f"timeline ({best_option['timeline_days']} days), and features.\n\n"
+        
+        response += "Would you like me to explain any of these options in more detail, or shall we proceed with a full quote for your preferred approach?"
+        
+        return response
+
     def evaluate_project(self, requirement):
         """Enhanced project evaluation logic with detailed man-day estimation"""
         
@@ -875,3 +1323,179 @@ def dashboard_stats(request):
     }
     
     return api_response(data=stats)
+
+
+class AdminSettingsViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing admin settings"""
+    queryset = AdminSettings.objects.all()
+    serializer_class = AdminSettingsSerializer
+    
+    def list(self, request):
+        """Get current admin settings"""
+        settings = AdminSettings.get_settings()
+        serializer = self.get_serializer(settings)
+        return api_response(data=serializer.data)
+    
+    def update(self, request, pk=None):
+        """Update admin settings"""
+        settings = AdminSettings.get_settings()
+        serializer = self.get_serializer(settings, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return api_response(
+                data=serializer.data,
+                message="Admin settings updated successfully"
+            )
+        return api_response(
+            data=serializer.errors,
+            message="Validation failed",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ProjectEstimationViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing project estimations"""
+    queryset = ProjectEstimation.objects.all()
+    serializer_class = ProjectEstimationSerializer
+    
+    def get_queryset(self):
+        """Filter estimations by session_id if provided"""
+        queryset = super().get_queryset()
+        session_id = self.request.query_params.get('session_id')
+        if session_id:
+            queryset = queryset.filter(session_id=session_id)
+        return queryset.order_by('-created_at')
+    
+    def list(self, request):
+        """List estimations with optional filtering"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return api_response(data=serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        """Get specific estimation"""
+        estimation = get_object_or_404(ProjectEstimation, pk=pk)
+        serializer = self.get_serializer(estimation)
+        return api_response(data=serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def confirm(self, request, pk=None):
+        """Confirm an estimation"""
+        estimation = get_object_or_404(ProjectEstimation, pk=pk)
+        serializer = EstimationConfirmationSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            confirmed = serializer.validated_data['confirmed']
+            customer_notes = serializer.validated_data.get('customer_notes', '')
+            
+            if confirmed:
+                estimation.status = 'confirmed'
+                estimation.confirmed_at = timezone.now()
+                estimation.save()
+                
+                # Send confirmation email
+                try:
+                    send_customer_estimate_email(estimation, confirmed=True)
+                    send_admin_notification_email(
+                        f"Project Estimation Confirmed: {estimation.project_name}",
+                        f"Customer {estimation.contact_email} has confirmed the estimation for {estimation.project_name}.\n"
+                        f"Total: £{estimation.total_estimate}\n"
+                        f"Customer notes: {customer_notes}"
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to send confirmation emails: {str(e)}")
+                
+                return api_response(
+                    data=self.get_serializer(estimation).data,
+                    message="Estimation confirmed successfully"
+                )
+            else:
+                estimation.status = 'revised'
+                estimation.save()
+                return api_response(
+                    data=self.get_serializer(estimation).data,
+                    message="Estimation marked for revision"
+                )
+        
+        return api_response(
+            data=serializer.errors,
+            message="Invalid confirmation data",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['POST'])
+def test_email(request):
+    """Test email functionality"""
+    from .email_service import send_test_email
+    
+    recipient = request.data.get('email')
+    if not recipient:
+        return api_response(
+            message="Email address is required",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        success = send_test_email(recipient)
+        if success:
+            return api_response(message=f"Test email sent successfully to {recipient}")
+        else:
+            return api_response(
+                message="Failed to send test email",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    except Exception as e:
+        return api_response(
+            message=f"Error sending test email: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+class AIUsageStatsView(APIView):
+    """Monitor AI usage and costs"""
+    
+    def get(self, request):
+        """Get AI usage statistics"""
+        usage_controller = AIUsageController()
+        stats = usage_controller.get_usage_stats()
+        
+        # Add additional monitoring data
+        stats.update({
+            'ai_service_available': AI_AVAILABLE,
+            'daily_rate': 170,
+            'current_month': timezone.now().strftime('%B %Y')
+        })
+        
+        return api_response(data=stats)
+
+
+class AIConfigurationView(APIView):
+    """Configure AI service settings"""
+    
+    def get(self, request):
+        """Get current AI configuration"""
+        if not AI_AVAILABLE:
+            return api_response(
+                message="AI service not available",
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
+        ai_service = AIServiceManager()
+        config = ai_service.business_config
+        
+        return api_response(data=config)
+    
+    def post(self, request):
+        """Update AI configuration"""
+        if not AI_AVAILABLE:
+            return api_response(
+                message="AI service not available",
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        
+        ai_service = AIServiceManager()
+        updated_config = ai_service.update_business_config(request.data)
+        
+        return api_response(data=updated_config, message="AI configuration updated successfully")

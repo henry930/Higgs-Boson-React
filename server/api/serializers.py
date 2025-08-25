@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
-    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings
+    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings,
+    ProjectEstimation
 )
 
 class BenefitSerializer(serializers.ModelSerializer):
@@ -122,3 +123,27 @@ class AdminSettingsSerializer(serializers.ModelSerializer):
         model = AdminSettings
         fields = ['id', 'admin_email', 'company_name', 'email_notifications', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
+
+
+class ProjectEstimationSerializer(serializers.ModelSerializer):
+    """Serializer for project estimations"""
+    breakdown_summary = serializers.CharField(source='get_breakdown_summary', read_only=True)
+    
+    class Meta:
+        model = ProjectEstimation
+        fields = [
+            'id', 'project_name', 'company_name', 'company_type', 'description',
+            'tech_stack', 'breakdown_details', 'breakdown_summary', 'total_estimate',
+            'estimated_days', 'hourly_rate', 'contact_email', 'contact_phone',
+            'refer_agent_code', 'assigned_agent', 'session_id', 'status',
+            'confirmed_at', 'discount_applied', 'special_requirements',
+            'timeline_requirements', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'breakdown_summary']
+
+
+class EstimationConfirmationSerializer(serializers.Serializer):
+    """Serializer for estimation confirmation"""
+    estimation_id = serializers.IntegerField()
+    confirmed = serializers.BooleanField()
+    customer_notes = serializers.CharField(required=False, allow_blank=True)

@@ -50,12 +50,23 @@ interface ProjectRequirement {
   updated_at: string;
 }
 
+interface AdminSettings {
+  id: number;
+  admin_email: string;
+  company_name: string;
+  email_notifications: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [requirements, setRequirements] = useState<ProjectRequirement[]>([]);
   const [selectedRequirement, setSelectedRequirement] = useState<ProjectRequirement | null>(null);
+  const [adminSettings, setAdminSettings] = useState<AdminSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'requirements' | 'customers'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'requirements' | 'customers' | 'settings'>('overview');
+  const [settingsLoading, setSettingsLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -75,10 +86,63 @@ const AdminDashboard: React.FC = () => {
       const requirementsData = await requirementsResponse.json();
       setRequirements(requirementsData.data);
 
+      // Fetch admin settings
+      const settingsResponse = await fetch('http://localhost:8000/api/admin-settings/');
+      const settingsData = await settingsResponse.json();
+      if (settingsData.status === 'success') {
+        setAdminSettings(settingsData.data);
+      }
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateAdminSettings = async (settings: Partial<AdminSettings>) => {
+    try {
+      setSettingsLoading(true);
+      const response = await fetch('http://localhost:8000/api/admin-settings/1/', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAdminSettings(data.data);
+        alert('Settings updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert('Failed to update settings');
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  const testEmail = async (email: string) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/test-email/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        alert(`Test email sent successfully to ${email}`);
+      } else {
+        alert('Failed to send test email');
+      }
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      alert('Failed to send test email');
     }
   };
 
@@ -189,6 +253,12 @@ const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('requirements')}
           >
             Requirements
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'settings' ? styles.active : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            Settings
           </button>
         </div>
       </div>
@@ -399,6 +469,122 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className={styles.settings}>
+          <div className={styles.settingsGrid}>
+            <div className={styles.settingsCard}>
+              <h3>📧 Email Configuration</h3>
+              {adminSettings && (
+                <div className={styles.settingsForm}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="adminEmail">Admin Email Address:</label>
+                    <input
+                      type="email"
+                      id="adminEmail"
+                      value={adminSettings.admin_email}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        admin_email: e.target.value
+                      })}
+                      placeholder="henry930@gmail.com"
+                    />
+                    <small>This email will receive notifications for new project estimates</small>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="companyName">Company Name:</label>
+                    <input
+                      type="text"
+                      id="companyName"
+                      value={adminSettings.company_name}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        company_name: e.target.value
+                      })}
+                      placeholder="Higgs Boson Consultancy"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={adminSettings.email_notifications}
+                        onChange={(e) => setAdminSettings({
+                          ...adminSettings,
+                          email_notifications: e.target.checked
+                        })}
+                      />
+                      Enable email notifications
+                    </label>
+                    <small>Receive email alerts when new project estimates are generated</small>
+                  </div>
+
+                  <div className={styles.formActions}>
+                    <button 
+                      className={styles.saveButton}
+                      onClick={() => updateAdminSettings(adminSettings)}
+                      disabled={settingsLoading}
+                    >
+                      {settingsLoading ? 'Saving...' : 'Save Settings'}
+                    </button>
+                    
+                    <button 
+                      className={styles.testButton}
+                      onClick={() => testEmail(adminSettings.admin_email)}
+                    >
+                      Send Test Email
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.settingsCard}>
+              <h3>🔧 Email System Status</h3>
+              <div className={styles.systemStatus}>
+                <div className={styles.statusItem}>
+                  <span className={styles.statusLabel}>Email Backend:</span>
+                  <span className={styles.statusValue}>Console (Development)</span>
+                </div>
+                <div className={styles.statusItem}>
+                  <span className={styles.statusLabel}>Customer Notifications:</span>
+                  <span className={`${styles.statusValue} ${styles.enabled}`}>Enabled</span>
+                </div>
+                <div className={styles.statusItem}>
+                  <span className={styles.statusLabel}>Admin Notifications:</span>
+                  <span className={`${styles.statusValue} ${adminSettings?.email_notifications ? styles.enabled : styles.disabled}`}>
+                    {adminSettings?.email_notifications ? 'Enabled' : 'Disabled'}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <span className={styles.statusLabel}>Daily Rate:</span>
+                  <span className={styles.statusValue}>£170 per day</span>
+                </div>
+              </div>
+              
+              <div className={styles.emailInfo}>
+                <h4>📨 Email Templates</h4>
+                <ul>
+                  <li>✓ Customer estimate emails (detailed project breakdown)</li>
+                  <li>✓ Admin notification emails (new project alerts)</li>
+                  <li>✓ Test email functionality</li>
+                </ul>
+                
+                <h4>🚀 Production Setup</h4>
+                <p>For production use, configure SMTP settings in Django settings:</p>
+                <code>
+                  EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'<br/>
+                  EMAIL_HOST = 'smtp.gmail.com'<br/>
+                  EMAIL_PORT = 587<br/>
+                  EMAIL_USE_TLS = True
+                </code>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

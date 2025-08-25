@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'django_ratelimit',
     'api',
 ]
 
@@ -168,6 +169,46 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For developm
 
 DEFAULT_FROM_EMAIL = 'noreply@higgsboson.com'
 ADMIN_EMAIL = 'henry930@gmail.com'
+
+# OpenAI Configuration for ChatGPT Integration
+import os
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'your-openai-api-key-here')
+
+# Redis Configuration for Usage Control & Rate Limiting
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# AI Usage Control Settings
+AI_USAGE_SETTINGS = {
+    'DAILY_LIMIT_PER_SESSION': 20,    # 20 messages per session per day
+    'HOURLY_LIMIT_PER_IP': 50,        # 50 messages per IP per hour
+    'MONTHLY_BUDGET_LIMIT': 100,      # £100 per month
+    'COST_PER_REQUEST': 0.02,         # ~£0.02 per ChatGPT request
+    'ENABLE_AI_BY_DEFAULT': True,     # Use AI by default
+    'FALLBACK_TO_RULES': True,       # Fallback to rule-based when limits hit
+}
+
+# Business Configuration for AI Training
+BUSINESS_CONFIG = {
+    'company_name': 'Higgs Boson Consultancy',
+    'daily_rate': 170,
+    'currency': 'GBP',
+    'location': 'UK',
+    'specialties': [
+        'React Development',
+        'Django/Python Backend',
+        'Full-Stack Applications',
+        'Database Design',
+        'API Development'
+    ],
+}
 
 LOGGING = {
     'version': 1,
