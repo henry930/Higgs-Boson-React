@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useApp } from '../../context/AppContext';
 import styles from './Navigation.module.scss';
 
-const Navigation = () => {
-  const location = useLocation();
-  const { isAuthenticated, user } = useAuth();
-  const { setActiveSection } = useApp();
+const Navigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -21,143 +19,168 @@ const Navigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (isMobileMenuOpen && !target.closest(`.${styles.navigation}`)) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isMobileMenuOpen]);
-
-  const publicNavItems = [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
+  // CloudEmployee-inspired navigation structure
+  const mainNavigation = [
+    { path: '/how-it-works', label: 'How it works' },
+    { path: '/about', label: 'About us' },
     { path: '/services', label: 'Services' },
     { path: '/how-it-works', label: 'How It Works' },
     { path: '/price-comparison', label: 'Pricing' },
     { path: '/contact', label: 'Contact' },
   ];
 
-  const authNavItems = isAuthenticated ? [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/admin', label: 'Admin' },
-  ] : [
-    { path: '/login', label: 'Login' },
+  const userNavigation = [
+    { path: '/dashboard', label: 'Dashboard', requiresAuth: true },
+    { path: '/admin', label: 'Admin', requiresAuth: true, requiresStaff: true },
   ];
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleNavClick = (label: string) => {
-    setActiveSection(label.toLowerCase());
-    setIsMobileMenuOpen(false);
-  };
 
   return (
     <nav className={`${styles.navigation} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
         <div className={`${styles.navContainer} ${isScrolled ? styles.scrolled : ''}`}>
+          {/* Logo - CloudEmployee style */}
           <Link to="/" className={styles.logo}>
-            <div className={styles.logoIcon}>
-              H
-            </div>
+            <div className={styles.logoIcon}>HB</div>
             <span className={styles.logoText}>Higgs Boson</span>
-            <span className={styles.logoTextMobile}>HB</span>
           </Link>
 
-          {/* Desktop Menu */}
+          {/* Desktop Navigation */}
           <div className={styles.menu}>
-            {publicNavItems.map((item) => (
+            {/* Main navigation links */}
+            {mainNavigation.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`${styles.navLink} ${location.pathname === item.path ? styles.active : ''}`}
-                onClick={() => handleNavClick(item.label)}
+                className={`${styles.navLink} ${
+                  location.pathname === item.path ? styles.active : ''
+                }`}
               >
                 {item.label}
               </Link>
             ))}
-            
-            {/* Auth Navigation */}
-            <div className={styles.authSection}>
-              {authNavItems.map((item) => (
+
+            {/* User-specific navigation */}
+            {user && userNavigation.map((item) => {
+              if (item.requiresStaff && !user.is_staff) return null;
+              return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`${styles.navLink} ${location.pathname === item.path ? styles.active : ''} ${item.label === 'Login' ? styles.loginBtn : ''}`}
-                  onClick={() => handleNavClick(item.label)}
+                  className={`${styles.navLink} ${
+                    location.pathname === item.path ? styles.active : ''
+                  } ${item.label === 'Admin' ? styles.adminLink : ''}`}
                 >
                   {item.label}
                 </Link>
-              ))}
-              
-              {isAuthenticated && (
-                <div className={styles.userMenu}>
-                  <span className={styles.userName}>
-                    {user?.firstName || user?.username}
-                  </span>
-                </div>
-              )}
-            </div>
+              );
+            })}
+            
+            {/* Auth section */}
+            {user ? (
+              <div className={styles.authSection}>
+                <span className={styles.userName}>Hello, {user.username}</span>
+                <button onClick={handleLogout} className={styles.logoutBtn}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className={styles.authButtons}>
+                <Link to="/contact" className={styles.scheduleCall}>
+                  Schedule a Call
+                </Link>
+                <Link to="/login" className={styles.loginBtn}>
+                  Login
+                </Link>
+              </div>
+            )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile menu button */}
           <button
             className={styles.mobileMenuButton}
-            onClick={toggleMobileMenu}
-            aria-label="Toggle mobile menu"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <span className={`${styles.hamburger} ${isMobileMenuOpen ? styles.open : ''}`}>
+            <div className={`${styles.hamburger} ${isMobileMenuOpen ? styles.open : ''}`}>
               <span></span>
               <span></span>
               <span></span>
-            </span>
+            </div>
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation */}
         <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
           <div className={styles.mobileMenuContent}>
-            {publicNavItems.map((item) => (
+            {/* Main navigation for mobile */}
+            {mainNavigation.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`${styles.mobileNavLink} ${location.pathname === item.path ? styles.active : ''}`}
-                onClick={() => handleNavClick(item.label)}
+                className={`${styles.mobileNavLink} ${
+                  location.pathname === item.path ? styles.active : ''
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            
-            <div className={styles.mobileAuthSection}>
-              {authNavItems.map((item) => (
+
+            {/* User navigation for mobile */}
+            {user && userNavigation.map((item) => {
+              if (item.requiresStaff && !user.is_staff) return null;
+              return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`${styles.mobileNavLink} ${location.pathname === item.path ? styles.active : ''} ${item.label === 'Login' ? styles.loginBtn : ''}`}
-                  onClick={() => handleNavClick(item.label)}
+                  className={`${styles.mobileNavLink} ${
+                    location.pathname === item.path ? styles.active : ''
+                  } ${item.label === 'Admin' ? styles.adminLink : ''}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
-              ))}
-              
-              {isAuthenticated && (
+              );
+            })}
+            
+            {/* Mobile auth section */}
+            {user ? (
+              <div className={styles.mobileAuthSection}>
                 <div className={styles.mobileUserInfo}>
-                  <span>Welcome, {user?.firstName || user?.username}</span>
+                  Hello, {user.username}
                 </div>
-              )}
-            </div>
+                <button 
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }} 
+                  className={styles.mobileLogoutBtn}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className={styles.mobileAuthButtons}>
+                <Link 
+                  to="/contact" 
+                  className={styles.mobileScheduleCall}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Schedule a Call
+                </Link>
+                <Link 
+                  to="/login" 
+                  className={styles.mobileLoginBtn}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

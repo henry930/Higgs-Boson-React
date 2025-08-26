@@ -180,6 +180,44 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Ready to Build Section - Inspired by CloudEmployee */}
+      <section className={styles.readyToBuildSection}>
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-8">
+              <div className={styles.buildContent}>
+                <h2 className={styles.buildTitle}>
+                  Start building with AI-powered expertise—sourced, embedded, and ready in 7 days.
+                </h2>
+                <p className={styles.buildDescription}>
+                  We combine cutting-edge AI technology with elite development talent to deliver exceptional results. 
+                  Backed by proven methodologies and modern infrastructure, our teams are embedded fast and built to scale with your vision.
+                </p>
+                <Link to="/contact" className={styles.buildCta}>
+                  Start Your Project Now
+                </Link>
+              </div>
+            </div>
+            <div className="col-lg-4">
+              <div className={styles.buildImage}>
+                {/* Placeholder for image - you can add an actual image here */}
+                <div className={styles.imagePlaceholder}>
+                  <div className={styles.placeholderIcon}>
+                    <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M9 12l2 2 4-4"/>
+                      <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.28 0 2.49.27 3.59.75"/>
+                      <path d="M16 8l-1 1"/>
+                      <path d="M19 5l-1 1"/>
+                    </svg>
+                  </div>
+                  <p>AI-Powered Development</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section - CloudEmployee Style */}
       <section className="section-lg bg-dark">
         <div className="container">
