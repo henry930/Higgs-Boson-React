@@ -12,8 +12,10 @@ cd /Users/navcolon/Documents/higgsbosonconsultancy2/React/server
 # Activate virtual environment
 source venv/bin/activate
 
-# Set environment variables
-export OPENAI_API_KEY="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"
+# Load environment variables
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
 
 echo "📊 Current migration status:"
 python manage.py showmigrations api

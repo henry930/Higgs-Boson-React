@@ -177,6 +177,7 @@ prisma/dev.db
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
 
 # Development scripts
 test_services.sh

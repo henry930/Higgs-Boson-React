@@ -23,9 +23,14 @@ else
     exit 1
 fi
 
-# Set OpenAI API Key
-# We use external non-git file
-echo "🔑 OpenAI API Key set"
+# Load environment variables from .env file
+echo "🔑 Loading environment variables..."
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+    echo "✅ Environment variables loaded from .env"
+else
+    echo "⚠️  .env file not found, using default settings"
+fi
 
 # Check if migrations are needed
 echo "🔄 Checking migrations..."
