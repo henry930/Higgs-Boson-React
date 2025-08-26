@@ -1,6 +1,340 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.utils import timezone
 import bleach
+import uuid
+
+# Enhanced Company Model extending AbstractUser
+class Company(AbstractUser):
+    """Enhanced company model with authentication capabilities"""
+    
+    COMPANY_TYPE_CHOICES = [
+        ('ngo', 'Non-Profit Organization'),
+        ('startup', 'Startup'),
+        ('social_enterprise', 'Social Enterprise'),
+        ('corporate', 'Corporate'),
+        ('government', 'Government'),
+        ('other', 'Other'),
+    ]
+    
+    SUBSCRIPTION_PLAN_CHOICES = [
+        ('basic', 'Basic'),
+        ('premium', 'Premium'),
+        ('enterprise', 'Enterprise'),
+    ]
+    
+    # Override groups and user_permissions to avoid conflicts
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='company_users',
+        related_query_name='company_user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='company_users',
+        related_query_name='company_user',
+    )
+    
+    # Company-specific fields
+    company_name = models.CharField(max_length=200)
+    contact_email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True)
+    company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES, default='other')
+    
+    # Account management
+    is_verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=100, blank=True)
+    subscription_plan = models.CharField(max_length=20, choices=SUBSCRIPTION_PLAN_CHOICES, default='basic')
+    
+    # Business details
+    billing_address = models.TextField(blank=True)
+    tax_id = models.CharField(max_length=50, blank=True)
+    website = models.URLField(blank=True)
+    
+    # Timestamps
+    registration_date = models.DateTimeField(auto_now_add=True)
+    last_login_date = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+    
+    def __str__(self):
+        return f"{self.company_name} ({self.username})"
+    
+    def generate_verification_token(self):
+        """Generate a unique verification token"""
+        self.verification_token = str(uuid.uuid4())
+        self.save()
+        return self.verification_token
+
+
+# Project Management Models
+class Project(models.Model):
+    """Project model for tracking development projects"""
+    
+    PROJECT_STATUS_CHOICES = [
+        ('planning', 'Planning'),
+        ('in_progress', 'In Progress'),
+        ('testing', 'Testing'),
+        ('completed', 'Completed'),
+        ('on_hold', 'On Hold'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+    
+    # Basic project information
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='projects')
+    project_name = models.CharField(max_length=200)
+    description = models.TextField()
+    project_id = models.CharField(max_length=50, unique=True, blank=True)
+    
+    # Project status and timeline
+    status = models.CharField(max_length=20, choices=PROJECT_STATUS_CHOICES, default='planning')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    created_at = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateField(null=True, blank=True)
+    deadline = models.DateField(null=True, blank=True)
+    completed_date = models.DateField(null=True, blank=True)
+    
+    # Financial tracking
+    total_budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    progress_percentage = models.IntegerField(default=0)
+    
+    # Project details
+    tech_stack = models.JSONField(default=list)
+    requirements = models.TextField(blank=True)
+    deliverables = models.JSONField(default=list)
+    
+    def save(self, *args, **kwargs):
+        if not self.project_id:
+            self.project_id = f"HBC-{timezone.now().year}-{str(uuid.uuid4())[:8].upper()}"
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.project_name} - {self.company.company_name}"
+    
+    @property
+    def remaining_budget(self):
+        return self.total_budget - self.paid_amount
+    
+    @property
+    def is_overdue(self):
+        if self.deadline and self.status not in ['completed', 'cancelled']:
+            return timezone.now().date() > self.deadline
+        return False
+
+
+# Enhanced ProjectEstimation Model
+class ProjectEstimation(models.Model):
+    """Enhanced estimation model with company account integration"""
+    
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending_review', 'Pending Review'),
+        ('requires_account', 'Requires Account'),
+        ('pending_approval', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('expired', 'Expired'),
+        ('converted_to_project', 'Converted to Project'),
+    ]
+    
+    # Links to company and project
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='estimations', null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, blank=True, related_name='estimation')
+    
+    # Estimation identification
+    estimation_id = models.CharField(max_length=50, unique=True, blank=True)
+    session_id = models.CharField(max_length=100, blank=True)  # For anonymous sessions
+    
+    # Project details (from original model)
+    project_name = models.CharField(max_length=200)
+    company_name = models.CharField(max_length=200)
+    company_type = models.CharField(max_length=50, default='other')
+    description = models.TextField()
+    tech_stack = models.JSONField(default=list)
+    
+    # Contact information
+    contact_email = models.EmailField()
+    contact_phone = models.CharField(max_length=50, blank=True)
+    refer_agent_code = models.CharField(max_length=50, blank=True)
+    
+    # Estimation details
+    breakdown_details = models.JSONField(default=dict)
+    total_estimate = models.DecimalField(max_digits=10, decimal_places=2)
+    estimated_days = models.IntegerField()
+    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2)
+    discount_applied = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    
+    # Additional requirements
+    special_requirements = models.TextField(blank=True)
+    timeline_requirements = models.TextField(blank=True)
+    
+    # Status and tracking
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='draft')
+    requires_account = models.BooleanField(default=True)
+    
+    # Terms and approval
+    terms_acknowledged = models.BooleanField(default=False)
+    terms_acknowledged_at = models.DateTimeField(null=True, blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_estimations')
+    
+    # Conversation history
+    conversation_history = models.JSONField(default=list)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.estimation_id:
+            self.estimation_id = f"EST-{timezone.now().year}-{str(uuid.uuid4())[:8].upper()}"
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Estimation {self.estimation_id} - {self.project_name}"
+    
+    def approve_estimation(self, approved_by_company):
+        """Approve the estimation and optionally create a project"""
+        self.status = 'approved'
+        self.approved_at = timezone.now()
+        self.approved_by = approved_by_company
+        self.save()
+        
+        # Create a project from the estimation
+        project = Project.objects.create(
+            company=approved_by_company,
+            project_name=self.project_name,
+            description=self.description,
+            total_budget=self.total_estimate,
+            tech_stack=self.tech_stack,
+            requirements=self.special_requirements,
+        )
+        
+        self.project = project
+        self.status = 'converted_to_project'
+        self.save()
+        
+        return project
+
+
+# Developer and Team Models
+class DeveloperTeam(models.Model):
+    """Development team model"""
+    
+    name = models.CharField(max_length=100)
+    specialization = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+
+
+class Developer(AbstractUser):
+    """Developer user model"""
+    
+    EXPERIENCE_CHOICES = [
+        ('junior', 'Junior (0-2 years)'),
+        ('mid', 'Mid-level (2-5 years)'),
+        ('senior', 'Senior (5+ years)'),
+        ('lead', 'Lead/Architect'),
+    ]
+    
+    AVAILABILITY_CHOICES = [
+        ('available', 'Available'),
+        ('busy', 'Busy'),
+        ('unavailable', 'Unavailable'),
+    ]
+    
+    # Override groups and user_permissions to avoid conflicts
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='developer_users',
+        related_query_name='developer_user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='developer_users',
+        related_query_name='developer_user',
+    )
+    
+    # Developer details
+    specialization = models.CharField(max_length=100)
+    experience_level = models.CharField(max_length=10, choices=EXPERIENCE_CHOICES, default='mid')
+    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, default=170)
+    availability_status = models.CharField(max_length=15, choices=AVAILABILITY_CHOICES, default='available')
+    
+    # Team assignment
+    team = models.ForeignKey(DeveloperTeam, on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
+    
+    # Profile
+    bio = models.TextField(blank=True)
+    portfolio_url = models.URLField(blank=True)
+    linkedin_url = models.URLField(blank=True)
+    
+    class Meta:
+        verbose_name = 'Developer'
+        verbose_name_plural = 'Developers'
+    
+    def __str__(self):
+        return f"{self.get_full_name()} - {self.specialization}"
+
+
+# Project Assignment Model
+class ProjectAssignment(models.Model):
+    """Track developer assignments to projects"""
+    
+    ROLE_CHOICES = [
+        ('lead', 'Project Lead'),
+        ('developer', 'Developer'),
+        ('designer', 'Designer'),
+        ('tester', 'Tester'),
+    ]
+    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='assignments')
+    developer = models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='assignments')
+    team = models.ForeignKey(DeveloperTeam, on_delete=models.CASCADE, related_name='project_assignments')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='developer')
+    
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ['project', 'developer']
+    
+    def __str__(self):
+        return f"{self.developer.username} -> {self.project.project_name} ({self.role})"
 
 class Benefit(models.Model):
     title = models.CharField(max_length=200)
@@ -334,95 +668,170 @@ class Contract(models.Model):
         return f"Contract {self.contract_number} - {self.quote.requirement.project_title}"
 
 
-class ProjectEstimation(models.Model):
-    """Stores confirmed project estimations with complete conversation context"""
+# Project Communication Model
+class ProjectCommunication(models.Model):
+    """Communication between companies and developers"""
     
-    STATUS_CHOICES = [
-        ('pending', 'Pending Confirmation'),
-        ('confirmed', 'Confirmed by Customer'),
-        ('revised', 'Needs Revision'),
+    MESSAGE_TYPE_CHOICES = [
+        ('message', 'Regular Message'),
+        ('update', 'Project Update'),
+        ('milestone', 'Milestone Update'),
+        ('issue', 'Issue Report'),
+        ('delivery', 'Delivery Notification'),
+        ('payment', 'Payment Related'),
+    ]
+    
+    SENDER_TYPE_CHOICES = [
+        ('company', 'Company User'),
+        ('developer', 'Developer'),
+        ('admin', 'Admin'),
+        ('system', 'System'),
+    ]
+    
+    # Message details
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='communications')
+    sender_company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    sender_developer = models.ForeignKey(Developer, on_delete=models.CASCADE, null=True, blank=True)
+    sender_type = models.CharField(max_length=10, choices=SENDER_TYPE_CHOICES)
+    
+    # Message content
+    message = models.TextField()
+    message_type = models.CharField(max_length=15, choices=MESSAGE_TYPE_CHOICES, default='message')
+    attachments = models.JSONField(default=list)
+    
+    # Status tracking
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    # Threading
+    reply_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
+    
+    class Meta:
+        ordering = ['-timestamp']
+    
+    def __str__(self):
+        sender = "Company" if self.sender_company else "Developer"
+        return f"{sender} message in {self.project.project_name} at {self.timestamp}"
+    
+    def mark_as_read(self):
+        """Mark message as read"""
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save(update_fields=['is_read', 'read_at'])
+
+
+# Payment Tracking Model
+class PaymentTransaction(models.Model):
+    """Track payments for projects"""
+    
+    PAYMENT_TYPE_CHOICES = [
+        ('deposit', 'Initial Deposit'),
+        ('milestone', 'Milestone Payment'),
+        ('final', 'Final Payment'),
+        ('refund', 'Refund'),
+        ('extra', 'Additional Work'),
+    ]
+    
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+        ('disputed', 'Disputed'),
+    ]
+    
+    PAYMENT_METHOD_CHOICES = [
+        ('bank_transfer', 'Bank Transfer'),
+        ('credit_card', 'Credit Card'),
+        ('paypal', 'PayPal'),
+        ('stripe', 'Stripe'),
+        ('crypto', 'Cryptocurrency'),
+        ('check', 'Check'),
+    ]
+    
+    # Payment details
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_type = models.CharField(max_length=15, choices=PAYMENT_TYPE_CHOICES)
+    status = models.CharField(max_length=15, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    
+    # Payment processing
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    transaction_id = models.CharField(max_length=100, blank=True)
+    payment_gateway_response = models.JSONField(default=dict)
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField(null=True, blank=True)
+    payment_date = models.DateTimeField(null=True, blank=True)
+    
+    # Notes and references
+    notes = models.TextField(blank=True)
+    invoice_number = models.CharField(max_length=50, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Payment {self.transaction_id} - {self.project.project_name} - ${self.amount}"
+    
+    @property
+    def is_overdue(self):
+        """Check if payment is overdue"""
+        if self.due_date and self.status == 'pending':
+            return timezone.now().date() > self.due_date
+        return False
+
+
+# Project Milestone Model
+class ProjectMilestone(models.Model):
+    """Track project milestones and deliverables"""
+    
+    MILESTONE_STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('delayed', 'Delayed'),
         ('cancelled', 'Cancelled'),
     ]
     
-    COMPANY_TYPE_CHOICES = [
-        ('ngo', 'NGO'),
-        ('startup', 'Startup'),
-        ('social_enterprise', 'Social Enterprise (B Corp)'),
-        ('corporate', 'Corporate'),
-        ('government', 'Government'),
-        ('other', 'Other'),
-    ]
-    
-    # Project Information
-    project_name = models.CharField(max_length=200)
-    company_name = models.CharField(max_length=200)
-    company_type = models.CharField(max_length=20, choices=COMPANY_TYPE_CHOICES)
+    # Milestone details
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='milestones')
+    title = models.CharField(max_length=200)
     description = models.TextField()
-    tech_stack = models.JSONField(default=list, help_text="Array of technologies proposed")
+    order = models.PositiveIntegerField(default=0)
     
-    # Estimation Details
-    breakdown_details = models.JSONField(default=dict, help_text="Detailed cost breakdown")
-    total_estimate = models.DecimalField(max_digits=12, decimal_places=2)
-    estimated_days = models.IntegerField()
-    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=170)
+    # Status and dates
+    status = models.CharField(max_length=15, choices=MILESTONE_STATUS_CHOICES, default='planned')
+    due_date = models.DateField()
+    completion_date = models.DateField(null=True, blank=True)
     
-    # Contact Information
-    contact_email = models.EmailField()
-    contact_phone = models.CharField(max_length=20, blank=True)
+    # Payment and deliverables
+    payment_percentage = models.IntegerField(default=0)  # Percentage of total project cost
+    deliverables = models.JSONField(default=list)
     
-    # Agent & Referral
-    refer_agent_code = models.CharField(max_length=50, blank=True, help_text="Agent referral code")
-    assigned_agent = models.CharField(max_length=200, blank=True)
-    
-    # Conversation Context
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='estimations')
-    conversation_history = models.JSONField(default=list, help_text="Full conversation that led to estimation")
-    session_id = models.CharField(max_length=100)
-    
-    # Status & Tracking
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    confirmed_at = models.DateTimeField(null=True, blank=True)
-    terms_acknowledged = models.BooleanField(default=False, help_text="Customer acknowledged terms and conditions")
-    terms_acknowledged_at = models.DateTimeField(null=True, blank=True)
-    
-    # Additional Metadata
-    discount_applied = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Discount percentage applied")
-    special_requirements = models.TextField(blank=True)
-    timeline_requirements = models.CharField(max_length=200, blank=True)
-    
+    # Tracking
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
-        ordering = ['-created_at']
-
+        ordering = ['project', 'order']
+        unique_together = ['project', 'order']
+    
     def __str__(self):
-        return f"{self.project_name} - {self.company_name} (£{self.total_estimate})"
+        return f"{self.project.project_name} - {self.title}"
     
-    def get_breakdown_summary(self):
-        """Return a formatted summary of the cost breakdown"""
-        if not self.breakdown_details:
-            return "No breakdown available"
-        
-        summary = []
-        for item, details in self.breakdown_details.items():
-            if isinstance(details, dict) and 'cost' in details:
-                summary.append(f"{item}: £{details['cost']}")
-            else:
-                summary.append(f"{item}: £{details}")
-        return "\n".join(summary)
+    @property
+    def payment_amount(self):
+        """Calculate payment amount for this milestone"""
+        return (self.project.total_budget * self.payment_percentage) / 100
     
-    def apply_company_discount(self):
-        """Apply discount based on company type"""
-        discount_rates = {
-            'ngo': 20,  # 20% for NGOs
-            'startup': 15,  # 15% for startups
-            'social_enterprise': 18,  # 18% for social enterprises
-        }
-        
-        if self.company_type in discount_rates:
-            self.discount_applied = discount_rates[self.company_type]
-            original_total = self.total_estimate
-            self.total_estimate = original_total * (1 - self.discount_applied / 100)
-            return True
+    @property
+    def is_overdue(self):
+        """Check if milestone is overdue"""
+        if self.status not in ['completed', 'cancelled']:
+            return timezone.now().date() > self.due_date
         return False

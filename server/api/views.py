@@ -2,9 +2,14 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django.core.mail import send_mail
 import uuid
 import json
 import logging
@@ -12,7 +17,8 @@ import logging
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
     Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings,
-    ProjectEstimation
+    ProjectEstimation, Company, Project, Developer, ProjectCommunication, 
+    PaymentTransaction, ProjectMilestone
 )
 from .serializers import (
     BenefitSerializer, ProcessStepSerializer, TestimonialSerializer,
@@ -350,22 +356,31 @@ class AICustomerServiceView(APIView):
         
         # Check if disclaimers have been shown (look for disclaimers in recent AI messages)
         recent_ai_messages = []
-        for conv in conversation_history[-5:]:  # Last 5 messages
+        start_index = max(0, len(conversation_history) - 5)
+        for conv in conversation_history[start_index:]:  # Last 5 messages
             if not conv.get('is_user', True):  # AI message
                 recent_ai_messages.append(conv['content'].lower())
         
         recent_ai_text = ' '.join(recent_ai_messages)
         disclaimers_shown = 'estimation terms & conditions' in recent_ai_text or 'quote binding' in recent_ai_text
         
-        # Check for estimation confirmation keywords
+        # Check for estimation confirmation keywords in recent customer messages (not just current)
         confirmation_keywords = [
             'sounds good', 'i accept', "let's proceed", 'yes please', 'confirm', 
             'i agree', 'that works', 'perfect', 'go ahead', 'yes', 'okay', 'ok',
             'looks good', 'proceed', 'move forward', 'i understand', 'agree to these terms'
         ]
         
-        current_message_lower = current_message.lower()
-        is_confirmation = any(keyword in current_message_lower for keyword in confirmation_keywords)
+        # Check current message and last 5 customer messages for confirmation
+        recent_customer_messages = []
+        start_index = max(0, len(conversation_history) - 6)
+        for conv in conversation_history[start_index:]:  # Last 6 messages
+            if conv.get('is_user', True):  # Customer message
+                recent_customer_messages.append(conv['content'].lower())
+        recent_customer_messages.append(current_message.lower())
+        
+        recent_customer_text = ' '.join(recent_customer_messages)
+        is_confirmation = any(keyword in recent_customer_text for keyword in confirmation_keywords)
         
         # Check if we recently provided an estimation (look for cost mentions in recent AI responses)
         has_recent_estimate = any(word in recent_ai_text for word in ['£', 'cost', 'estimate', 'price', 'total'])
@@ -494,7 +509,7 @@ class AICustomerServiceView(APIView):
         
         # If mentioning estimation but not confirming, check if we can extract project info
         estimation_keywords = ['estimate', 'quote', 'cost', 'price', 'budget', 'how much']
-        if any(keyword in current_message_lower for keyword in estimation_keywords):
+        if any(keyword in current_message.lower() for keyword in estimation_keywords):
             project_info = self.estimation_service.extract_project_info(conversation_history + [{'content': current_message, 'is_user': True}])
             missing_fields = self.estimation_service.get_missing_fields(project_info)
             
@@ -1499,3 +1514,254 @@ class AIConfigurationView(APIView):
         updated_config = ai_service.update_business_config(request.data)
         
         return api_response(data=updated_config, message="AI configuration updated successfully")
+
+
+# Company Authentication Views
+class CompanyRegistrationView(APIView):
+    """Company registration endpoint"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        """Register a new company"""
+        try:
+            data = request.data
+            
+            # Check if company already exists
+            if Company.objects.filter(email=data.get('email')).exists():
+                return api_response(
+                    message="Company with this email already exists",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if Company.objects.filter(company_name=data.get('company_name')).exists():
+                return api_response(
+                    message="Company with this name already exists", 
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Create new company
+            company = Company.objects.create_user(
+                username=data.get('email'),  # Use email as username
+                email=data.get('email'),
+                password=data.get('password'),
+                company_name=data.get('company_name'),
+                contact_email=data.get('email'),
+                phone=data.get('phone', ''),
+                company_type=data.get('company_type', 'other'),
+                billing_address=data.get('billing_address', ''),
+                website=data.get('website', ''),
+                first_name=data.get('first_name', ''),
+                last_name=data.get('last_name', ''),
+            )
+            
+            # Generate verification token
+            verification_token = company.generate_verification_token()
+            
+            # Send verification email (implement as needed)
+            try:
+                send_mail(
+                    subject='Verify Your Company Account',
+                    message=f'Please verify your account using this token: {verification_token}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[company.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                logging.warning(f"Could not send verification email: {e}")
+            
+            # Generate auth token
+            token, created = Token.objects.get_or_create(user=company)
+            
+            return api_response(data={
+                'company_id': company.id,
+                'company_name': company.company_name,
+                'email': company.email,
+                'token': token.key,
+                'verification_required': True,
+                'message': 'Company registered successfully. Please check your email for verification.'
+            })
+            
+        except Exception as e:
+            logging.error(f"Company registration error: {e}")
+            return api_response(
+                message="Registration failed. Please try again.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class CompanyLoginView(APIView):
+    """Company login endpoint"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        """Authenticate company user"""
+        try:
+            email = request.data.get('email')
+            password = request.data.get('password')
+            
+            # Authenticate user
+            user = authenticate(username=email, password=password)
+            
+            if user and isinstance(user, Company):
+                if user.is_active:
+                    # Get or create token
+                    token, created = Token.objects.get_or_create(user=user)
+                    
+                    # Update last login
+                    user.last_login_date = timezone.now()
+                    user.save()
+                    
+                    return api_response(data={
+                        'company_id': user.id,
+                        'company_name': user.company_name,
+                        'email': user.email,
+                        'token': token.key,
+                        'is_verified': user.is_verified,
+                        'subscription_plan': user.subscription_plan,
+                        'message': 'Login successful'
+                    })
+                else:
+                    return api_response(
+                        message="Account is disabled",
+                        status_code=status.HTTP_401_UNAUTHORIZED
+                    )
+            else:
+                return api_response(
+                    message="Invalid email or password",
+                    status_code=status.HTTP_401_UNAUTHORIZED
+                )
+                
+        except Exception as e:
+            logging.error(f"Company login error: {e}")
+            return api_response(
+                message="Login failed. Please try again.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class CompanyVerificationView(APIView):
+    """Company account verification endpoint"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        """Verify company account with token"""
+        try:
+            token = request.data.get('token')
+            
+            if not token:
+                return api_response(
+                    message="Verification token is required",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Find company with this token
+            try:
+                company = Company.objects.get(verification_token=token)
+                
+                if company.is_verified:
+                    return api_response(
+                        message="Account is already verified",
+                        status_code=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Verify the account
+                company.is_verified = True
+                company.verification_date = timezone.now()
+                company.verification_token = ''  # Clear the token
+                company.save()
+                
+                return api_response(data={
+                    'company_id': company.id,
+                    'company_name': company.company_name,
+                    'message': 'Account verified successfully'
+                })
+                
+            except Company.DoesNotExist:
+                return api_response(
+                    message="Invalid verification token",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+                
+        except Exception as e:
+            logging.error(f"Company verification error: {e}")
+            return api_response(
+                message="Verification failed. Please try again.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class CompanyDashboardView(APIView):
+    """Company dashboard data endpoint"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Get company dashboard data"""
+        try:
+            company = request.user
+            
+            if not isinstance(company, Company):
+                return api_response(
+                    message="Access denied. Company account required.",
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get company projects
+            projects = Project.objects.filter(company=company).order_by('-created_at')
+            
+            # Calculate statistics
+            total_projects = projects.count()
+            active_projects = projects.filter(status__in=['planning', 'development', 'testing']).count()
+            completed_projects = projects.filter(status='completed').count()
+            total_spent = sum(project.paid_amount for project in projects)
+            pending_payments = sum(project.total_budget - project.paid_amount for project in projects)
+            
+            # Recent activity (last 5 projects)
+            recent_projects = projects[:5]
+            
+            # Get pending estimations
+            pending_estimations = ProjectEstimation.objects.filter(
+                company=company,
+                status='pending_approval'
+            ).order_by('-created_at')
+            
+            return api_response(data={
+                'company_info': {
+                    'name': company.company_name,
+                    'email': company.email,
+                    'company_type': company.company_type,
+                    'subscription_plan': company.subscription_plan,
+                    'is_verified': company.is_verified,
+                },
+                'statistics': {
+                    'total_projects': total_projects,
+                    'active_projects': active_projects,
+                    'completed_projects': completed_projects,
+                    'total_spent': float(total_spent),
+                    'pending_payments': float(pending_payments),
+                },
+                'recent_projects': [
+                    {
+                        'id': project.id,
+                        'name': project.project_name,
+                        'status': project.status,
+                        'progress': project.progress_percentage,
+                        'budget': float(project.total_budget),
+                        'created_at': project.created_at.isoformat(),
+                    } for project in recent_projects
+                ],
+                'pending_estimations': [
+                    {
+                        'id': estimation.id,
+                        'project_type': estimation.project_type,
+                        'estimated_cost': float(estimation.total_estimate),
+                        'created_at': estimation.created_at.isoformat(),
+                    } for estimation in pending_estimations
+                ]
+            })
+            
+        except Exception as e:
+            logging.error(f"Company dashboard error: {e}")
+            return api_response(
+                message="Failed to load dashboard data",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

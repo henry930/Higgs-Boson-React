@@ -1,39 +1,41 @@
-// Global styles for Higgs Boson Consultancy
+// Global styles inspired by CloudEmployee.io
 // Import SCSS variables
 @use './variables' as *;
 
-// Import Google Fonts
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+// Import Google Fonts - CloudEmployee uses modern, clean fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap');
 
-// Global Variables
+// Global Variables - CloudEmployee inspired color palette
 :root {
-  // Color System
+  // Primary Color System - Clean blues and blacks
   --primary-color: #0066ff;
   --primary-dark: #0052cc;
   --primary-light: #4d94ff;
-  --secondary-color: #1a1a1a;
-  --accent-color: #6366f1;
+  --secondary-color: #000000;
+  --accent-color: #0066ff;
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
-  --dark-color: #0f172a;
+  --dark-color: #000000;
   --light-color: #ffffff;
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
   
-  // Typography
+  // Gray Scale - CloudEmployee uses very clean grays
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #e5e5e5;
+  --gray-300: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-600: #525252;
+  --gray-700: #404040;
+  --gray-800: #262626;
+  --gray-900: #171717;
+  
+  // Typography - Clean, readable fonts
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-heading: 'Space Grotesk', 'Inter', sans-serif;
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
-  // Spacing
+  // Spacing - More generous spacing like CloudEmployee
   --space-xs: 0.5rem;
   --space-sm: 0.75rem;
   --space-md: 1rem;
@@ -42,18 +44,19 @@
   --space-2xl: 3rem;
   --space-3xl: 4rem;
   --space-4xl: 6rem;
+  --space-5xl: 8rem;
   
-  // Shadows
+  // Shadows - Subtle, modern shadows
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   
-  // Border Radius
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  // Border Radius - More rounded like CloudEmployee
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
 // Global Reset and Base Styles
@@ -74,10 +77,10 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-top: 80px; // Account for fixed navbar
+  background-color: #ffffff;
 }
 
-// Typography
+// Typography - CloudEmployee style
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -87,105 +90,154 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: var(--space-lg);
 }
 
-h1, .display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+}
+
+.display-1 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.display-2 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.04em;
 }
 
-.display-4 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  line-height: 1.1;
-  font-weight: 800;
-}
-
-.display-5 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.2;
-  font-weight: 700;
-}
-
 .lead {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--gray-600);
+  font-weight: 400;
+}
+
+.text-large {
+  font-size: 1.125rem;
   line-height: 1.7;
   color: var(--gray-600);
 }
 
-// Container
+// Container - Wider like CloudEmployee
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 
   @media (min-width: 768px) {
     padding: 0 2rem;
   }
-}
 
-// Grid System
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -0.75rem;
-
-  &.align-items-center {
-    align-items: center;
-  }
-
-  &.justify-content-center {
-    justify-content: center;
-  }
-
-  &.text-center {
-    text-align: center;
-  }
-
-  &.g-4 > * {
-    padding: 1rem;
-  }
-
-  &.g-5 > * {
-    padding: 1.5rem;
+  @media (min-width: 1024px) {
+    padding: 0 3rem;
   }
 }
 
-// Column classes
-.col-lg-6, .col-lg-8, .col-md-4, .col-md-6, .col-lg-3 {
-  padding: 0 0.75rem;
-  width: 100%;
+.container-narrow {
+  max-width: 900px;
 }
 
-@media (min-width: 768px) {
-  .col-md-4 { width: 33.333333%; }
-  .col-md-6 { width: 50%; }
+// Section Styles - Generous spacing like CloudEmployee
+section {
+  padding: var(--space-5xl) 0;
+
+  &.section-lg {
+    padding: var(--space-5xl) 0 var(--space-4xl) 0;
+  }
+
+  &.section-sm {
+    padding: var(--space-3xl) 0;
+  }
 }
 
-@media (min-width: 992px) {
-  .col-lg-3 { width: 25%; }
-  .col-lg-6 { width: 50%; }
-  .col-lg-8 { width: 66.666667%; }
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-4xl);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+
+  h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .lead {
+    margin-bottom: 0;
+  }
 }
 
-// Button Styles
+// Button Styles - CloudEmployee inspired
 .btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  justify-content: center;
+  padding: 0.875rem 2rem;
   font-weight: 600;
   text-decoration: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: var(--font-primary);
+  font-size: 1rem;
+  line-height: 1.5;
   gap: 0.5rem;
+  white-space: nowrap;
 
   &.btn-lg {
-    padding: 1rem 2rem;
+    padding: 1.125rem 2.5rem;
     font-size: 1.125rem;
+    border-radius: var(--radius-xl);
   }
 
-  &.btn-light {
+  &.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgb(0 102 255 / 0.15);
+
+    &:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px 0 rgb(0 102 255 / 0.25);
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    color: var(--gray-900);
+    border: 2px solid var(--gray-300);
+
+    &:hover {
+      background: var(--gray-900);
+      color: white;
+      border-color: var(--gray-900);
+    }
+  }
+
+  &.btn-white {
     background: white;
     color: var(--gray-900);
     box-shadow: var(--shadow-md);
@@ -197,218 +249,223 @@ h1, .display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
     }
   }
 
-  &.btn-outline-light {
-    background: transparent;
-    color: white;
-    border: 2px solid white;
-
-    &:hover {
-      background: white;
-      color: var(--gray-900);
-    }
-  }
-
-  &.btn-primary {
-    background: var(--accent-color);
+  &.btn-black {
+    background: var(--gray-900);
     color: white;
 
     &:hover {
-      background: var(--primary-color);
+      background: var(--gray-800);
       transform: translateY(-2px);
     }
   }
 }
 
-// Card Styles
+// Card Styles - Clean CloudEmployee style
 .card {
   background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--gray-200);
   overflow: hidden;
   transition: all 0.3s ease;
 
-  &.h-100 {
-    height: 100%;
-  }
-
-  &.card-animate:hover {
-    transform: translateY(-4px);
+  &.card-hover:hover {
+    transform: translateY(-8px);
     box-shadow: var(--shadow-xl);
   }
 
   .card-body {
-    padding: var(--space-xl);
+    padding: var(--space-2xl);
 
     &.text-center {
       text-align: center;
     }
+
+    &.p-4 {
+      padding: var(--space-xl);
+    }
+
+    &.p-5 {
+      padding: var(--space-2xl);
+    }
   }
 
   .card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: var(--space-md);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
     color: var(--gray-900);
+    line-height: 1.3;
   }
 
   .card-text {
     color: var(--gray-600);
     line-height: 1.6;
     margin: 0;
+    font-size: 1rem;
   }
 }
 
-// Section Styles
-section {
-  padding: var(--space-4xl) 0;
-
-  &.py-5 {
-    padding: var(--space-4xl) 0;
-  }
-}
-
-.section-header {
+// Hero Section - CloudEmployee style
+.hero-section {
+  padding: var(--space-5xl) 0;
+  background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  margin-bottom: var(--space-3xl);
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
 
-  h2 {
-    margin-bottom: var(--space-lg);
+  .hero-title {
+    margin-bottom: var(--space-xl);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .lead {
-    font-size: 1.1rem;
-    margin-bottom: 0;
+  .hero-subtitle {
+    margin-bottom: var(--space-2xl);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+
+    @media (min-width: 640px) {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+}
+
+// Feature Grid - CloudEmployee style
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-2xl);
+  margin-top: var(--space-3xl);
+}
+
+.feature-card {
+  text-align: center;
+  padding: var(--space-2xl);
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-color);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-xl) auto;
+    font-size: 2rem;
+    color: white;
+  }
+
+  .feature-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    color: var(--gray-900);
+  }
+
+  .feature-text {
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+}
+
+// Stats Section - CloudEmployee style
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2xl);
+  text-align: center;
+}
+
+.stat-item {
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    line-height: 1;
+    margin-bottom: var(--space-sm);
+  }
+
+  .stat-label {
+    font-size: 1rem;
+    color: var(--gray-600);
+    font-weight: 500;
   }
 }
 
 // Background Patterns
-.bg-pattern-mesh {
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-  position: relative;
-  overflow: hidden;
+.bg-gradient {
+  background: linear-gradient(180deg, #fafafa 0%, #ffffff 50%, #fafafa 100%);
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
-    opacity: 0.7;
+.bg-dark {
+  background: var(--gray-900);
+  color: white;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: white;
   }
-}
 
-.bg-pattern-neural {
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-  position: relative;
-}
-
-.bg-pattern-2 {
-  background: linear-gradient(45deg, var(--primary-color), var(--accent-color), var(--primary-light), var(--accent-color));
-  background-size: 400% 400%;
-  animation: gradient-shift 10s ease infinite;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    opacity: 0.4;
+  .lead, .text-large {
+    color: var(--gray-300);
   }
-}
-
-// Icon Styles
-.icon-gradient-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%) !important;
-  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
-}
-
-.icon-gradient-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.icon-gradient-info {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
-  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
 }
 
 // Utility Classes
 .text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-primary { color: var(--primary-color) !important; }
 .text-dark { color: var(--gray-900) !important; }
 .text-muted { color: var(--gray-600) !important; }
 .text-white { color: white !important; }
 
-.bg-success { background-color: var(--success-color) !important; }
-.bg-info { background-color: #06b6d4 !important; }
-.bg-warning { background-color: var(--warning-color) !important; }
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-dark { background-color: var(--gray-900) !important; }
+.bg-light { background-color: var(--gray-50) !important; }
 
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: var(--space-xs) !important; }
+.mb-2 { margin-bottom: var(--space-sm) !important; }
 .mb-3 { margin-bottom: var(--space-md) !important; }
 .mb-4 { margin-bottom: var(--space-lg) !important; }
+.mb-5 { margin-bottom: var(--space-xl) !important; }
+
+.mt-0 { margin-top: 0 !important; }
+.mt-3 { margin-top: var(--space-md) !important; }
+.mt-4 { margin-top: var(--space-lg) !important; }
+.mt-5 { margin-top: var(--space-xl) !important; }
 
 .d-flex { display: flex; }
-.d-inline-flex { display: inline-flex; }
+.d-grid { display: grid; }
+.d-block { display: block; }
+.d-none { display: none; }
+
 .align-items-center { align-items: center; }
 .justify-content-center { justify-content: center; }
-.flex-wrap { flex-wrap: wrap; }
+.justify-content-between { justify-content: space-between; }
+
+.gap-2 { gap: var(--space-sm); }
 .gap-3 { gap: var(--space-md); }
+.gap-4 { gap: var(--space-lg); }
 
-.rounded-circle { border-radius: 50%; }
-
-.fs-2 { font-size: 1.5rem; }
-.fw-bold { font-weight: 700; }
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
 
 .opacity-75 { opacity: 0.75; }
-
-// Animations
-@keyframes gradient-shift {
-  0%, 100% { 
-    background-position: 0% 50%; 
-  }
-  50% { 
-    background-position: 100% 50%; 
-  }
-}
-
-// Process Steps
-.process-step {
-  text-align: center;
-  padding: var(--space-xl);
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  h4 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: var(--space-md);
-    font-size: 1.1rem;
-  }
-
-  p {
-    color: var(--gray-600);
-    line-height: 1.6;
-    margin: 0;
-  }
-}
+.opacity-50 { opacity: 0.5; }
 
 // Responsive Design
 @media (max-width: 768px) {
@@ -420,13 +477,60 @@ section {
     width: 100%;
     justify-content: center;
     margin-bottom: 0.5rem;
+    
+    &.btn-responsive {
+      width: auto;
+    }
   }
   
-  .display-4 {
-    font-size: 2.5rem;
+  .hero-buttons {
+    flex-direction: column;
+    
+    .btn {
+      width: 100%;
+    }
   }
   
-  .display-5 {
-    font-size: 2rem;
+  section {
+    padding: var(--space-3xl) 0;
   }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Animation Classes
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }

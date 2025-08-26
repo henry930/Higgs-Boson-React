@@ -112,48 +112,58 @@ class ProjectEstimationService:
         
         full_conversation = ' '.join(customer_messages)
         
-        # Extract project name
+        # Extract project name - look for donation platform, web application, etc.
         project_patterns = [
             r"project\s+(?:is\s+)?(?:called\s+)?['\"]([^'\"]+)['\"]",
             r"(?:building|creating|developing)\s+(?:a\s+)?(?:project\s+)?['\"]([^'\"]+)['\"]",
             r"my\s+project\s+['\"]([^'\"]+)['\"]",
             r"working\s+on\s+['\"]([^'\"]+)['\"]",
             r"project\s+name\s+is\s+['\"]([^'\"]+)['\"]",
-            r"the\s+project\s+name\s+is\s+['\"]([^'\"]+)['\"]",
-            # Patterns without quotes
-            r"project\s+name\s+is\s+([^.!?]+?)(?:\.|!|\?|$)",
-            r"the\s+project\s+name\s+is\s+([^.!?]+?)(?:\.|!|\?|$)",
-            r"project\s+is\s+called\s+([^.!?]+?)(?:\.|!|\?|$)",
-            r"building\s+(?:an?\s+)?([^.!?]+?)\s+(?:app|platform|website|system)",
-            r"creating\s+(?:an?\s+)?([^.!?]+?)\s+(?:app|platform|website|system)",
+            # Enhanced patterns for platform/application detection
+            r"(?:build|need|want|create)\s+(?:a\s+)?([^.!?]*?(?:platform|application|app|website|system|dashboard|portal))",
+            r"(?:developing|building)\s+(?:a\s+)?([^.!?]*?(?:platform|application|app|website|system))",
+            r"for\s+(?:my|our)\s+([^.!?]*?(?:platform|application|app|website|system))",
+            # Specific pattern for donation platform
+            r"(?:build|need|want|create)\s+(?:a\s+)?(donation\s+platform)",
         ]
         
         for pattern in project_patterns:
             match = re.search(pattern, full_conversation, re.IGNORECASE)
             if match:
-                extracted_info['project_name'] = match.group(1).title()
-                break
+                project_name = match.group(1).strip().title()
+                # Clean up common words that shouldn't be in project name
+                project_name = re.sub(r'\b(?:a|an|the|my|our|for|with)\b', '', project_name, flags=re.IGNORECASE).strip()
+                if len(project_name) > 3:  # Ensure we have a meaningful name
+                    extracted_info['project_name'] = project_name
+                    break
         
-        # Extract company name
+        # Extract company name - improved patterns  
         company_patterns = [
-            r"company\s+(?:is\s+)?['\"]([^'\"]+)['\"]",
-            r"(?:from|at)\s+['\"]([^'\"]+)['\"]",
-            r"my\s+company\s+['\"]([^'\"]+)['\"]",
+            r"(?:company|organization|ngo)\s+(?:is\s+)?(?:called\s+)?['\"]([^'\"]+)['\"]",
+            r"(?:from|at|for)\s+['\"]([^'\"]+)['\"]",
+            r"my\s+(?:company|organization|ngo)\s+['\"]([^'\"]+)['\"]",
             r"we\s+are\s+['\"]([^'\"]+)['\"]",
             r"company\s+name\s+is\s+['\"]([^'\"]+)['\"]",
-            # Patterns without quotes
-            r"company\s+(?:is\s+)?([^.!?]+?)(?:\.|!|\?|$)",
-            r"my\s+company\s+(?:is\s+)?([^.!?]+?)(?:\.|!|\?|$)",
-            r"(?:from|at)\s+([A-Z][a-zA-Z\s]+?)(?:\.|!|\?|$)",
-            r"for\s+my\s+(?:startup\s+)?([A-Z][a-zA-Z\s]+?)(?:\.|!|\?|$)",
-            r"company\s+name\s+is\s+([^.!?]+?)(?:\.|!|\?|$)",
+            # Enhanced patterns for NGO/company detection
+            r"(?:called|named)\s+([A-Z][a-zA-Z\s]+?(?:NGO|Foundation|Inc|LLC|Ltd|Organization))",
+            r"my\s+(?:company|organization|ngo)\s+(?:is\s+)?([A-Z][a-zA-Z\s]+?)(?:\.|,|!|\?|$)",
+            r"(?:from|at|for)\s+([A-Z][a-zA-Z\s]+?(?:NGO|Foundation|Inc|LLC|Ltd|Organization))",
+            r"our\s+(?:ngo|organization|company)\s+(?:is\s+)?(?:called\s+)?([A-Z][a-zA-Z\s]+?)(?:\.|,|!|\?|$)",
+            r"company\s+(?:is\s+)?([A-Z][a-zA-Z\s]+?)(?:\.|,|!|\?|$)",
+            # Specific NGO pattern
+            r"ngo\s+is\s+called\s+([A-Z][a-zA-Z\s]+?)(?:\.|,|!|\?|$)",
         ]
         
         for pattern in company_patterns:
             match = re.search(pattern, full_conversation, re.IGNORECASE)
             if match:
-                extracted_info['company_name'] = match.group(1).title()
-                break
+                company_name = match.group(1).strip()
+                # Preserve original case for proper names
+                if len(company_name) > 2 and not company_name.lower() in ['ngo', 'company', 'organization']:
+                    # Fix case for NGO suffix
+                    company_name = re.sub(r'\bngo\b', 'NGO', company_name, flags=re.IGNORECASE)
+                    extracted_info['company_name'] = company_name
+                    break
         
         # Extract company type
         if any(word in full_conversation for word in ['ngo', 'non-profit', 'nonprofit', 'charity']):
