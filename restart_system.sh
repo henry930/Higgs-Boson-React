@@ -102,7 +102,8 @@ else
     echo "⚠️  Django start script not found, starting manually..."
     if [ -f "venv/bin/activate" ]; then
         source venv/bin/activate
-        export OPENAI_API_KEY="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"
+# See Open_AI_Key 
+        export OPENAI_API_KEY=""
         python manage.py runserver 0.0.0.0:8000 &
         DJANGO_PID=$!
         echo "🆔 Django server PID: $DJANGO_PID"
