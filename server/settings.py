@@ -92,11 +92,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-<<<<<<< HEAD
-        'rest_framework.permissions.IsAuthenticated',
-=======
         'rest_framework.permissions.AllowAny',  # Allow public access by default
->>>>>>> 28bf4aceee84e0f56ad04373d5a7f6ea681e149b
     ],
 }
 
