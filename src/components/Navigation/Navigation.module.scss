@@ -55,13 +55,13 @@
     transition: all 0.2s ease;
 
     &:hover {
-      color: #0066ff;
+      color: $primary-color;
     }
 
     .logoIcon {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, #0066ff 0%, #4d94ff 100%);
+      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -116,7 +116,7 @@
       }
 
       &.active {
-        color: #0066ff;
+        color: $primary-color;
         font-weight: 600;
         
         &::after {
@@ -126,18 +126,18 @@
           left: 0;
           right: 0;
           height: 2px;
-          background: #0066ff;
+          background: $primary-color;
           border-radius: 1px;
         }
       }
 
       &.loginBtn {
-        background: #0066ff;
+        background: $primary-color;
         color: white;
         padding: 0.625rem 1.5rem;
         border-radius: 0.75rem;
         font-weight: 600;
-        box-shadow: 0 4px 14px 0 rgba(0, 102, 255, 0.15);
+        box-shadow: 0 4px 14px 0 rgba(33, 69, 111, 0.15);
 
         &:hover {
           background: #0052cc;
@@ -290,12 +290,12 @@
       }
 
       &.active {
-        color: #0066ff;
+        color: $primary-color;
         font-weight: 600;
       }
 
       &.loginBtn {
-        background: #0066ff;
+        background: $primary-color;
         color: white;
         padding: 0.875rem 1.5rem;
         border-radius: 0.75rem;

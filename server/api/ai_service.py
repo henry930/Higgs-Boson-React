@@ -138,12 +138,15 @@ When customer confirms an estimation, respond with something like:
             ]
             
             # Add conversation history (last 10 messages for context) - handle empty history
-            if conversation_history:
-                for msg in conversation_history[-10:]:
-                    messages.append({
-                        "role": "user" if msg.get('is_user') else "assistant",
-                        "content": msg.get('content', '')
-                    })
+            if conversation_history and isinstance(conversation_history, (list, tuple)) and len(conversation_history) > 0:
+                # Safely get last 10 messages
+                last_messages = conversation_history[-10:] if len(conversation_history) >= 10 else conversation_history
+                for msg in last_messages:
+                    if isinstance(msg, dict) and msg.get('content'):
+                        messages.append({
+                            "role": "user" if msg.get('is_user') else "assistant",
+                            "content": str(msg.get('content', ''))
+                        })
             
             # Add current message
             messages.append({"role": "user", "content": user_message})
@@ -161,8 +164,13 @@ When customer confirms an estimation, respond with something like:
             return response.choices[0].message.content.strip()
             
         except Exception as e:
+            # Log the specific error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"AI Service Error: {str(e)}", exc_info=True)
+            
             # Fallback to rule-based system
-            return f"I'm here to help you with your project! Let me assist you using our standard consultation process. Could you tell me more about your project requirements? (Note: AI service is currently being configured)"
+            return f"I'm here to help you with your project! Let me assist you using our standard consultation process. Could you tell me more about your project requirements? (AI service temporarily unavailable: {str(e)[:50]}...)"
     
     def update_business_config(self, new_config: Dict):
         """Update business configuration for AI responses"""

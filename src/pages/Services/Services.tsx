@@ -1,180 +1,363 @@
-import { useEffect, useState } from 'react';
-import { useServices } from '../../hooks/services/useServices';
-import type { Service } from '../../store/features/services/servicesSlice';
+import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import styles from './Services.module.scss';
 
-// Fallback dummy data
-const fallbackServices: Service[] = [
-  {
-    id: 1,
-    title: "AI-Powered Web Development",
-    description: "Transform your web presence with cutting-edge AI-assisted development. Our expert teams leverage advanced AI tools to build scalable, high-performance web applications that deliver exceptional user experiences while reducing development time by 75%.",
-    short_description: "AI-accelerated web development with 75% faster delivery",
-    icon: "🚀",
-    features: ["React/Vue/Angular", "Node.js/Python/PHP", "Cloud-native architecture", "AI-assisted coding", "Automated testing", "Performance optimization"],
-    price_range: "$10,000 - $100,000",
-    duration: "2-12 weeks",
-    category: "Web Development",
-    order: 1,
-    featured: true,
-    active: true,
-    created_at: "",
-    updated_at: ""
-  },
-  {
-    id: 2,
-    title: "Enterprise AI Solutions",
-    description: "Deploy enterprise-grade AI solutions that transform business operations. From machine learning models to intelligent automation, we deliver scalable AI systems that provide competitive advantages and measurable ROI.",
-    short_description: "Enterprise AI systems with proven ROI",
-    icon: "🤖",
-    features: ["Machine Learning", "Natural Language Processing", "Computer Vision", "Predictive Analytics", "Process Automation", "Data Pipeline Integration"],
-    price_range: "$25,000 - $500,000",
-    duration: "4-24 weeks",
-    category: "AI & Machine Learning",
-    order: 2,
-    featured: true,
-    active: true,
-    created_at: "",
-    updated_at: ""
-  },
-  {
-    id: 3,
-    title: "Mobile App Development",
-    description: "Create powerful mobile applications with our AI-accelerated development process. We build native iOS and Android apps as well as cross-platform solutions using React Native and Flutter.",
-    short_description: "AI-powered mobile app development for iOS and Android",
-    icon: "📱",
-    features: ["Native iOS/Android", "React Native", "Flutter", "Progressive Web Apps", "App Store Optimization"],
-    price_range: "$15,000 - $150,000",
-    duration: "3-16 weeks",
-    category: "Mobile Development",
-    order: 3,
-    featured: true,
-    active: true,
-    created_at: "",
-    updated_at: ""
-  },
-  {
-    id: 4,
-    title: "Cloud Infrastructure & DevOps",
-    description: "Scale your applications with our cloud-native infrastructure solutions. We provide comprehensive DevOps services including CI/CD pipelines, monitoring, and automated deployment strategies.",
-    short_description: "Scalable cloud infrastructure and DevOps automation",
-    icon: "☁️",
-    features: ["AWS/Azure/GCP", "Docker/Kubernetes", "CI/CD Pipelines", "Infrastructure as Code", "Monitoring & Analytics", "Security Implementation"],
-    price_range: "$5,000 - $75,000",
-    duration: "1-8 weeks",
-    category: "Infrastructure",
-    order: 4,
-    featured: false,
-    active: true,
-    created_at: "",
-    updated_at: ""
-  }
-];
-
 const Services = () => {
-  console.log('✅ Services component loaded');
-  const { services, loading, error, actions } = useServices();
-  const [usingFallback, setUsingFallback] = useState(false);
-  const [displayServices, setDisplayServices] = useState<Service[]>([]);
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Only fetch if we don't have data yet
-    if (services.length === 0 && !loading && !error) {
-      actions.fetch();
+  const teamBuildingServices = [
+    {
+      title: "Fractional CTOs",
+      description: "Experienced technical leadership to guide your technology strategy and team development.",
+      icon: "👨‍💼"
+    },
+    {
+      title: "HR Recruitment",
+      description: "Specialized tech recruitment services to find and hire the best talent for your team.",
+      icon: "🤝"
+    },
+    {
+      title: "Project Management",
+      description: "Professional project management to ensure your development projects are delivered on time.",
+      icon: "📋"
+    },
+    {
+      title: "Fund Seeking",
+      description: "Support in preparing technical documentation and presentations for investor meetings.",
+      icon: "💰"
+    },
+    {
+      title: "IT Training",
+      description: "Comprehensive training programs to upskill your existing team on latest technologies.",
+      icon: "🎓"
     }
-  }, []); // Empty dependency array to run only once on mount
+  ];
 
-  useEffect(() => {
-    // Set a timeout to use fallback data if loading takes too long
-    if (loading) {
-      const timeout = setTimeout(() => {
-        if (loading && services.length === 0) {
-          setUsingFallback(true);
-          setDisplayServices(fallbackServices);
-        }
-      }, 5000);
-
-      return () => clearTimeout(timeout);
+  const specialistDevelopers = [
+    {
+      title: "Mobile Developers",
+      description: "iOS and Android app development specialists",
+      icon: "📱"
+    },
+    {
+      title: "QA Analysts and Testers",
+      description: "Quality assurance and testing professionals",
+      icon: "🧪"
+    },
+    {
+      title: "DevOps Developers",
+      description: "Infrastructure and deployment automation experts",
+      icon: "⚙️"
+    },
+    {
+      title: "Data Scientists",
+      description: "Analytics and machine learning specialists",
+      icon: "📊"
+    },
+    {
+      title: "Vibe Developers",
+      description: "Modern full-stack development with latest frameworks",
+      icon: "⚡"
+    },
+    {
+      title: "Full-Stack Developers",
+      description: "End-to-end web application development",
+      icon: "💻"
+    },
+    {
+      title: "Cloud Developers",
+      description: "Cloud-native application and infrastructure specialists",
+      icon: "☁️"
+    },
+    {
+      title: "Front-end Developers",
+      description: "User interface and user experience specialists",
+      icon: "🎨"
+    },
+    {
+      title: "Back-end Developers",
+      description: "Server-side logic and database specialists",
+      icon: "�"
+    },
+    {
+      title: "Windows App Developers",
+      description: "Desktop application development for Windows platform",
+      icon: "🖥️"
+    },
+    {
+      title: "Game Developers",
+      description: "Gaming application and interactive experience developers",
+      icon: "🎮"
+    },
+    {
+      title: "Blockchain Developers",
+      description: "Cryptocurrency and distributed ledger technology experts",
+      icon: "🔗"
     }
-  }, [loading, services.length]);
+  ];
 
-  useEffect(() => {
-    if (services.length > 0) {
-      setDisplayServices(services);
-      setUsingFallback(false);
-    } else if (error && !loading) {
-      setUsingFallback(true);
-      setDisplayServices(fallbackServices);
+  const aiServices = [
+    {
+      title: "AI Assistant Development",
+      description: "Custom AI assistants and chatbots tailored to your business needs and workflows.",
+      icon: "🤖"
+    },
+    {
+      title: "AI Consulting",
+      description: "Strategic guidance on AI implementation, technology selection, and business integration.",
+      icon: "💡"
+    },
+    {
+      title: "AI Training",
+      description: "Comprehensive training programs to help your team understand and work with AI technologies.",
+      icon: "🎯"
     }
-  }, [services, error, loading]);
+  ];
 
-  if (loading && !usingFallback) {
-    return (
-      <div className={styles.services}>
-        <div className={styles.container}>
-          <div style={{ padding: '4rem 0', textAlign: 'center' }}>
-            <p>Loading services...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const consultationServices = [
+    {
+      title: "Business Model Evaluation",
+      description: "Comprehensive analysis of your business model and technology requirements for optimal market fit.",
+      icon: "📈"
+    },
+    {
+      title: "MVP Design",
+      description: "Minimum viable product design and development strategy to quickly validate your ideas.",
+      icon: "🚀"
+    },
+    {
+      title: "Business Proposal Draft",
+      description: "Professional business proposals and technical documentation for investors and stakeholders.",
+      icon: "📝"
+    }
+  ];
+
+  const techStacks = [
+    // Frontend
+    { name: "React", category: "Frontend", icon: "⚛️" },
+    { name: "Vue.js", category: "Frontend", icon: "💚" },
+    { name: "Angular", category: "Frontend", icon: "🅰️" },
+    { name: "TypeScript", category: "Frontend", icon: "🔷" },
+    { name: "Next.js", category: "Frontend", icon: "▲" },
+    { name: "Svelte", category: "Frontend", icon: "🧡" },
+    
+    // Backend
+    { name: "Node.js", category: "Backend", icon: "💚" },
+    { name: "Python", category: "Backend", icon: "�" },
+    { name: "Java", category: "Backend", icon: "☕" },
+    { name: "C#", category: "Backend", icon: "🔷" },
+    { name: "PHP", category: "Backend", icon: "🐘" },
+    { name: "Go", category: "Backend", icon: "🐹" },
+    
+    // Mobile
+    { name: "React Native", category: "Mobile", icon: "📱" },
+    { name: "Flutter", category: "Mobile", icon: "💙" },
+    { name: "Swift", category: "Mobile", icon: "🦉" },
+    { name: "Kotlin", category: "Mobile", icon: "🟠" },
+    
+    // Cloud & DevOps
+    { name: "AWS", category: "Cloud", icon: "☁️" },
+    { name: "Azure", category: "Cloud", icon: "🔵" },
+    { name: "GCP", category: "Cloud", icon: "🌈" },
+    { name: "Docker", category: "DevOps", icon: "🐳" },
+    { name: "Kubernetes", category: "DevOps", icon: "⚓" },
+    { name: "Terraform", category: "DevOps", icon: "🏗️" },
+    
+    // AI & Data
+    { name: "TensorFlow", category: "AI", icon: "🧠" },
+    { name: "PyTorch", category: "AI", icon: "🔥" },
+    { name: "OpenAI", category: "AI", icon: "🤖" },
+    { name: "LangChain", category: "AI", icon: "🔗" },
+    { name: "Pandas", category: "Data", icon: "🐼" },
+    { name: "PostgreSQL", category: "Database", icon: "🐘" },
+    
+    // Blockchain
+    { name: "Ethereum", category: "Blockchain", icon: "💎" },
+    { name: "Solidity", category: "Blockchain", icon: "🔐" },
+    { name: "Web3", category: "Blockchain", icon: "🌐" }
+  ];
+
+  const faqs = [
+    {
+      question: "Will outsourcing development have less performance than employing a developer?",
+      answer: "Certainly not. Unless you are big companies, and specializing in IT development, otherwise, your small team developers can't compete with large teams professional."
+    },
+    {
+      question: "What's your edges comparing to other competitors?",
+      answer: "We are using AI on our development. Most of our development tasks can be tackled by AI. Developers can more focus on product design, development architecture, testing and customer service. You can pay a less price for better service."
+    },
+    {
+      question: "What benefits I can have if chosen your service?",
+      answer: "You pay extremely lower than salaries and taxes. Waive all recruitment processes and those risks and times."
+    },
+    {
+      question: "How you can guarantee your service delivery?",
+      answer: "By using AI project estimation, we can evaluate a good fit budget and time for you. Weekly evaluation and test can make sure your projects would not have distortion. Direct communication with developers can reduce mis-understanding. Most important, we will return your money if we can't deliver on your requirement."
+    }
+  ];
+
+  const toggleFAQ = (index: number) => {
+    setOpenFAQ(openFAQ === index ? null : index);
+  };
 
   return (
     <div className={styles.services}>
-      {usingFallback && (
-        <div className={styles.notification}>
-          <p>⚠️ Unable to connect to server. Showing sample data.</p>
-        </div>
-      )}
-      
-      {/* Header Section */}
-      <section className={styles.headerSection}>
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
         <div className={styles.container}>
-          <h1 className={styles.headerTitle}>Our Services</h1>
-          <p className={styles.headerSubtitle}>
-            Revolutionizing software development with AI-powered solutions that deliver exceptional results faster and more cost-effectively than traditional methods.
-          </p>
+          <div className={styles.heroContent}>
+            <h1 className={styles.heroTitle}>
+              Complete Development Solutions for <span className={styles.accent}>Every Business Need</span>
+            </h1>
+            <p className={styles.heroDescription}>
+              From team building to specialized development, AI integration to business consultation - 
+              we provide comprehensive technology services to scale your business.
+            </p>
+            <div className={styles.heroButtons}>
+              <Link to="/contact" className={styles.primaryButton}>Get Started</Link>
+              <Link to="/price-comparison" className={styles.secondaryButton}>View Pricing</Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Services Grid Section */}
-      <section className={styles.servicesGridSection}>
+      {/* Team Building Section */}
+      <section className={styles.servicesSection}>
         <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Team Building & Leadership</h2>
+            <p className={styles.sectionDescription}>
+              Build and scale your technology team with expert leadership and strategic support.
+            </p>
+          </div>
+          
           <div className={styles.servicesGrid}>
-            {displayServices.map((service) => (
-              <div key={service.id} className={styles.serviceCard}>
-                <div className={styles.serviceIcon}>
-                  <span>{service.icon}</span>
-                </div>
+            {teamBuildingServices.map((service, index) => (
+              <div key={index} className={styles.serviceCard}>
+                <div className={styles.serviceIcon}>{service.icon}</div>
                 <h3 className={styles.serviceTitle}>{service.title}</h3>
                 <p className={styles.serviceDescription}>{service.description}</p>
-                {service.features && (
-                  <ul className={styles.serviceFeatures}>
-                    {Array.isArray(service.features) 
-                      ? service.features.map((feature: string, featureIndex: number) => (
-                          <li key={featureIndex} className={styles.featureItem}>
-                            <span className={styles.checkmark}>✓</span>
-                            {feature}
-                          </li>
-                        ))
-                      : (service.features as string).split(',').map((feature: string, featureIndex: number) => (
-                          <li key={featureIndex} className={styles.featureItem}>
-                            <span className={styles.checkmark}>✓</span>
-                            {feature.trim()}
-                          </li>
-                        ))
-                    }
-                  </ul>
-                )}
-                {service.price_range && (
-                  <div className={styles.priceRange}>
-                    <strong>Price Range:</strong> {service.price_range}
-                  </div>
-                )}
-                {service.duration && (
-                  <div className={styles.duration}>
-                    <strong>Duration:</strong> {service.duration}
+                <Link to="/contact" className={styles.serviceButton}>Learn More</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Specialist Developers Section */}
+      <section className={`${styles.servicesSection} ${styles.developersSection}`}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Specialist Developers</h2>
+            <p className={styles.sectionDescription}>
+              Access top-tier developers specialized in your technology stack and industry requirements.
+            </p>
+          </div>
+          
+          <div className={styles.developersGrid}>
+            {specialistDevelopers.map((developer, index) => (
+              <div key={index} className={styles.developerCard}>
+                <div className={styles.developerIcon}>{developer.icon}</div>
+                <h3 className={styles.developerTitle}>{developer.title}</h3>
+                <p className={styles.developerDescription}>{developer.description}</p>
+                <Link to="/contact" className={styles.developerButton}>Hire Now</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AI Services Section */}
+      <section className={styles.servicesSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>AI Support & Integration</h2>
+            <p className={styles.sectionDescription}>
+              Leverage artificial intelligence to transform your business processes and customer experiences.
+            </p>
+          </div>
+          
+          <div className={styles.aiGrid}>
+            {aiServices.map((service, index) => (
+              <div key={index} className={styles.aiCard}>
+                <div className={styles.aiIcon}>{service.icon}</div>
+                <h3 className={styles.aiTitle}>{service.title}</h3>
+                <p className={styles.aiDescription}>{service.description}</p>
+                <Link to="/contact" className={styles.aiButton}>Get Started</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Consultation Section */}
+      <section className={`${styles.servicesSection} ${styles.consultationSection}`}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Business Consultation</h2>
+            <p className={styles.sectionDescription}>
+              Strategic guidance to validate your ideas, plan your technology roadmap, and prepare for growth.
+            </p>
+          </div>
+          
+          <div className={styles.consultationGrid}>
+            {consultationServices.map((service, index) => (
+              <div key={index} className={styles.consultationCard}>
+                <div className={styles.consultationIcon}>{service.icon}</div>
+                <h3 className={styles.consultationTitle}>{service.title}</h3>
+                <p className={styles.consultationDescription}>{service.description}</p>
+                <Link to="/contact" className={styles.consultationButton}>Schedule Consultation</Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack Section */}
+      <section className={styles.techStackSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>All Tech Stacks Supported</h2>
+            <p className={styles.sectionDescription}>
+              Our developers are proficient in the latest technologies and frameworks across all domains.
+            </p>
+          </div>
+          
+          <div className={styles.techStackGrid}>
+            {techStacks.map((tech, index) => (
+              <div key={index} className={styles.techStackItem}>
+                <div className={styles.techIcon}>{tech.icon}</div>
+                <span className={styles.techName}>{tech.name}</span>
+                <span className={styles.techCategory}>{tech.category}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className={styles.faqSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Frequently Asked Questions</h2>
+            <p className={styles.sectionDescription}>
+              Common questions about our services, pricing, and engagement models.
+            </p>
+          </div>
+          
+          <div className={styles.faqList}>
+            {faqs.map((faq, index) => (
+              <div key={index} className={styles.faqItem}>
+                <button 
+                  className={`${styles.faqQuestion} ${openFAQ === index ? styles.active : ''}`}
+                  onClick={() => toggleFAQ(index)}
+                >
+                  {faq.question}
+                  <span className={styles.faqToggle}>{openFAQ === index ? '−' : '+'}</span>
+                </button>
+                {openFAQ === index && (
+                  <div className={styles.faqAnswer}>
+                    {faq.answer}
                   </div>
                 )}
               </div>
@@ -183,43 +366,17 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className={styles.processSection}>
+      {/* CTA Section */}
+      <section className={styles.ctaSection}>
         <div className={styles.container}>
-          <div className={styles.processHeader}>
-            <h2 className={styles.processTitle}>Our Development Process</h2>
-            <p className={styles.processSubtitle}>
-              A proven methodology that combines AI efficiency with human expertise
+          <div className={styles.ctaContent}>
+            <h2 className={styles.ctaTitle}>Ready to Transform Your Business?</h2>
+            <p className={styles.ctaDescription}>
+              Get started with our comprehensive development services and experienced team today.
             </p>
-          </div>
-          <div className={styles.processGrid}>
-            <div className={styles.processStep}>
-              <div className={styles.stepNumber}>1</div>
-              <h3 className={styles.stepTitle}>Discovery & Planning</h3>
-              <p className={styles.stepDescription}>
-                We analyze your requirements and create a detailed project roadmap using our AI-assisted planning tools.
-              </p>
-            </div>
-            <div className={styles.processStep}>
-              <div className={styles.stepNumber}>2</div>
-              <h3 className={styles.stepTitle}>AI-Powered Development</h3>
-              <p className={styles.stepDescription}>
-                Our AI systems generate code while our experts ensure quality, architecture, and best practices.
-              </p>
-            </div>
-            <div className={styles.processStep}>
-              <div className={styles.stepNumber}>3</div>
-              <h3 className={styles.stepTitle}>Testing & Optimization</h3>
-              <p className={styles.stepDescription}>
-                Comprehensive testing and performance optimization ensure your solution is production-ready.
-              </p>
-            </div>
-            <div className={styles.processStep}>
-              <div className={styles.stepNumber}>4</div>
-              <h3 className={styles.stepTitle}>Deployment & Support</h3>
-              <p className={styles.stepDescription}>
-                Seamless deployment with ongoing support and maintenance to keep your solution running smoothly.
-              </p>
+            <div className={styles.ctaButtons}>
+              <Link to="/contact" className={styles.primaryButton}>Start Your Project</Link>
+              <Link to="/how-it-works" className={styles.secondaryButton}>How It Works</Link>
             </div>
           </div>
         </div>

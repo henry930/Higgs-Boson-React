@@ -6,6 +6,180 @@
   min-height: 100vh;
 }
 
+// Hero Section - CloudEmployee inspired with main color background
+.heroSection {
+  background: $primary-color;
+  padding: 6rem 0 8rem 0;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    opacity: 0.9;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 4rem 0 6rem 0;
+  }
+}
+
+.heroContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.heroContent {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  
+  @media (max-width: 1024px) {
+    font-size: 3rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
+}
+
+.heroAccent {
+  color: $secondary-color;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $secondary-color;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  @media (max-width: 768px) {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.primaryButton {
+  background: $secondary-color;
+  color: $primary-color;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 2px solid $secondary-color;
+  
+  &:hover {
+    background: $secondary-dark;
+    border-color: $secondary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(223, 244, 110, 0.3);
+  }
+}
+
+.secondaryButton {
+  background: transparent;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.buttonIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+  
+  .primaryButton:hover & {
+    transform: translateX(2px);
+  }
+}
+
+.heroStats {
+  margin-top: 2rem;
+}
+
+.heroStatsText {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin: 0;
+  
+  strong {
+    color: white;
+  }
+}
+
+.statHighlight {
+  color: $secondary-color;
+  font-weight: 600;
+}
+
+// Fallback notice
 .fallbackNotice {
   background: #fbbf24;
   color: white;
@@ -40,7 +214,7 @@
   width: 48px;
   height: 48px;
   border: 3px solid #f3f4f6;
-  border-top: 3px solid #0066ff;
+  border-top: 3px solid $primary-color;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1.5rem;
@@ -66,7 +240,7 @@
   }
 
   button {
-    background: #0066ff;
+    background: $primary-color;
     color: white;
     border: none;
     padding: 0.875rem 2rem;
@@ -77,7 +251,311 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background: #0052cc;
+      background: $primary-dark;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.heroContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.heroContent {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  
+  @media (max-width: 1024px) {
+    font-size: 3rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
+}
+
+.heroAccent {
+  color: $secondary-color;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $secondary-color;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  @media (max-width: 768px) {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.primaryButton {
+  background: $secondary-color;
+  color: $primary-color;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 2px solid $secondary-color;
+  
+  &:hover {
+    background: $secondary-dark;
+    border-color: $secondary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(223, 244, 110, 0.3);
+  }
+}
+
+.secondaryButton {
+  background: transparent;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.buttonIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+  
+  .primaryButton:hover & {
+    transform: translateX(2px);
+  }
+}
+
+.heroStats {
+  margin-top: 2rem;
+}
+
+.heroStatsText {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin: 0;
+  
+  strong {
+    color: white;
+  }
+}
+
+.statHighlight {
+  color: $secondary-color;
+  font-weight: 600;
+}
+
+// Fallback notice
+.fallbackNotice {
+  background: #fbbf24;
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Loading and error states - clean and minimal
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: 3rem;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorContainer {
+  h3 {
+    color: #dc2626;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  p {
+    color: #6b7280;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  button {
+    background: $primary-color;
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $primary-dark;
+    }
+  }
+}
+
+.fallbackNotice {
+  background: #fbbf24;
+  color: white;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// Loading and error states - clean and minimal
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: 3rem;
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorContainer {
+  h3 {
+    color: #dc2626;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  p {
+    color: #6b7280;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  button {
+    background: $primary-color;
+    color: white;
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $primary-dark;
       transform: translateY(-2px);
     }
   }
@@ -111,7 +589,7 @@
   .hero-title {
     em {
       font-style: normal;
-      color: #0066ff;
+      color: $primary-color;
       position: relative;
       
       &::after {
@@ -121,7 +599,7 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #0066ff, rgba(0, 102, 255, 0.3));
+        background: linear-gradient(90deg, $primary-color, rgba(33, 69, 111, 0.3));
         border-radius: 2px;
       }
     }
@@ -153,7 +631,7 @@
   .feature-icon {
     width: 72px;
     height: 72px;
-    background: linear-gradient(135deg, #0066ff 0%, #4d94ff 100%);
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
     border-radius: 1.25rem;
     display: flex;
     align-items: center;
@@ -161,7 +639,7 @@
     margin: 0 auto 1.5rem auto;
     font-size: 2rem;
     color: white;
-    box-shadow: 0 8px 25px rgba(0, 102, 255, 0.15);
+    box-shadow: 0 8px 25px rgba(33, 69, 111, 0.15);
   }
   
   .feature-title {
@@ -187,7 +665,7 @@
     .stat-number {
       font-size: 3.5rem;
       font-weight: 900;
-      color: #0066ff;
+      color: $primary-color;
       line-height: 1;
       margin-bottom: 0.5rem;
       font-family: 'Inter', sans-serif;
@@ -216,7 +694,7 @@
     .feature-icon {
       width: 64px;
       height: 64px;
-      background: linear-gradient(135deg, #0066ff 0%, #4d94ff 100%);
+      background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
       border-radius: 1rem;
       display: flex;
       align-items: center;

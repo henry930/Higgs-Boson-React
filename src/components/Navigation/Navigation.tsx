@@ -43,6 +43,8 @@ const Navigation = () => {
     { path: '/', label: 'Home' },
     { path: '/about', label: 'About' },
     { path: '/services', label: 'Services' },
+    { path: '/how-it-works', label: 'How It Works' },
+    { path: '/price-comparison', label: 'Pricing' },
     { path: '/contact', label: 'Contact' },
   ];
 

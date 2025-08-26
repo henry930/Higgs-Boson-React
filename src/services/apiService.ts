@@ -2,6 +2,32 @@ const API_BASE_URL = 'http://localhost:8000';
 
 console.log('🔧 API_BASE_URL configured as:', API_BASE_URL);
 
+// Import fallback data
+import { fallbackData } from '../data/fallbackData';
+
+// Add a connectivity test
+const testConnectivity = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/`, { 
+      method: 'GET',
+      mode: 'cors'
+    });
+    console.log('✅ Backend connectivity test passed:', response.status);
+    return true;
+  } catch (error) {
+    console.error('❌ Backend connectivity test failed:', error);
+    console.error('Backend server might not be running on http://localhost:8000');
+    console.log('📦 Will use fallback data');
+    return false;
+  }
+};
+
+// Test connectivity on module load
+let isBackendAvailable = true;
+testConnectivity().then(result => {
+  isBackendAvailable = result;
+});
+
 export interface ApiResponse<T> {
   status: 'success' | 'error';
   data?: T;
@@ -23,6 +49,8 @@ class ApiService {
           ...(options.method && options.method !== 'GET' ? { 'Content-Type': 'application/json' } : {}),
           ...options.headers,
         },
+        mode: 'cors', // Explicitly enable CORS
+        credentials: 'include', // Include cookies if needed
         ...options,
       });
 
@@ -51,7 +79,16 @@ class ApiService {
 
   // Benefits
   async getBenefits() {
-    return this.request<any[]>('/api/benefits/');
+    try {
+      return await this.request<any[]>('/api/benefits/');
+    } catch (error) {
+      console.log('📦 Using fallback benefits data');
+      return {
+        status: 'success' as const,
+        data: fallbackData.benefits,
+        message: 'Using fallback data (backend unavailable)'
+      };
+    }
   }
 
   async createBenefit(benefit: any) {
@@ -76,7 +113,16 @@ class ApiService {
 
   // Process Steps
   async getProcessSteps() {
-    return this.request<any[]>('/api/process-steps/');
+    try {
+      return await this.request<any[]>('/api/process-steps/');
+    } catch (error) {
+      console.log('📦 Using fallback process steps data');
+      return {
+        status: 'success' as const,
+        data: fallbackData.processSteps,
+        message: 'Using fallback data (backend unavailable)'
+      };
+    }
   }
 
   async createProcessStep(step: any) {
@@ -101,7 +147,16 @@ class ApiService {
 
   // Testimonials
   async getTestimonials() {
-    return this.request<any[]>('/api/testimonials');
+    try {
+      return await this.request<any[]>('/api/testimonials/');
+    } catch (error) {
+      console.log('📦 Using fallback testimonials data');
+      return {
+        status: 'success' as const,
+        data: fallbackData.testimonials,
+        message: 'Using fallback data (backend unavailable)'
+      };
+    }
   }
 
   async createTestimonial(testimonial: any) {
@@ -126,7 +181,16 @@ class ApiService {
 
   // Hero Slides
   async getHeroSlides() {
-    return this.request<any[]>('/api/hero-slides');
+    try {
+      return await this.request<any[]>('/api/hero-slides/');
+    } catch (error) {
+      console.log('📦 Using fallback hero slides data');
+      return {
+        status: 'success' as const,
+        data: fallbackData.heroSlides,
+        message: 'Using fallback data (backend unavailable)'
+      };
+    }
   }
 
   async createHeroSlide(slide: any) {

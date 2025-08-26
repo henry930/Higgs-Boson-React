@@ -41,26 +41,29 @@ const Home = () => {
       )}
 
       {/* Hero Section - CloudEmployee Style */}
-      <section className="hero-section">
-        <div className="container">
-          <div className="text-center">
-            <h1 className="display-1 hero-title">
-              AI-powered development that feels <em>in-house</em>
+      <section className={styles.heroSection}>
+        <div className={styles.heroContainer}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.heroTitle}>
+              AI-powered development that feels <span className={styles.heroAccent}>in-house</span>
             </h1>
-            <p className="lead hero-subtitle">
+            <p className={styles.heroSubtitle}>
               We build software teams that work in your tools, follow your rituals, and fit your culture—so they feel like part of the team, not an outsourced add-on.
             </p>
-            <div className="hero-buttons">
-              <Link to="/contact" className="btn btn-primary btn-lg">
+            <div className={styles.heroButtons}>
+              <Link to="/contact" className={styles.primaryButton}>
                 Start Your Project
+                <svg className={styles.buttonIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m9 18 6-6-6-6"/>
+                </svg>
               </Link>
-              <Link to="/services" className="btn btn-outline btn-lg">
+              <Link to="/services" className={styles.secondaryButton}>
                 Learn More
               </Link>
             </div>
-            <div className="mt-5">
-              <p className="text-muted">
-                <strong>Trusted by 100+ innovative companies</strong> • <span className="text-primary">70% cost reduction</span> • <span className="text-primary">75% faster delivery</span>
+            <div className={styles.heroStats}>
+              <p className={styles.heroStatsText}>
+                <strong>Trusted by 100+ innovative companies</strong> • <span className={styles.statHighlight}>70% cost reduction</span> • <span className={styles.statHighlight}>75% faster delivery</span>
               </p>
             </div>
           </div>

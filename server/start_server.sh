@@ -45,7 +45,7 @@ echo "📊 Applying migrations..."
 python manage.py migrate
 
 # Start the server
-echo "🌐 Starting Django development server on http://localhost:8000"
+echo "🌐 Starting Django development server on http://localhost:${DJANGO_PORT:-8000}"
 echo "📝 Press Ctrl+C to stop the server"
 echo "==========================================="
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000}

@@ -17,8 +17,21 @@ NC='\033[0m' # No Color
 DJANGO_PATH="/Users/navcolon/Documents/higgsbosonconsultancy2/React/server"
 REACT_PATH="/Users/navcolon/Documents/higgsbosonconsultancy2/React"
 
+# Load environment variables
+if [ -f "$DJANGO_PATH/.env" ]; then
+    export $(grep -v '^#' "$DJANGO_PATH/.env" | xargs)
+    echo -e "${GREEN}✅ Loaded Django environment variables${NC}"
+fi
+
+if [ -f "$REACT_PATH/.env" ]; then
+    export $(grep -v '^#' "$REACT_PATH/.env" | xargs)
+    echo -e "${GREEN}✅ Loaded React environment variables${NC}"
+fi
+
 echo -e "${YELLOW}📍 Django Path: $DJANGO_PATH${NC}"
 echo -e "${YELLOW}📍 React Path: $REACT_PATH${NC}"
+echo -e "${YELLOW}🔌 Backend Port: ${DJANGO_PORT:-8000}${NC}"
+echo -e "${YELLOW}🔌 Frontend Port: ${VITE_PORT:-5174}${NC}"
 echo ""
 
 # Step 1: Stop all existing servers
@@ -56,20 +69,20 @@ else
 fi
 
 # Kill any processes using common ports
-echo "🧹 Cleaning up ports 8000 and 4173..."
-PORT_8000=$(lsof -ti:8000 2>/dev/null)
-PORT_4173=$(lsof -ti:4173 2>/dev/null)
+echo "🧹 Cleaning up ports ${DJANGO_PORT:-8000} and ${VITE_PORT:-5174}..."
+PORT_8000=$(lsof -ti:${DJANGO_PORT:-8000} 2>/dev/null)
+PORT_5174=$(lsof -ti:${VITE_PORT:-5174} 2>/dev/null)
 
 if [ ! -z "$PORT_8000" ]; then
-    echo "🔪 Killing processes on port 8000: $PORT_8000"
+    echo "🔪 Killing processes on port ${DJANGO_PORT:-8000}: $PORT_8000"
     for PID in $PORT_8000; do
         kill -TERM $PID 2>/dev/null || kill -KILL $PID 2>/dev/null
     done
 fi
 
-if [ ! -z "$PORT_4173" ]; then
-    echo "🔪 Killing processes on port 4173: $PORT_4173"
-    for PID in $PORT_4173; do
+if [ ! -z "$PORT_5174" ]; then
+    echo "🔪 Killing processes on port ${VITE_PORT:-5174}: $PORT_5174"
+    for PID in $PORT_5174; do
         kill -TERM $PID 2>/dev/null || kill -KILL $PID 2>/dev/null
     done
 fi
@@ -103,7 +116,7 @@ else
     if [ -f "venv/bin/activate" ]; then
         source venv/bin/activate
 # See Open_AI_Key 
-        python manage.py runserver 0.0.0.0:8000 &
+        python manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000} &
         DJANGO_PID=$!
         echo "🆔 Django server PID: $DJANGO_PID"
     else
@@ -115,8 +128,8 @@ fi
 # Wait for Django to start
 echo "⏳ Waiting for Django server to start..."
 for i in {1..10}; do
-    if curl -s http://localhost:8000/api/ > /dev/null 2>&1; then
-        echo -e "${GREEN}✅ Django server is running on http://localhost:8000${NC}"
+    if curl -s http://localhost:${DJANGO_PORT:-8000}/api/ > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ Django server is running on http://localhost:${DJANGO_PORT:-8000}${NC}"
         break
     fi
     echo "⏳ Attempt $i/10 - waiting for Django..."
@@ -141,15 +154,15 @@ if [ ! -f "package.json" ]; then
 fi
 
 echo "🔧 Starting React development server..."
-npm start &
+npm run dev &
 REACT_PID=$!
 echo "🆔 React server PID: $REACT_PID"
 
 # Wait for React to start
 echo "⏳ Waiting for React server to start..."
 for i in {1..15}; do
-    if curl -s http://localhost:4173/ > /dev/null 2>&1; then
-        echo -e "${GREEN}✅ React server is running on http://localhost:4173${NC}"
+    if curl -s http://localhost:${VITE_PORT:-5174}/ > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ React server is running on http://localhost:${VITE_PORT:-5174}${NC}"
         break
     fi
     echo "⏳ Attempt $i/15 - waiting for React..."
@@ -169,8 +182,8 @@ else
 fi
 
 # Check React
-if curl -s http://localhost:4173/ > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ React Frontend: RUNNING (http://localhost:4173)${NC}"
+if curl -s http://localhost:5174/ > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ React Frontend: RUNNING (http://localhost:5174)${NC}"
 else
     echo -e "${RED}❌ React Frontend: NOT RESPONDING${NC}"
 fi
@@ -180,7 +193,7 @@ echo -e "${GREEN}🎉 SYSTEM RESTART COMPLETED!${NC}"
 echo "=============================================="
 echo -e "${YELLOW}📋 Server Information:${NC}"
 echo "🔗 Django API: http://localhost:8000/api/"
-echo "🔗 React App: http://localhost:4173/"
+echo "🔗 React App: http://localhost:5174/"
 echo "🔗 Company Registration: http://localhost:8000/api/company/register/"
 echo "🔗 Company Login: http://localhost:8000/api/company/login/"
 echo ""
