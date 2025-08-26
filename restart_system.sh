@@ -103,7 +103,6 @@ else
     if [ -f "venv/bin/activate" ]; then
         source venv/bin/activate
 # See Open_AI_Key 
-        export OPENAI_API_KEY=""
         python manage.py runserver 0.0.0.0:8000 &
         DJANGO_PID=$!
         echo "🆔 Django server PID: $DJANGO_PID"

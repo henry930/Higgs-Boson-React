@@ -24,7 +24,7 @@ else
 fi
 
 # Set OpenAI API Key
-export OPENAI_API_KEY="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"
+# We use external non-git file
 echo "🔑 OpenAI API Key set"
 
 # Check if migrations are needed
