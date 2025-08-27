@@ -5,7 +5,10 @@ export const fallbackData = {
   benefits: [
     {
       id: 1,
-      icon: "💰",
+      icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>`,
       title: "70% Cost Reduction", 
       description: "Dramatically reduce development costs while maintaining enterprise-quality standards and faster delivery times.",
       order: 1,
@@ -13,7 +16,9 @@ export const fallbackData = {
     },
     {
       id: 2,
-      icon: "⚡",
+      icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>`,
       title: "75% Faster Delivery",
       description: "Deploy large-scale applications in weeks, not months, with our AI-accelerated development process.",
       order: 2, 
@@ -21,7 +26,12 @@ export const fallbackData = {
     },
     {
       id: 3,
-      icon: "👥", 
+      icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>`, 
       title: "Lean Expert Teams",
       description: "Achieve superior results with smaller teams focused on strategy, management, and quality oversight.",
       order: 3,
@@ -29,7 +39,9 @@ export const fallbackData = {
     },
     {
       id: 4,
-      icon: "⭐",
+      icon: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9 8.91 8.26 12 2"/>
+      </svg>`,
       title: "Enterprise Quality", 
       description: "AI-assisted development with human expertise ensures exceptional quality and reliability.",
       order: 4,

@@ -48,7 +48,7 @@ const Home = () => {
               AI-powered development that feels <span className={styles.heroAccent}>in-house</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              We build software teams that work in your tools, follow your rituals, and fit your culture—so they feel like part of the team, not an outsourced add-on.
+              Do you believe this website is 100% AI code generation? By professional developer guidance, AI can follow your rituals, and fit your culture, do you want to know more?
             </p>
             <div className={styles.heroButtons}>
               <Link to="/contact" className={styles.primaryButton}>
@@ -83,8 +83,7 @@ const Home = () => {
           <div className="feature-grid">
             {benefits.map((benefit, index) => (
               <div key={index} className="feature-card">
-                <div className="feature-icon">
-                  {benefit.icon}
+                <div className="feature-icon" dangerouslySetInnerHTML={{ __html: benefit.icon }}>
                 </div>
                 <h3 className="feature-title">{benefit.title}</h3>
                 <p className="feature-text">{benefit.description}</p>

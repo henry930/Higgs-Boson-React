@@ -49,8 +49,8 @@ INSTALLED_APPS = [
     'api',
 ]
 
-# Custom user model
-AUTH_USER_MODEL = 'api.Company'
+# Custom user model (temporarily disabled to fix migration conflicts)
+# AUTH_USER_MODEL = 'api.Company'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
