@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 console.log('🔧 API_BASE_URL configured as:', API_BASE_URL);
 
@@ -23,10 +23,7 @@ const testConnectivity = async () => {
 };
 
 // Test connectivity on module load
-let isBackendAvailable = true;
-testConnectivity().then(result => {
-  isBackendAvailable = result;
-});
+testConnectivity();
 
 export interface ApiResponse<T> {
   status: 'success' | 'error';
@@ -304,6 +301,55 @@ class ApiService {
   // Health check
   async healthCheck() {
     return this.request<{ status: string; message: string }>('/health');
+  }
+
+  // Job Applications
+  async getJobPositions() {
+    try {
+      return await this.request<any[]>('/api/job-positions/');
+    } catch (error) {
+      console.log('📦 Using fallback job positions data');
+      // Return fallback job positions if API is unavailable
+      return {
+        status: 'success' as const,
+        data: [
+          {
+            id: 1,
+            title: 'Senior AI Engineer',
+            department: 'Engineering',
+            location: 'Remote / London',
+            type: 'Full-time',
+            experience: '5+ years',
+            description: 'Join our AI engineering team to build cutting-edge solutions that transform how businesses develop software.',
+            requirements: [
+              '5+ years of experience in AI/ML engineering',
+              'Strong Python programming skills',
+              'Experience with TensorFlow, PyTorch, or similar frameworks'
+            ],
+            benefits: [
+              'Competitive salary + equity',
+              'Remote-first culture',
+              'Health & dental insurance'
+            ]
+          }
+        ],
+        message: 'Using fallback data (backend unavailable)'
+      };
+    }
+  }
+
+  async submitJobApplication(applicationData: FormData) {
+    return this.request<any>('/api/job-applications/', {
+      method: 'POST',
+      body: applicationData,
+      headers: {
+        // Don't set Content-Type for FormData, let browser set it
+      } as any,
+    });
+  }
+
+  async getJobApplications() {
+    return this.request<any[]>('/api/job-applications/');
   }
 }
 

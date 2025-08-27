@@ -18,7 +18,7 @@ from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
     Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings,
     ProjectEstimation, Company, Project, Developer, ProjectCommunication, 
-    PaymentTransaction, ProjectMilestone
+    PaymentTransaction, ProjectMilestone, JobApplication, Appointment
 )
 from .serializers import (
     BenefitSerializer, ProcessStepSerializer, TestimonialSerializer,
@@ -27,7 +27,8 @@ from .serializers import (
     ConversationSerializer, ProjectRequirementSerializer,
     ProjectRequirementCreateSerializer, QuoteSerializer, ContractSerializer,
     ChatMessageSerializer, ChatResponseSerializer, AdminSettingsSerializer,
-    ProjectEstimationSerializer, EstimationConfirmationSerializer
+    ProjectEstimationSerializer, EstimationConfirmationSerializer,
+    JobApplicationSerializer, AppointmentSerializer
 )
 from .utils import api_response
 from .email_service import send_customer_estimate_email, send_admin_notification_email
@@ -1468,6 +1469,54 @@ def test_email(request):
         )
 
 
+@api_view(['POST'])
+def test_confirmation_notification(request):
+    """Test customer confirmation notification"""
+    from .email_service import send_customer_confirmation_notification
+    from datetime import datetime
+    
+    try:
+        # Test data
+        test_customer_data = {
+            'company_name': 'Test Company Ltd',
+            'email': 'test@testcompany.com',
+            'phone': '+44 123 456 789',
+            'is_ngo_startup': False,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        
+        test_project_data = {
+            'type': 'Web Application',
+            'description': 'E-commerce platform with user management',
+            'requirements': 'User authentication, payment processing, inventory management',
+            'timeline': '6-8 weeks',
+            'tech_stack': 'React + Django + PostgreSQL'
+        }
+        
+        test_estimated_cost = "£4,375 - £5,250 (25-30 developer days at £175/day)"
+        
+        # Send notification
+        success = send_customer_confirmation_notification(
+            customer_data=test_customer_data,
+            project_data=test_project_data,
+            estimated_cost=test_estimated_cost
+        )
+        
+        if success:
+            return api_response(message="Test confirmation notification sent successfully to admin")
+        else:
+            return api_response(
+                message="Failed to send test notification",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+    except Exception as e:
+        return api_response(
+            message=f"Error sending test notification: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 class AIUsageStatsView(APIView):
     """Monitor AI usage and costs"""
     
@@ -1765,3 +1814,594 @@ class CompanyDashboardView(APIView):
                 message="Failed to load dashboard data",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class JobApplicationViewSet(viewsets.ModelViewSet):
+    """ViewSet for handling job applications"""
+    queryset = JobApplication.objects.all()
+    serializer_class = JobApplicationSerializer
+    permission_classes = [AllowAny]  # Allow public submissions
+    
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions required for this view.
+        Public can create applications, but only admin can view them.
+        """
+        if self.action == 'create':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new job application"""
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                application = serializer.save()
+                
+                # Send confirmation email to applicant
+                try:
+                    self.send_application_confirmation_email(application)
+                except Exception as e:
+                    logging.warning(f"Failed to send confirmation email: {e}")
+                
+                # Send notification email to HR
+                try:
+                    self.send_hr_notification_email(application)
+                except Exception as e:
+                    logging.warning(f"Failed to send HR notification: {e}")
+                
+                return api_response(
+                    data=serializer.data,
+                    message="Application submitted successfully! We'll review your application and get back to you within 5-7 business days.",
+                    status_code=status.HTTP_201_CREATED
+                )
+            else:
+                return api_response(
+                    data=serializer.errors,
+                    message="Please correct the errors below.",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
+            logging.error(f"Job application creation error: {e}")
+            return api_response(
+                message="Failed to submit application. Please try again.",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def send_application_confirmation_email(self, application):
+        """Send confirmation email to the applicant"""
+        subject = f"Application Received - {application.position}"
+        message = f"""
+Dear {application.first_name},
+
+Thank you for applying for the {application.position} position at Higgs Boson.
+
+We have received your application and our team will review it carefully. We typically respond within 5-7 business days.
+
+Application Details:
+- Position: {application.position}
+- Experience Level: {application.get_experience_display()}
+- Submitted: {application.created_at.strftime('%B %d, %Y at %I:%M %p')}
+
+If you have any questions, please don't hesitate to contact us.
+
+Best regards,
+The Higgs Boson Team
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[application.email],
+            fail_silently=True
+        )
+    
+    def send_hr_notification_email(self, application):
+        """Send notification email to HR team"""
+        # Get admin email from settings
+        try:
+            admin_settings = AdminSettings.objects.first()
+            hr_email = admin_settings.admin_email if admin_settings else settings.DEFAULT_FROM_EMAIL
+        except:
+            hr_email = settings.DEFAULT_FROM_EMAIL
+        
+        subject = f"New Job Application - {application.position}"
+        message = f"""
+New job application received:
+
+Applicant: {application.full_name}
+Email: {application.email}
+Phone: {application.phone}
+Position: {application.position}
+Experience: {application.get_experience_display()}
+LinkedIn: {application.linkedin}
+Portfolio: {application.portfolio}
+
+Cover Letter:
+{application.cover_letter}
+
+Application submitted: {application.created_at.strftime('%B %d, %Y at %I:%M %p')}
+
+Please review the application in the admin panel.
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[hr_email],
+            fail_silently=True
+        )
+
+
+class AppointmentViewSet(viewsets.ModelViewSet):
+    """ViewSet for handling appointment bookings"""
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new appointment booking"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Check for existing bookings at the same date and time
+        preferred_date = serializer.validated_data.get('preferred_date')
+        preferred_time = serializer.validated_data.get('preferred_time')
+        
+        existing_appointment = Appointment.objects.filter(
+            preferred_date=preferred_date,
+            preferred_time=preferred_time,
+            status__in=['pending', 'confirmed']  # Don't count cancelled appointments
+        ).first()
+        
+        if existing_appointment:
+            return Response({
+                'status': 'error',
+                'message': f'Sorry, the time slot {preferred_time} on {preferred_date} is already booked. Please choose a different time.',
+                'error': 'TIME_SLOT_UNAVAILABLE'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            appointment = serializer.save()
+        except Exception as e:
+            # Handle database constraint violations gracefully
+            if 'unique constraint' in str(e).lower() or 'unique_appointment_slot' in str(e):
+                return Response({
+                    'status': 'error',
+                    'message': f'Sorry, the time slot {preferred_time} on {preferred_date} is already booked. Please choose a different time.',
+                    'error': 'TIME_SLOT_UNAVAILABLE'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Re-raise other exceptions
+                raise e
+        
+        # Send confirmation emails
+        self.send_confirmation_email(appointment)
+        self.send_admin_notification_email(appointment)
+        
+        return Response({
+            'status': 'success',
+            'message': 'Appointment request submitted successfully! We will contact you soon to confirm.',
+            'data': serializer.data
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def availability(self, request):
+        """Get available time slots for a specific date"""
+        date_param = request.query_params.get('date')
+        if not date_param:
+            return Response({
+                'error': 'Date parameter is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Parse the date
+            from datetime import datetime
+            selected_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+            
+            # Check if the date is in the past
+            if selected_date < timezone.now().date():
+                return Response({
+                    'date': date_param,
+                    'availableSlots': [],
+                    'bookedSlots': [],
+                    'message': 'Selected date is in the past'
+                })
+            
+            # Check if it's a weekend (optional - you can remove this if you work weekends)
+            if selected_date.weekday() >= 5:  # Saturday = 5, Sunday = 6
+                return Response({
+                    'date': date_param,
+                    'availableSlots': [],
+                    'bookedSlots': [],
+                    'message': 'Appointments not available on weekends'
+                })
+            
+            # Define all possible time slots (30-minute appointments)
+            all_slots = [
+                '09:00-09:30',
+                '09:30-10:00',
+                '10:00-10:30',
+                '10:30-11:00',
+                '11:00-11:30',
+                '11:30-12:00',
+                '13:00-13:30',
+                '13:30-14:00',
+                '14:00-14:30',
+                '14:30-15:00',
+                '15:00-15:30',
+                '15:30-16:00',
+                '16:00-16:30',
+                '16:30-17:00'
+            ]
+            
+            # Get booked appointments for this date
+            booked_appointments = Appointment.objects.filter(
+                preferred_date=selected_date,
+                status__in=['pending', 'confirmed']  # Don't count cancelled appointments
+            ).values_list('preferred_time', flat=True)
+            
+            booked_slots = list(booked_appointments)
+            available_slots = [slot for slot in all_slots if slot not in booked_slots]
+            
+            return Response({
+                'date': date_param,
+                'availableSlots': available_slots,
+                'bookedSlots': booked_slots,
+                'message': f'{len(available_slots)} slots available'
+            })
+            
+        except ValueError:
+            return Response({
+                'error': 'Invalid date format. Use YYYY-MM-DD'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'error': f'Error checking availability: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'])
+    def dashboard(self, request):
+        """Get appointment dashboard data for admin"""
+        # This could be restricted to admin users only
+        today = timezone.now().date()
+        
+        # Get statistics
+        total_appointments = Appointment.objects.count()
+        pending_appointments = Appointment.objects.filter(status='pending').count()
+        confirmed_appointments = Appointment.objects.filter(status='confirmed').count()
+        completed_appointments = Appointment.objects.filter(status='completed').count()
+        
+        # Get upcoming appointments (next 7 days)
+        from datetime import timedelta
+        next_week = today + timedelta(days=7)
+        upcoming_appointments = Appointment.objects.filter(
+            preferred_date__range=[today, next_week],
+            status__in=['pending', 'confirmed']
+        ).order_by('preferred_date', 'preferred_time')
+        
+        # Get recent appointments
+        recent_appointments = Appointment.objects.all().order_by('-created_at')[:10]
+        
+        return Response({
+            'statistics': {
+                'total': total_appointments,
+                'pending': pending_appointments,
+                'confirmed': confirmed_appointments,
+                'completed': completed_appointments
+            },
+            'upcoming': AppointmentSerializer(upcoming_appointments, many=True).data,
+            'recent': AppointmentSerializer(recent_appointments, many=True).data
+        })
+    
+    def send_confirmation_email(self, appointment):
+        """Send confirmation email to the applicant"""
+        subject = f"Appointment Request Received - {appointment.service}"
+        message = f"""
+Dear {appointment.name},
+
+Thank you for requesting a consultation appointment with Higgs Boson Consultancy!
+
+We have received your appointment request and our team will review it carefully. We typically respond within 24 hours to confirm the appointment.
+
+Appointment Details:
+- Service: {appointment.service}
+- Preferred Date: {appointment.preferred_date.strftime('%B %d, %Y')}
+- Preferred Time: {appointment.preferred_time}
+- Company: {appointment.company or 'Not specified'}
+- Status: Pending Confirmation
+
+{f"Your Message: {appointment.message}" if appointment.message else ""}
+
+We will contact you at {appointment.email} to confirm the appointment details and provide meeting information.
+
+If you need to make any changes to your request, please contact us at henry930@gmail.com.
+
+Best regards,
+The Higgs Boson Team
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[appointment.email],
+            fail_silently=True
+        )
+    
+    def send_admin_notification_email(self, appointment):
+        """Send notification email to admin team"""
+        # Get admin email from settings
+        try:
+            admin_settings = AdminSettings.objects.first()
+            admin_email = admin_settings.admin_email if admin_settings else settings.DEFAULT_FROM_EMAIL
+        except:
+            admin_email = settings.DEFAULT_FROM_EMAIL
+        
+        subject = f"New Appointment Request - {appointment.service}"
+        message = f"""
+New consultation appointment request received:
+
+Client: {appointment.name}
+Email: {appointment.email}
+Phone: {appointment.phone or 'Not provided'}
+Company: {appointment.company or 'Not specified'}
+Service: {appointment.service}
+Preferred Date: {appointment.preferred_date.strftime('%B %d, %Y')}
+Preferred Time: {appointment.preferred_time}
+
+{f"Message from client: {appointment.message}" if appointment.message else "No additional message"}
+
+Request submitted: {appointment.created_at.strftime('%B %d, %Y at %I:%M %p')}
+
+Please review and confirm the appointment in the admin panel.
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[admin_email],
+            fail_silently=True
+        )
+
+
+@api_view(['GET'])
+def job_positions(request):
+    """Get available job positions"""
+    positions = [
+        {
+            'id': 1,
+            'title': 'Senior AI Engineer',
+            'department': 'Engineering',
+            'location': 'Remote / London',
+            'type': 'Full-time',
+            'experience': '5+ years',
+            'description': 'Join our AI engineering team to build cutting-edge solutions that transform how businesses develop software.',
+            'requirements': [
+                '5+ years of experience in AI/ML engineering',
+                'Strong Python programming skills',
+                'Experience with TensorFlow, PyTorch, or similar frameworks',
+                'Knowledge of NLP, computer vision, or generative AI',
+                'Experience with cloud platforms (AWS, GCP, Azure)',
+                'Strong problem-solving and analytical skills'
+            ],
+            'benefits': [
+                'Competitive salary + equity',
+                'Remote-first culture',
+                'Health & dental insurance',
+                '£3,000 learning budget',
+                'Latest MacBook Pro + equipment',
+                '25 days holiday + bank holidays'
+            ]
+        },
+        {
+            'id': 2,
+            'title': 'Full-Stack Developer',
+            'department': 'Engineering',
+            'location': 'Remote / London',
+            'type': 'Full-time',
+            'experience': '3+ years',
+            'description': 'Build the future of software development with us. Work on our React frontend and Node.js backend.',
+            'requirements': [
+                '3+ years of full-stack development experience',
+                'Strong React and TypeScript skills',
+                'Experience with Node.js and Express',
+                'Knowledge of PostgreSQL or similar databases',
+                'Understanding of RESTful APIs and GraphQL',
+                'Experience with version control (Git)'
+            ],
+            'benefits': [
+                'Competitive salary + equity',
+                'Remote-first culture',
+                'Health & dental insurance',
+                '£2,500 learning budget',
+                'Flexible working hours',
+                '25 days holiday + bank holidays'
+            ]
+        },
+        {
+            'id': 3,
+            'title': 'Product Designer',
+            'department': 'Design',
+            'location': 'Remote / London',
+            'type': 'Full-time',
+            'experience': '4+ years',
+            'description': 'Shape the user experience of our AI-powered development platform.',
+            'requirements': [
+                '4+ years of product design experience',
+                'Proficiency in Figma, Sketch, or similar tools',
+                'Strong understanding of UX/UI principles',
+                'Experience with design systems',
+                'Knowledge of frontend development (HTML/CSS)',
+                'Portfolio showcasing B2B SaaS experience'
+            ],
+            'benefits': [
+                'Competitive salary + equity',
+                'Remote-first culture',
+                'Health & dental insurance',
+                '£2,000 design tools budget',
+                'Conference attendance budget',
+                '25 days holiday + bank holidays'
+            ]
+        }
+    ]
+    
+    return api_response(data=positions)
+
+
+@api_view(['POST'])
+def schedule_notification(request):
+    """
+    Handle schedule notification from Google Calendar integration.
+    Sends notification emails to the business about new scheduled calls.
+    """
+    try:
+        data = request.data
+        
+        # Extract the scheduling data
+        client_name = data.get('client_name', '')
+        client_email = data.get('client_email', '')
+        meeting_type = data.get('meeting_type', '')
+        scheduled_time = data.get('scheduled_time', '')
+        description = data.get('description', '')
+        
+        if not all([client_name, client_email, meeting_type, scheduled_time]):
+            return api_response(
+                success=False, 
+                message="Missing required fields",
+                status_code=400
+            )
+        
+        # Format the scheduled time for display and extract date/time
+        from datetime import datetime
+        try:
+            scheduled_dt = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00'))
+            formatted_time = scheduled_dt.strftime('%B %d, %Y at %I:%M %p %Z')
+            
+            # Extract date and time for appointment record
+            appointment_date = scheduled_dt.date()
+            appointment_time = scheduled_dt.strftime('%H:%M-%H:%M')  # We'll fix the end time below
+            
+            # Calculate end time based on meeting type duration
+            duration_map = {
+                'consultation': 30,
+                'technical': 45,
+                'project-planning': 60,
+                'demo': 30
+            }
+            duration = duration_map.get(meeting_type, 30)
+            end_dt = scheduled_dt.replace(minute=scheduled_dt.minute + duration)
+            appointment_time = f"{scheduled_dt.strftime('%H:%M')}-{end_dt.strftime('%H:%M')}"
+            
+        except:
+            formatted_time = scheduled_time
+            # Fallback parsing
+            appointment_date = None
+            appointment_time = ""
+        
+        # Meeting type labels
+        meeting_type_labels = {
+            'consultation': 'Free Consultation (30 min)',
+            'technical': 'Technical Discussion (45 min)',
+            'project-planning': 'Project Planning (60 min)',
+            'demo': 'Product Demo (30 min)'
+        }
+        
+        meeting_label = meeting_type_labels.get(meeting_type, meeting_type)
+        
+        # Create Appointment record in database
+        try:
+            if appointment_date and appointment_time:
+                # Map meeting types to service choices
+                service_map = {
+                    'consultation': 'Technical Consulting',
+                    'technical': 'Technical Consulting', 
+                    'project-planning': 'System Architecture',
+                    'demo': 'Technical Consulting'
+                }
+                service = service_map.get(meeting_type, 'Technical Consulting')
+                
+                appointment = Appointment.objects.create(
+                    name=client_name,
+                    email=client_email,
+                    service=service,
+                    preferred_date=appointment_date,
+                    preferred_time=appointment_time,
+                    message=description or f"Scheduled via Google Calendar integration - {meeting_label}",
+                    status='confirmed',  # Set as confirmed since user already scheduled
+                    duration=duration_map.get(meeting_type, 30)
+                )
+                
+                logger = logging.getLogger(__name__)
+                logger.info(f"Created appointment record: ID {appointment.id} for {client_name}")
+        except Exception as db_error:
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to create appointment record: {db_error}")
+            # Continue with email notification even if DB fails
+        
+        # Email content
+        subject = f'New Call Scheduled: {meeting_label}'
+        message = f"""
+New call scheduled via website Google Calendar integration:
+
+Client Information:
+- Name: {client_name}
+- Email: {client_email}
+
+Meeting Details:
+- Type: {meeting_label}
+- Scheduled Time: {formatted_time}
+
+Additional Details:
+{description if description else 'No additional details provided.'}
+
+Please add this to your calendar and prepare the meeting link.
+
+---
+Higgs Boson Consultancy
+Automated Scheduling System
+        """.strip()
+        
+        # Send notification email to business
+        business_email = getattr(settings, 'BUSINESS_EMAIL', 'contact@higgsboson.com')
+        
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@higgsboson.com'),
+                recipient_list=[business_email],
+                fail_silently=False,
+            )
+            
+            # Log the scheduling
+            logger = logging.getLogger(__name__)
+            logger.info(f"Call scheduled: {client_name} ({client_email}) - {meeting_label} at {formatted_time}")
+            
+        except Exception as email_error:
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send schedule notification email: {email_error}")
+            # Don't fail the API call if email fails
+        
+        return api_response(
+            data={
+                'scheduled': True,
+                'meeting_type': meeting_label,
+                'scheduled_time': formatted_time
+            },
+            message="Schedule notification sent successfully"
+        )
+        
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in schedule_notification: {e}")
+        return api_response(
+            success=False,
+            message="Failed to process schedule notification",
+            status_code=500
+        )

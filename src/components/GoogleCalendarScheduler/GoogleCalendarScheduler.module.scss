@@ -1,0 +1,639 @@
+@use '../../styles/variables' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0.5rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 85vh; /* Back to max-height to prevent overflow */
+  overflow-y: auto; /* Allow scrolling if needed */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+
+  h2 {
+    color: $primary-color;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9;
+    color: $primary-color;
+  }
+}
+
+.content {
+  padding: 0.5rem;
+}
+
+/* Two Column Layout */
+.twoColumnLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+.leftColumn {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+.rightColumn {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Compact Calendar */
+.compactCalendarSection {
+  margin: 1rem 0;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    color: $primary-color;
+    font-size: 1rem;
+  }
+}
+
+.compactCalendar {
+  .calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 8px;
+    
+    .dayHeader {
+      background: #64748b;
+      color: white;
+      text-align: center;
+      padding: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+    
+    .calendarDay {
+      background: white;
+      text-align: center;
+      padding: 6px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      
+      &:hover:not(.disabled) {
+        background: #e2e8f0;
+      }
+      
+      &.selected {
+        background: $primary-color;
+        color: white;
+      }
+      
+      &.today {
+        background: #fef3c7;
+        font-weight: bold;
+      }
+      
+      &.disabled {
+        background: #f1f5f9;
+        color: #cbd5e1;
+        cursor: not-allowed;
+      }
+      
+      &.otherMonth {
+        color: #cbd5e1;
+      }
+    }
+  }
+}
+
+/* Time Slots Panel */
+.timeSlotsPanel {
+  height: 100%;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    color: $primary-color;
+    font-size: 1.1rem;
+  }
+  
+  p {
+    margin: 0 0 1rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+  
+  .timeSlots {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    
+    .timeSlot {
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      font-weight: 500;
+      font-size: 0.9rem;
+      
+      &:hover {
+        border-color: $primary-color;
+        background: #f0f9ff;
+      }
+      
+      &.selected {
+        background: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+    }
+    
+    .noSlots {
+      padding: 1rem;
+      text-align: center;
+      color: #94a3b8;
+      font-style: italic;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px dashed #cbd5e1;
+    }
+  }
+}
+
+.selectDatePrompt {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #64748b;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    color: #94a3b8;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    &:required {
+      border-left: 4px solid $secondary-color;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  select {
+    cursor: pointer;
+  }
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calendarSection {
+  margin-bottom: 1.5rem;
+  
+  .calendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    h3 {
+      margin: 0;
+      color: #374151;
+      font-size: 1.1rem;
+    }
+    
+    .monthNavigation {
+      display: flex;
+      gap: 0.5rem;
+      
+      button {
+        background: none;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        
+        &:hover {
+          background: #f9fafb;
+          border-color: #d1d5db;
+        }
+        
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+  
+  .calendar {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    .calendarGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      
+      .dayHeader {
+        background: #f9fafb;
+        padding: 0.75rem 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .calendarDay {
+        aspect-ratio: 1;
+        border: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: white;
+        
+        &.otherMonth {
+          color: #d1d5db;
+          background: #f9fafb;
+        }
+        
+        &.today {
+          background: #eff6ff;
+          color: $primary-color;
+          font-weight: 600;
+        }
+        
+        &.selected {
+          background: $primary-color;
+          color: white;
+          font-weight: 600;
+        }
+        
+        &.disabled {
+          color: #d1d5db;
+          cursor: not-allowed;
+          background: #f9fafb;
+        }
+        
+        &:hover:not(.disabled):not(.selected) {
+          background: #f0f9ff;
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+.timeSlotsSection {
+  margin-bottom: 1.5rem;
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    font-size: 1.1rem;
+  }
+  
+  .timeSlots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    
+    .timeSlot {
+      padding: 0.75rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      font-weight: 500;
+      
+      &:hover {
+        border-color: $primary-color;
+        background: #f0f9ff;
+      }
+      
+      &.selected {
+        background: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+      
+      &.disabled {
+        background: #f9fafb;
+        color: #d1d5db;
+        cursor: not-allowed;
+        border-color: #f3f4f6;
+      }
+    }
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background: #f8fafc;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+}
+
+.scheduleButton {
+  padding: 0.75rem 1.5rem;
+  background: $primary-color;
+  color: white;
+  border: 2px solid $primary-color;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: darken($primary-color, 10%);
+    border-color: darken($primary-color, 10%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.note {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 2rem 2rem;
+
+  p {
+    margin: 0;
+    color: #0c4a6e;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .header {
+    padding: 1rem 1.5rem;
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .note {
+    margin: 1rem 1.5rem 1.5rem;
+  }
+}
+
+// Simplified Calendar Scheduling Styles
+.timeSlotsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h3 {
+    margin: 0;
+    color: $primary-color;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+.availabilityNote {
+  color: #059669;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.connectButton {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #3367d6;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.connectedStatus {
+  color: #059669;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.loadingSlots {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.noSlots {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.timeSlot {
+  &.unavailable {
+    background: #fee2e2;
+    color: #991b1b;
+    cursor: not-allowed;
+    opacity: 0.6;
+    position: relative;
+
+    &:hover {
+      background: #fee2e2;
+      transform: none;
+      cursor: not-allowed;
+    }
+  }
+
+  .unavailableIcon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 0.5rem;
+  }
+
+  .modal {
+    margin: 0.5rem;
+  }
+
+  .header {
+    padding: 1rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .note {
+    margin: 1rem;
+  }
+
+  .timeSlotsHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .connectButton {
+    width: 100%;
+  }
+}

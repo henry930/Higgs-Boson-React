@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import GoogleCalendarScheduler from '../GoogleCalendarScheduler';
 import styles from './Navigation.module.scss';
 
 const Navigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -29,8 +31,8 @@ const Navigation: React.FC = () => {
     { path: '/how-it-works', label: 'How it works' },
     { path: '/about', label: 'About us' },
     { path: '/services', label: 'Services' },
-    { path: '/how-it-works', label: 'How It Works' },
     { path: '/price-comparison', label: 'Pricing' },
+    { path: '/careers', label: 'Careers' },
     { path: '/contact', label: 'Contact' },
   ];
 
@@ -90,9 +92,15 @@ const Navigation: React.FC = () => {
               </div>
             ) : (
               <div className={styles.authButtons}>
-                <Link to="/contact" className={styles.scheduleCall}>
+                <button 
+                  onClick={() => {
+                    console.log('🎯 Schedule a Call button clicked in Navigation');
+                    setIsSchedulerOpen(true);
+                  }}
+                  className={styles.scheduleCall}
+                >
                   Schedule a Call
-                </Link>
+                </button>
                 <Link to="/login" className={styles.loginBtn}>
                   Login
                 </Link>
@@ -165,13 +173,16 @@ const Navigation: React.FC = () => {
               </div>
             ) : (
               <div className={styles.mobileAuthButtons}>
-                <Link 
-                  to="/contact" 
+                <button 
+                  onClick={() => {
+                    console.log('🎯 Schedule a Call button clicked in Mobile Navigation');
+                    setIsSchedulerOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
                   className={styles.mobileScheduleCall}
-                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Schedule a Call
-                </Link>
+                </button>
                 <Link 
                   to="/login" 
                   className={styles.mobileLoginBtn}
@@ -184,6 +195,14 @@ const Navigation: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Google Calendar Scheduler Modal */}
+      <GoogleCalendarScheduler
+        key={isSchedulerOpen ? 'open' : 'closed'} // Force remount when opening
+        isOpen={isSchedulerOpen}
+        onClose={() => setIsSchedulerOpen(false)}
+        userEmail={user?.email}
+      />
     </nav>
   );
 };

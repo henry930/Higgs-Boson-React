@@ -835,3 +835,149 @@ class ProjectMilestone(models.Model):
         if self.status not in ['completed', 'cancelled']:
             return timezone.now().date() > self.due_date
         return False
+
+
+class JobApplication(models.Model):
+    """Model for handling job applications with CV uploads"""
+    
+    EXPERIENCE_CHOICES = [
+        ('0-1', '0-1 years'),
+        ('1-3', '1-3 years'),
+        ('3-5', '3-5 years'),
+        ('5-8', '5-8 years'),
+        ('8+', '8+ years'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('new', 'New'),
+        ('reviewing', 'Under Review'),
+        ('interview', 'Interview Scheduled'),
+        ('rejected', 'Rejected'),
+        ('accepted', 'Accepted'),
+    ]
+    
+    # Personal Information
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    
+    # Job Application Details
+    position = models.CharField(max_length=200)
+    experience = models.CharField(max_length=10, choices=EXPERIENCE_CHOICES)
+    cover_letter = models.TextField()
+    
+    # File Upload
+    cv = models.FileField(
+        upload_to='applications/cvs/',
+        help_text='Upload your CV/Resume (PDF, DOC, or DOCX format, max 5MB)'
+    )
+    
+    # Optional Links
+    linkedin = models.URLField(blank=True, help_text='LinkedIn profile URL')
+    portfolio = models.URLField(blank=True, help_text='Portfolio or personal website URL')
+    
+    # Application Management
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
+    notes = models.TextField(blank=True, help_text='Internal notes for HR team')
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Job Application'
+        verbose_name_plural = 'Job Applications'
+        
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.position}"
+
+    @property
+    def full_name(self):
+        """Return full name of the applicant"""
+        return f"{self.first_name} {self.last_name}"
+
+
+class Appointment(models.Model):
+    """Model for handling consultation appointment requests"""
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('rescheduled', 'Rescheduled'),
+    ]
+    
+    SERVICE_CHOICES = [
+        ('Web Development', 'Web Development'),
+        ('Mobile App Development', 'Mobile App Development'),
+        ('Cloud Solutions', 'Cloud Solutions'),
+        ('DevOps Consulting', 'DevOps Consulting'),
+        ('AI/ML Implementation', 'AI/ML Implementation'),
+        ('Blockchain Development', 'Blockchain Development'),
+        ('Technical Consulting', 'Technical Consulting'),
+        ('System Architecture', 'System Architecture'),
+    ]
+    
+    # Contact Information
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True)
+    company = models.CharField(max_length=200, blank=True)
+    
+    # Appointment Details
+    service = models.CharField(max_length=100, choices=SERVICE_CHOICES)
+    preferred_date = models.DateField()
+    preferred_time = models.CharField(max_length=20)  # Format like "09:00-10:00"
+    message = models.TextField(blank=True)
+    
+    # Status and Management
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    duration = models.IntegerField(default=30)  # Duration in minutes (30-minute appointments)
+    meeting_link = models.URLField(blank=True)  # Zoom/Teams link if online
+    notes = models.TextField(blank=True)  # Internal notes
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Appointment'
+        verbose_name_plural = 'Appointments'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['preferred_date', 'preferred_time'],
+                condition=models.Q(status__in=['pending', 'confirmed']),
+                name='unique_appointment_slot'
+            )
+        ]
+    
+    def __str__(self):
+        return f"{self.name} - {self.service} - {self.preferred_date} {self.preferred_time}"
+    
+    @property
+    def is_upcoming(self):
+        """Check if appointment is in the future"""
+        return self.preferred_date >= timezone.now().date()
+    
+    def confirm_appointment(self, meeting_link=None):
+        """Confirm the appointment and optionally set meeting link"""
+        self.status = 'confirmed'
+        if meeting_link:
+            self.meeting_link = meeting_link
+        self.save()
+    
+    def cancel_appointment(self, notes=None):
+        """Cancel the appointment with optional notes"""
+        self.status = 'cancelled'
+        if notes:
+            self.notes = notes
+        self.save()
+    
+    @property
+    def application_age_days(self):
+        """Return number of days since application was submitted"""
+        return (timezone.now() - self.created_at).days

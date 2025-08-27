@@ -29,25 +29,6 @@ const Footer: React.FC = () => {
               <Link to="/services/devops-engineers" className={styles.footerLink}>
                 DevOps Engineers
               </Link>
-              <Link to="/services/data-scientists" className={styles.footerLink}>
-                Data Scientists
-              </Link>
-              <Link to="/services/full-stack-developers" className={styles.footerLink}>
-                Full-Stack Developers
-              </Link>
-            </div>
-
-            <div className={styles.techSection}>
-              <h4 className={styles.subSectionTitle}>Frequently Supplied Tech</h4>
-              <Link to="/technology/react-developers" className={styles.footerLink}>
-                React
-              </Link>
-              <Link to="/technology/nodejs-developers" className={styles.footerLink}>
-                Node.js
-              </Link>
-              <Link to="/technology/python-developers" className={styles.footerLink}>
-                Python
-              </Link>
             </div>
 
             <div className={styles.productSection}>
@@ -60,6 +41,29 @@ const Footer: React.FC = () => {
               </Link>
               <Link to="/services/ai-product-builds" className={styles.footerLink}>
                 AI Product Builds
+              </Link>
+            </div>
+          </div>
+
+          {/* Technology & Tools Section */}
+          <div className={styles.footerSection}>
+            <h3 className={styles.sectionTitle}>Technology</h3>
+            <div className={styles.techSection}>
+              <h4 className={styles.subSectionTitle}>Frequently Supplied Tech</h4>
+              <Link to="/technology/react-developers" className={styles.footerLink}>
+                React
+              </Link>
+              <Link to="/technology/nodejs-developers" className={styles.footerLink}>
+                Node.js
+              </Link>
+              <Link to="/technology/python-developers" className={styles.footerLink}>
+                Python
+              </Link>
+              <Link to="/services/data-scientists" className={styles.footerLink}>
+                Data Scientists
+              </Link>
+              <Link to="/services/full-stack-developers" className={styles.footerLink}>
+                Full-Stack Developers
               </Link>
             </div>
 
@@ -99,12 +103,6 @@ const Footer: React.FC = () => {
               </Link>
               <Link to="/customer-stories" className={styles.footerLink}>
                 Customer Stories
-              </Link>
-              <Link to="/resources/guides" className={styles.footerLink}>
-                Guides & Insights
-              </Link>
-              <Link to="/resources/downloads" className={styles.footerLink}>
-                Free Downloads
               </Link>
             </div>
 

@@ -5,9 +5,10 @@ from .views import (
     HeroSlideViewSet, TeamMemberViewSet, ServiceViewSet, PageViewSet,
     AICustomerServiceView, CustomerViewSet, ProjectRequirementViewSet,
     ConversationViewSet, AdminSettingsViewSet, ProjectEstimationViewSet,
-    dashboard_stats, test_email, AIUsageStatsView, AIConfigurationView,
+    dashboard_stats, test_email, test_confirmation_notification, AIUsageStatsView, AIConfigurationView,
     CompanyRegistrationView, CompanyLoginView, CompanyVerificationView,
-    CompanyDashboardView
+    CompanyDashboardView, JobApplicationViewSet, job_positions, schedule_notification,
+    AppointmentViewSet
 )
 from .dashboard_views import DashboardViewSet
 from .auth_views import login_view, register_view, logout_view, user_profile
@@ -31,6 +32,12 @@ router.register(r'estimations', ProjectEstimationViewSet)
 # Dashboard endpoints
 router.register(r'dashboard', DashboardViewSet, basename='dashboard')
 
+# Job Application endpoints
+router.register(r'job-applications', JobApplicationViewSet)
+
+# Appointment endpoints
+router.register(r'appointments', AppointmentViewSet)
+
 urlpatterns = [
     path('', include(router.urls)),
     
@@ -44,6 +51,7 @@ urlpatterns = [
     path('ai-chat/', AICustomerServiceView.as_view(), name='ai-chat'),
     path('dashboard/stats/', dashboard_stats, name='dashboard-stats'),
     path('test-email/', test_email, name='test-email'),
+    path('test-confirmation/', test_confirmation_notification, name='test-confirmation'),
     
     # AI Management endpoints
     path('ai/usage-stats/', AIUsageStatsView.as_view(), name='ai-usage-stats'),
@@ -54,4 +62,10 @@ urlpatterns = [
     path('company/login/', CompanyLoginView.as_view(), name='company-login'),
     path('company/verify/', CompanyVerificationView.as_view(), name='company-verify'),
     path('company/dashboard/', CompanyDashboardView.as_view(), name='company-dashboard'),
+    
+    # Career endpoints
+    path('job-positions/', job_positions, name='job-positions'),
+    
+    # Calendar scheduling endpoints
+    path('schedule-notification/', schedule_notification, name='schedule-notification'),
 ]

@@ -1,11 +1,96 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import StackIcon from 'tech-stack-icons';
 import styles from './Services.module.scss';
+import SimpleCalendarBooking from '../../components/SimpleCalendarBooking/SimpleCalendarBooking';
+
+// Import custom SVG icons as URLs
+import AdobeXdSVG from '../../assets/tech/adobe-xd.svg';
+import AnsibleSVG from '../../assets/tech/ansible.svg';
+import ApacheSparkSVG from '../../assets/tech/apache-spark.svg';
+import BitcoinSVG from '../../assets/tech/bitcoin.svg';
+import BootstrapSVG from '../../assets/tech/bootstrap.svg';
+import DotnetSVG from '../../assets/tech/dotnet.svg';
+import ElasticsearchSVG from '../../assets/tech/elasticsearch.svg';
+import EthereumSVG from '../../assets/tech/ethereum.svg';
+import ExpressjsSVG from '../../assets/tech/expressjs.svg';
+import FastapiSVG from '../../assets/tech/fastapi.svg';
+import GithubActionsSVG from '../../assets/tech/github-actions.svg';
+import HadoopSVG from '../../assets/tech/hadoop.svg';
+import IntellijSVG from '../../assets/tech/intellij.svg';
+import IosSVG from '../../assets/tech/ios.svg';
+import JavaScriptSVG from '../../assets/tech/javascript.svg';
+import JenkinsSVG from '../../assets/tech/jenkins.svg';
+import JupyterSVG from '../../assets/tech/jupyter.svg';
+import KotlinSVG from '../../assets/tech/kotlin.svg';
+import MaterialUiSVG from '../../assets/tech/material-ui.svg';
+import MatplotlibSVG from '../../assets/tech/matplotlib.svg';
+import NginxSVG from '../../assets/tech/nginx.svg';
+import NumpySVG from '../../assets/tech/numpy.svg';
+import PandasSVG from '../../assets/tech/pandas.svg';
+import PhotoshopSVG from '../../assets/tech/photoshop.svg';
+import PolygonSVG from '../../assets/tech/polygon.svg';
+import ReactSVG from '../../assets/tech/react.svg';
+import ScikitLearnSVG from '../../assets/tech/scikit-learn.svg';
+import SqliteSVG from '../../assets/tech/sqlite.svg';
+import TableauSVG from '../../assets/tech/tableau.svg';
+import TensorFlowSVG from '../../assets/tech/tensorflow.svg';
+import TerraformSVG from '../../assets/tech/terraform.svg';
+import TrelloSVG from '../../assets/tech/trello.svg';
+import ViteSVG from '../../assets/tech/vite.svg';
+
+// Custom icon component for local SVGs
+const CustomIcon = ({ src, alt }: { src: string; alt: string }) => (
+  <img src={src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+);
+
+// Default icon component for technologies without custom SVGs
+const DefaultIcon = ({ name }: { name: string }) => (
+  <div style={{ 
+    width: '100%', 
+    height: '100%', 
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: '18px',
+    textTransform: 'uppercase'
+  }}>
+    {name.substring(0, 2)}
+  </div>
+);
 
 const Services = () => {
+  console.log('🏢 Services page component mounted/rendered');
+  
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('Frontend');
+  const [bookingModalOpen, setBookingModalOpen] = useState<boolean>(false);
+  
+  console.log('📋 bookingModalOpen state:', bookingModalOpen);
+  
+  const techCategories = [
+    'Frontend', 
+    'Backend', 
+    'Mobile', 
+    'Cloud', 
+    'DevOps', 
+    'Database', 
+    'AI', 
+    'Blockchain', 
+    'Tools'
+  ];
 
   const teamBuildingServices = [
+    {
+      title: "AI-powered development",
+      description: "By using AI in development, it saves you enormous time and money.",
+      icon: "🤖",
+      featured: true
+    },
     {
       title: "Fractional CTOs",
       description: "Experienced technical leadership to guide your technology strategy and team development.",
@@ -134,50 +219,222 @@ const Services = () => {
 
   const techStacks = [
     // Frontend
-    { name: "React", category: "Frontend", icon: "⚛️" },
-    { name: "Vue.js", category: "Frontend", icon: "💚" },
-    { name: "Angular", category: "Frontend", icon: "🅰️" },
-    { name: "TypeScript", category: "Frontend", icon: "🔷" },
-    { name: "Next.js", category: "Frontend", icon: "▲" },
-    { name: "Svelte", category: "Frontend", icon: "🧡" },
+    { 
+      name: "React", 
+      category: "Frontend", 
+      icon: <CustomIcon src={ReactSVG} alt="React" />
+    },
+    { 
+      name: "Vue.js", 
+      category: "Frontend", 
+      icon: <StackIcon name="vuejs" />
+    },
+    { 
+      name: "Angular", 
+      category: "Frontend", 
+      icon: <StackIcon name="angular" />
+    },
+    { 
+      name: "TypeScript", 
+      category: "Frontend", 
+      icon: <StackIcon name="typescript" />
+    },
+    { 
+      name: "Next.js", 
+      category: "Frontend", 
+      icon: <StackIcon name="nextjs" />
+    },
+    { name: "Svelte", category: "Frontend", icon: <StackIcon name="sveltejs" /> },
+    { name: "Tailwind CSS", category: "Frontend", icon: <StackIcon name="tailwindcss" /> },
+    { name: "Sass", category: "Frontend", icon: <StackIcon name="sass" /> },
     
     // Backend
-    { name: "Node.js", category: "Backend", icon: "💚" },
-    { name: "Python", category: "Backend", icon: "�" },
-    { name: "Java", category: "Backend", icon: "☕" },
-    { name: "C#", category: "Backend", icon: "🔷" },
-    { name: "PHP", category: "Backend", icon: "🐘" },
-    { name: "Go", category: "Backend", icon: "🐹" },
+    { 
+      name: "Node.js", 
+      category: "Backend", 
+      icon: <StackIcon name="nodejs" />
+    },
+    { 
+      name: "Python", 
+      category: "Backend", 
+      icon: <StackIcon name="python" />
+    },
+    { name: "Java", category: "Backend", icon: <StackIcon name="java" /> },
+    { name: "C#", category: "Backend", icon: <StackIcon name="csharp" /> },
+    { name: "PHP", category: "Backend", icon: <StackIcon name="php" /> },
+    { name: "Go", category: "Backend", icon: <StackIcon name="go" /> },
     
     // Mobile
-    { name: "React Native", category: "Mobile", icon: "📱" },
-    { name: "Flutter", category: "Mobile", icon: "💙" },
-    { name: "Swift", category: "Mobile", icon: "🦉" },
-    { name: "Kotlin", category: "Mobile", icon: "🟠" },
+    { 
+      name: "React Native", 
+      category: "Mobile", 
+      icon: <StackIcon name="react" />
+    },
+    { 
+      name: "Flutter", 
+      category: "Mobile", 
+      icon: <StackIcon name="flutter" />
+    },
+    { name: "Swift", category: "Mobile", icon: <StackIcon name="swift" /> },
+    { name: "Kotlin", category: "Mobile", icon: <CustomIcon src={KotlinSVG} alt="Kotlin" /> },
     
     // Cloud & DevOps
-    { name: "AWS", category: "Cloud", icon: "☁️" },
-    { name: "Azure", category: "Cloud", icon: "🔵" },
-    { name: "GCP", category: "Cloud", icon: "🌈" },
-    { name: "Docker", category: "DevOps", icon: "🐳" },
-    { name: "Kubernetes", category: "DevOps", icon: "⚓" },
-    { name: "Terraform", category: "DevOps", icon: "🏗️" },
+    { 
+      name: "AWS", 
+      category: "Cloud", 
+      icon: <StackIcon name="aws" />
+    },
+    { name: "Azure", category: "Cloud", icon: <StackIcon name="azure" /> },
+    { name: "GCP", category: "Cloud", icon: <StackIcon name="gcloud" /> },
+    { 
+      name: "Docker", 
+      category: "DevOps", 
+      icon: <StackIcon name="docker" />
+    },
+    { 
+      name: "Kubernetes", 
+      category: "DevOps", 
+      icon: <StackIcon name="kubernetes" />
+    },
+    { name: "Terraform", category: "DevOps", icon: <CustomIcon src={TerraformSVG} alt="Terraform" /> },
+    { name: "Jenkins", category: "DevOps", icon: <CustomIcon src={JenkinsSVG} alt="Jenkins" /> },
+    { name: "Git", category: "DevOps", icon: <StackIcon name="git" /> },
     
     // AI & Data
-    { name: "TensorFlow", category: "AI", icon: "🧠" },
-    { name: "PyTorch", category: "AI", icon: "🔥" },
-    { name: "OpenAI", category: "AI", icon: "🤖" },
-    { name: "LangChain", category: "AI", icon: "🔗" },
-    { name: "Pandas", category: "Data", icon: "🐼" },
-    { name: "PostgreSQL", category: "Database", icon: "🐘" },
+    { name: "TensorFlow", category: "AI", icon: <CustomIcon src={TensorFlowSVG} alt="TensorFlow" /> },
+    { name: "PyTorch", category: "AI", icon: <StackIcon name="pytorch" /> },
+    { name: "OpenAI", category: "AI", icon: <StackIcon name="openai" /> },
+    { name: "LangChain", category: "AI", icon: <DefaultIcon name="LangChain" /> },
+    { name: "Pandas", category: "AI", icon: <CustomIcon src={PandasSVG} alt="Pandas" /> },
+    { 
+      name: "PostgreSQL", 
+      category: "Database", 
+      icon: <StackIcon name="postgresql" />
+    },
+    { name: "MongoDB", category: "Database", icon: <StackIcon name="mongodb" /> },
+    { name: "MySQL", category: "Database", icon: <StackIcon name="mysql" /> },
+    { name: "Redis", category: "Database", icon: <StackIcon name="redis" /> },
     
     // Blockchain
-    { name: "Ethereum", category: "Blockchain", icon: "💎" },
-    { name: "Solidity", category: "Blockchain", icon: "🔐" },
-    { name: "Web3", category: "Blockchain", icon: "🌐" }
+    { 
+      name: "Ethereum", 
+      category: "Blockchain", 
+      icon: <CustomIcon src={EthereumSVG} alt="Ethereum" />
+    },
+    { name: "Solidity", category: "Blockchain", icon: <StackIcon name="solidity" /> },
+    { name: "Web3", category: "Blockchain", icon: <StackIcon name="web3js" /> },
+    { name: "Bitcoin", category: "Blockchain", icon: <CustomIcon src={BitcoinSVG} alt="Bitcoin" /> },
+    { name: "Polygon", category: "Blockchain", icon: <CustomIcon src={PolygonSVG} alt="Polygon" /> },
+    
+    // Additional Frontend
+    { name: "HTML5", category: "Frontend", icon: <StackIcon name="html5" /> },
+    { name: "CSS3", category: "Frontend", icon: <StackIcon name="css3" /> },
+    { name: "JavaScript", category: "Frontend", icon: <CustomIcon src={JavaScriptSVG} alt="JavaScript" /> },
+    { name: "Webpack", category: "Frontend", icon: <StackIcon name="webpack" /> },
+    { name: "Vite", category: "Frontend", icon: <CustomIcon src={ViteSVG} alt="Vite" /> },
+    { name: "Nuxt.js", category: "Frontend", icon: <StackIcon name="nuxtjs" /> },
+    { name: "Gatsby", category: "Frontend", icon: <StackIcon name="gatsby" /> },
+    { name: "Material UI", category: "Frontend", icon: <CustomIcon src={MaterialUiSVG} alt="Material UI" /> },
+    { name: "Bootstrap", category: "Frontend", icon: <CustomIcon src={BootstrapSVG} alt="Bootstrap" /> },
+    { name: "Styled Components", category: "Frontend", icon: <DefaultIcon name="Styled Components" /> },
+    
+    // Additional Backend
+    { name: "Django", category: "Backend", icon: <StackIcon name="django" /> },
+    { name: "Flask", category: "Backend", icon: <StackIcon name="flask" /> },
+    { name: "FastAPI", category: "Backend", icon: <CustomIcon src={FastapiSVG} alt="FastAPI" /> },
+    { name: "Express.js", category: "Backend", icon: <CustomIcon src={ExpressjsSVG} alt="Express.js" /> },
+    { name: "NestJS", category: "Backend", icon: <StackIcon name="nestjs" /> },
+    { name: "Spring", category: "Backend", icon: <StackIcon name="spring" /> },
+    { name: "Laravel", category: "Backend", icon: <StackIcon name="laravel" /> },
+    { name: "Ruby on Rails", category: "Backend", icon: <DefaultIcon name="Ruby on Rails" /> },
+    { name: "ASP.NET", category: "Backend", icon: <CustomIcon src={DotnetSVG} alt="ASP.NET" /> },
+    { name: "Rust", category: "Backend", icon: <StackIcon name="rust" /> },
+    
+    // Additional Mobile
+    { name: "iOS", category: "Mobile", icon: <CustomIcon src={IosSVG} alt="iOS" /> },
+    { name: "Android", category: "Mobile", icon: <StackIcon name="android" /> },
+    { name: "Xamarin", category: "Mobile", icon: <DefaultIcon name="Xamarin" /> },
+    { name: "Ionic", category: "Mobile", icon: <StackIcon name="ionic" /> },
+    { name: "Cordova", category: "Mobile", icon: <DefaultIcon name="Cordova" /> },
+    
+    // Additional DevOps & Tools
+    { name: "GitHub", category: "DevOps", icon: <StackIcon name="github" /> },
+    { name: "GitLab", category: "DevOps", icon: <StackIcon name="gitlab" /> },
+    { name: "Bitbucket", category: "DevOps", icon: <StackIcon name="bitbucket" /> },
+    { name: "CircleCI", category: "DevOps", icon: <DefaultIcon name="CircleCI" /> },
+    { name: "GitHub Actions", category: "DevOps", icon: <CustomIcon src={GithubActionsSVG} alt="GitHub Actions" /> },
+    { name: "Ansible", category: "DevOps", icon: <CustomIcon src={AnsibleSVG} alt="Ansible" /> },
+    { name: "Nginx", category: "DevOps", icon: <CustomIcon src={NginxSVG} alt="Nginx" /> },
+    { name: "Apache", category: "DevOps", icon: <StackIcon name="apache" /> },
+    { name: "Linux", category: "DevOps", icon: <StackIcon name="linux" /> },
+    { name: "Ubuntu", category: "DevOps", icon: <StackIcon name="ubuntu" /> },
+    
+    // Additional Databases
+    { name: "SQLite", category: "Database", icon: <CustomIcon src={SqliteSVG} alt="SQLite" /> },
+    { name: "Firebase", category: "Database", icon: <StackIcon name="firebase" /> },
+    { name: "Supabase", category: "Database", icon: <DefaultIcon name="Supabase" /> },
+    { name: "DynamoDB", category: "Database", icon: <DefaultIcon name="DynamoDB" /> },
+    { name: "Elasticsearch", category: "Database", icon: <CustomIcon src={ElasticsearchSVG} alt="Elasticsearch" /> },
+    { name: "GraphQL", category: "Database", icon: <StackIcon name="graphql" /> },
+    { name: "Prisma", category: "Database", icon: <StackIcon name="prisma" /> },
+    
+    // Additional AI & Data Science
+    { name: "Jupyter", category: "AI", icon: <CustomIcon src={JupyterSVG} alt="Jupyter" /> },
+    { name: "Scikit-learn", category: "AI", icon: <CustomIcon src={ScikitLearnSVG} alt="Scikit-learn" /> },
+    { name: "NumPy", category: "AI", icon: <CustomIcon src={NumpySVG} alt="NumPy" /> },
+    { name: "Matplotlib", category: "AI", icon: <CustomIcon src={MatplotlibSVG} alt="Matplotlib" /> },
+    { name: "Apache Spark", category: "AI", icon: <CustomIcon src={ApacheSparkSVG} alt="Apache Spark" /> },
+    { name: "Hadoop", category: "AI", icon: <CustomIcon src={HadoopSVG} alt="Hadoop" /> },
+    { name: "Tableau", category: "AI", icon: <CustomIcon src={TableauSVG} alt="Tableau" /> },
+    { name: "Power BI", category: "AI", icon: <DefaultIcon name="Power BI" /> },
+    
+    // Additional Tools
+    { name: "VS Code", category: "Tools", icon: <StackIcon name="vscode" /> },
+    { name: "IntelliJ", category: "Tools", icon: <CustomIcon src={IntellijSVG} alt="IntelliJ" /> },
+    { name: "Figma", category: "Tools", icon: <StackIcon name="figma" /> },
+    { name: "Adobe XD", category: "Tools", icon: <CustomIcon src={AdobeXdSVG} alt="Adobe XD" /> },
+    { name: "Photoshop", category: "Tools", icon: <CustomIcon src={PhotoshopSVG} alt="Photoshop" /> },
+    { name: "Slack", category: "Tools", icon: <StackIcon name="slack" /> },
+    { name: "Notion", category: "Tools", icon: <StackIcon name="notion" /> },
+    { name: "Jira", category: "Tools", icon: <StackIcon name="jira" /> },
+    { name: "Trello", category: "Tools", icon: <CustomIcon src={TrelloSVG} alt="Trello" /> },
+    { name: "Postman", category: "Tools", icon: <StackIcon name="postman" /> }
   ];
 
   const faqs = [
+    {
+      question: "How do you source and vet technical talent?",
+      answer: "We use advanced AI-powered screening combined with rigorous technical assessments, code reviews, and cultural fit evaluations. Our multi-stage process ensures only the top 3% of candidates make it to our talent pool."
+    },
+    {
+      question: "Do you provide a human developer servicing me?",
+      answer: "Yes. And he is a talent specializing based on your requirement. Moreover, we always can provide different talents for your different needs."
+    },
+    {
+      question: "What technologies and frameworks do you specialize in?",
+      answer: "We cover the full spectrum of modern technologies including React, Angular, Vue.js, Node.js, Python, Java, AWS, Azure, Docker, Kubernetes, and emerging technologies like AI/ML and blockchain development etc."
+    },
+    {
+      question: "What if my requirements are niche and difficult to find talents?",
+      answer: "As we are AI-powered development, AI always can help even your requirements are unprecedented and lacks of talents."
+    },
+    {
+      question: "How quickly can you provide development services?",
+      answer: "For most tech stacks, we can provide pre-vetted candidates within 48-72 hours. For niche requirements, we may provide the closest experienced developers with AI-powered developing process."
+    },
+    {
+      question: "What are your engagement models?",
+      answer: "Generally, we offer guaranteed development services, full-time hires, contract-to-hire, project-based work, and dedicated development teams. Choose what works best for your business needs."
+    },
+    {
+      question: "Do you provide ongoing support after placement?",
+      answer: "Yes, we provide continuous support including performance monitoring, regular check-ins, and replacement guarantee to ensure successful long-term placements."
+    },
+    {
+      question: "How does your AI-powered development work?",
+      answer: "AI enhances through intelligent code generation, automated testing, performance optimization, and quality assurance, allowing our developers to deliver faster without compromising quality."
+    },
+    // Original FAQs
     {
       question: "Will outsourcing development have less performance than employing a developer?",
       answer: "Certainly not. Unless you are big companies, and specializing in IT development, otherwise, your small team developers can't compete with large teams professional."
@@ -233,11 +490,11 @@ const Services = () => {
           
           <div className={styles.servicesGrid}>
             {teamBuildingServices.map((service, index) => (
-              <div key={index} className={styles.serviceCard}>
-                <div className={styles.serviceIcon}>{service.icon}</div>
+              <div key={index} className={`${styles.serviceCard} ${service.featured ? styles.featuredCard : ''}`}>
+                <div className={`${styles.serviceIcon} ${service.featured ? styles.featuredIcon : ''}`}>{service.icon}</div>
                 <h3 className={styles.serviceTitle}>{service.title}</h3>
                 <p className={styles.serviceDescription}>{service.description}</p>
-                <Link to="/contact" className={styles.serviceButton}>Learn More</Link>
+                <Link to="/contact" className={`${styles.serviceButton} ${service.featured ? styles.featuredButton : ''}`}>Learn More</Link>
               </div>
             ))}
           </div>
@@ -306,7 +563,12 @@ const Services = () => {
                 <div className={styles.consultationIcon}>{service.icon}</div>
                 <h3 className={styles.consultationTitle}>{service.title}</h3>
                 <p className={styles.consultationDescription}>{service.description}</p>
-                <Link to="/contact" className={styles.consultationButton}>Schedule Consultation</Link>
+                <button 
+                  className={styles.consultationButton} 
+                  onClick={() => setBookingModalOpen(true)}
+                >
+                  Schedule Consultation
+                </button>
               </div>
             ))}
           </div>
@@ -323,14 +585,29 @@ const Services = () => {
             </p>
           </div>
           
-          <div className={styles.techStackGrid}>
-            {techStacks.map((tech, index) => (
-              <div key={index} className={styles.techStackItem}>
-                <div className={styles.techIcon}>{tech.icon}</div>
-                <span className={styles.techName}>{tech.name}</span>
-                <span className={styles.techCategory}>{tech.category}</span>
-              </div>
+          {/* Technology Category Tabs */}
+          <div className={styles.techTabs}>
+            {techCategories.map((category) => (
+              <button
+                key={category}
+                className={`${styles.techTab} ${activeTab === category ? styles.techTabActive : ''}`}
+                onClick={() => setActiveTab(category)}
+              >
+                {category}
+              </button>
             ))}
+          </div>
+          
+          <div className={styles.techStackGrid}>
+            {techStacks
+              .filter(tech => tech.category === activeTab)
+              .map((tech, index) => (
+                <div key={index} className={styles.techStackItem}>
+                  <div className={styles.techIcon}>{tech.icon}</div>
+                  <span className={styles.techName}>{tech.name}</span>
+                  <span className={styles.techCategory}>{tech.category}</span>
+                </div>
+              ))}
           </div>
         </div>
       </section>
@@ -375,12 +652,24 @@ const Services = () => {
               Get started with our comprehensive development services and experienced team today.
             </p>
             <div className={styles.ctaButtons}>
-              <Link to="/contact" className={styles.primaryButton}>Start Your Project</Link>
+              <button 
+                className={styles.primaryButton}
+                onClick={() => setBookingModalOpen(true)}
+              >
+                Start Your Project
+              </button>
               <Link to="/how-it-works" className={styles.secondaryButton}>How It Works</Link>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      <SimpleCalendarBooking 
+        key={bookingModalOpen ? 'open' : 'closed'} // Force remount when opening
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)} 
+      />
     </div>
   );
 };

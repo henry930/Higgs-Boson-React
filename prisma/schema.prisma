@@ -89,3 +89,23 @@ model Page {
 
   @@map("pages")
 }
+
+model Appointment {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  service       String   // Type of service they're interested in
+  preferredDate DateTime @map("preferred_date")
+  preferredTime String   @map("preferred_time") // Time slot like "09:00-10:00"
+  message       String?  // Additional message/requirements
+  status        String   @default("pending") // pending, confirmed, completed, cancelled
+  duration      Int      @default(60) // Duration in minutes
+  meetingLink   String?  @map("meeting_link") // Zoom/Teams link if online
+  notes         String?  // Internal notes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("appointments")
+}

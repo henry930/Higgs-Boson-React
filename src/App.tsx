@@ -12,6 +12,8 @@ import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Services from './pages/Services/Services';
 import Contact from './pages/Contact/Contact';
+import Careers from './pages/Careers/Careers';
+import ProjectEstimation from './pages/ProjectEstimation/ProjectEstimation';
 import HowItWorks from './pages/HowItWorks/HowItWorks';
 import PriceComparison from './pages/PriceComparison/PriceComparison';
 import Login from './pages/Login/Login';
@@ -23,6 +25,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
+  console.log('🚀 Main App component mounted/rendered');
+  
   return (
     <Provider store={store}>
       <AuthProvider>
@@ -40,6 +44,8 @@ function App() {
                     <Route path="/how-it-works" element={<HowItWorks />} />
                     <Route path="/price-comparison" element={<PriceComparison />} />
                     <Route path="/contact" element={<Contact />} />
+                    <Route path="/careers" element={<Careers />} />
+                    <Route path="/project-estimation" element={<ProjectEstimation />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/dashboard" element={

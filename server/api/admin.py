@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     Benefit, ProcessStep, Testimonial, HeroSlide, TeamMember, Service, Page,
-    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings
+    Customer, ProjectRequirement, Conversation, Quote, Contract, AdminSettings,
+    JobApplication
 )
 
 # Register your models here.
@@ -56,3 +57,38 @@ class ProjectRequirementAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(JobApplication)
+class JobApplicationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'position', 'experience', 'status', 'created_at')
+    list_filter = ('status', 'experience', 'position', 'created_at')
+    search_fields = ('first_name', 'last_name', 'email', 'position')
+    readonly_fields = ('created_at', 'updated_at', 'application_age_days')
+    
+    fieldsets = (
+        ('Personal Information', {
+            'fields': ('first_name', 'last_name', 'email', 'phone')
+        }),
+        ('Application Details', {
+            'fields': ('position', 'experience', 'cover_letter')
+        }),
+        ('Documents & Links', {
+            'fields': ('cv', 'linkedin', 'portfolio')
+        }),
+        ('Application Management', {
+            'fields': ('status', 'notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at', 'application_age_days'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def full_name(self, obj):
+        return obj.full_name
+    full_name.short_description = 'Full Name'
+    
+    def application_age_days(self, obj):
+        return f"{obj.application_age_days} days ago"
+    application_age_days.short_description = 'Application Age'
