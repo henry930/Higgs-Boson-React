@@ -1,0 +1,168 @@
+{
+  "name": "Higgs Boson React - Unified Development Environment",
+  "dockerComposeFile": "../docker-compose.dev.yml",
+  "service": "app",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  // Container Features for enhanced development
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
+    }
+  },
+  // Setup commands
+  "postCreateCommand": "/app/scripts/codespace-setup.sh",
+  "postStartCommand": "/app/hybrid-dev.sh start",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // React/TypeScript Development
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-json",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        // Python/Django Development
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.pylint",
+        "ms-python.flake8",
+        "ms-toolsai.jupyter",
+        // Docker & DevOps
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        // Database Tools
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-sqlite",
+        // GitHub Integration & Copilot with Enhanced Permissions
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "GitHub.codespaces",
+        // Development Tools
+        "ms-vscode.live-server",
+        "pkief.material-icon-theme",
+        "zhuangtongfa.material-theme",
+        "gruntfuggly.todo-tree",
+        "streetsidesoftware.code-spell-checker",
+        "redhat.vscode-yaml",
+        "ms-vscode.hexeditor"
+      ],
+      "settings": {
+        // Python Environment
+        "python.defaultInterpreterPath": "/app/venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackPath": "/app/venv/bin/black",
+        // TypeScript/JavaScript Settings
+        "typescript.preferences.quoteStyle": "single",
+        "javascript.preferences.quoteStyle": "single",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        // Editor Configuration
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        // Terminal Settings
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.cwd": "/app",
+        // GitHub Copilot - Enhanced Self-Development Permissions
+        "github.copilot.enable": {
+          "*": true,
+          "yaml": true,
+          "plaintext": true,
+          "markdown": true,
+          "javascript": true,
+          "typescript": true,
+          "python": true,
+          "json": true,
+          "html": true,
+          "css": true,
+          "scss": true,
+          "jsx": true,
+          "tsx": true,
+          "dockerfile": true,
+          "shellscript": true,
+          "sql": true
+        },
+        "github.copilot.chat.followUps": "on",
+        "github.copilot.chat.localeOverride": "zh-TW",
+        "github.copilot.advanced": {
+          "debug.overrideEngine": "copilot-codex",
+          "inlineSuggestEnable": true,
+          "suggestions.enabled": true
+        },
+        // File Management
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/venv/**": true,
+          "**/__pycache__/**": true
+        },
+        // Security & Trust Settings for Autonomous Development
+        "security.workspace.trust.untrustedFiles": "open",
+        "security.workspace.trust.enabled": false,
+        "extensions.ignoreRecommendations": false,
+        "git.autofetch": true,
+        "git.enableSmartCommit": true,
+        "git.confirmSync": false,
+        // Live Development
+        "liveServer.settings.root": "/app",
+        "liveServer.settings.port": 5174,
+        "workbench.startupEditor": "readme"
+      }
+    }
+  },
+  // Port forwarding for development services
+  "forwardPorts": [
+    5174,
+    8000,
+    54321
+  ],
+  "portsAttributes": {
+    "5174": {
+      "label": "React Frontend (Vite)",
+      "onAutoForward": "openBrowser",
+      "protocol": "http"
+    },
+    "8000": {
+      "label": "Django Backend API",
+      "onAutoForward": "notify",
+      "protocol": "http"
+    },
+    "54321": {
+      "label": "Supabase Local Instance",
+      "onAutoForward": "ignore",
+      "protocol": "http"
+    }
+  },
+  // User and permissions
+  "remoteUser": "root",
+  // Environment variables and mounts
+  "containerEnv": {
+    "CODESPACE_NAME": "${localEnv:CODESPACE_NAME}",
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "NODE_ENV": "development",
+    "DJANGO_ENV": "development"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/app/.env,type=bind,consistency=cached"
+  ]
+}
