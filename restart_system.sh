@@ -13,9 +13,36 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Define paths
-DJANGO_PATH="/Users/navcolon/Documents/higgsbosonconsultancy2/React/server"
-REACT_PATH="/Users/navcolon/Documents/higgsbosonconsultancy2/React"
+# Dynamically detect project paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR"
+DJANGO_PATH="$PROJECT_ROOT/server"
+REACT_PATH="$PROJECT_ROOT"
+
+# Verify paths exist
+if [ ! -d "$DJANGO_PATH" ]; then
+    echo -e "${RED}❌ Django directory not found: $DJANGO_PATH${NC}"
+    echo "🔍 Looking for server directory..."
+    if [ -d "$PROJECT_ROOT/../server" ]; then
+        DJANGO_PATH="$PROJECT_ROOT/../server"
+        echo -e "${GREEN}✅ Found Django directory: $DJANGO_PATH${NC}"
+    else
+        echo -e "${RED}❌ Cannot locate Django server directory${NC}"
+        exit 1
+    fi
+fi
+
+if [ ! -f "$REACT_PATH/package.json" ]; then
+    echo -e "${RED}❌ React package.json not found in: $REACT_PATH${NC}"
+    echo "🔍 Looking for package.json..."
+    if [ -f "$PROJECT_ROOT/../package.json" ]; then
+        REACT_PATH="$PROJECT_ROOT/.."
+        echo -e "${GREEN}✅ Found React directory: $REACT_PATH${NC}"
+    else
+        echo -e "${RED}❌ Cannot locate React project directory${NC}"
+        exit 1
+    fi
+fi
 
 # Load environment variables
 if [ -f "$DJANGO_PATH/.env" ]; then
@@ -98,11 +125,6 @@ sleep 3
 echo -e "${GREEN}🚀 STEP 2: Starting Django server...${NC}"
 echo "----------------------------------------"
 
-if [ ! -d "$DJANGO_PATH" ]; then
-    echo -e "${RED}❌ Django path not found: $DJANGO_PATH${NC}"
-    exit 1
-fi
-
 cd "$DJANGO_PATH"
 
 if [ -f "start_server.sh" ]; then
@@ -115,7 +137,6 @@ else
     echo "⚠️  Django start script not found, starting manually..."
     if [ -f "venv/bin/activate" ]; then
         source venv/bin/activate
-# See Open_AI_Key 
         python manage.py runserver 0.0.0.0:${DJANGO_PORT:-8000} &
         DJANGO_PID=$!
         echo "🆔 Django server PID: $DJANGO_PID"
@@ -140,11 +161,6 @@ done
 echo ""
 echo -e "${GREEN}🚀 STEP 3: Starting React server...${NC}"
 echo "----------------------------------------"
-
-if [ ! -d "$REACT_PATH" ]; then
-    echo -e "${RED}❌ React path not found: $REACT_PATH${NC}"
-    exit 1
-fi
 
 cd "$REACT_PATH"
 

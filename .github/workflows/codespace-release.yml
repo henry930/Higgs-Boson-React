@@ -1,0 +1,269 @@
+name: 🚀 Codespace Public Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      create_codespace:
+        description: 'Create new Codespace instance'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and test the Docker environment
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔐 Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🏷️ Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix=commit-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: 🐳 Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - name: 🧪 Test Docker environment
+      run: |
+        echo "🐳 Starting test environment..."
+        docker run --rm -d \
+          --name higgs-test \
+          -p 5174:5174 \
+          -p 8000:8000 \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        
+        # Wait for services to start
+        sleep 30
+        
+        echo "🔍 Testing frontend..."
+        curl -f http://localhost:5174 || exit 1
+        
+        echo "🔍 Testing backend health..."
+        curl -f http://localhost:8000/health/ || exit 1
+        
+        echo "🛑 Stopping test environment..."
+        docker stop higgs-test
+
+  # Update repository settings for Codespace
+  setup-codespace:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+      codespaces: write
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔧 Create Codespace configuration
+      run: |
+        echo "📝 Validating devcontainer configuration..."
+        
+        # Validate devcontainer.json
+        if [ ! -f ".devcontainer/devcontainer.json" ]; then
+          echo "❌ devcontainer.json not found!"
+          exit 1
+        fi
+        
+        # Check if configuration is valid JSON
+        if ! cat .devcontainer/devcontainer.json | jq empty; then
+          echo "❌ Invalid JSON in devcontainer.json!"
+          exit 1
+        fi
+        
+        echo "✅ Devcontainer configuration is valid"
+
+    - name: 📋 Create Codespace README
+      run: |
+        cat > CODESPACE_README.md << 'EOF'
+        # 🚀 Higgs Boson React - GitHub Codespace
+
+        ## Quick Start in Codespace
+
+        1. **Open in Codespace**: Click the "Code" button → "Codespaces" → "Create codespace on main"
+        2. **Wait for setup**: The environment will automatically configure (2-3 minutes)
+        3. **Start development**: Services will auto-start, or run `/app/hybrid-dev.sh start`
+
+        ## 🌐 Available Services
+
+        - **Frontend (React + Vite)**: `http://localhost:5174`
+        - **Backend (Django API)**: `http://localhost:8000`
+        - **Health Check**: `http://localhost:8000/health/`
+
+        ## 🤖 Copilot Autonomous Development
+
+        This Codespace is configured for GitHub Copilot autonomous development:
+
+        ### ✅ Enabled Permissions
+        - **File Operations**: Create, modify, move files
+        - **Git Operations**: Commit changes, create branches
+        - **Package Management**: Install and update dependencies
+        - **Script Execution**: Run development and build scripts
+
+        ### 🔧 Autonomous Features
+        - Auto-format on save
+        - Auto-lint code
+        - Auto-test on commit
+        - Intelligent code suggestions
+        - Context-aware completions
+
+        ### 🛡️ Safety Guardrails
+        - No file deletion permissions
+        - No automatic pushes to main branch
+        - No system-level modifications
+        - Backup before major changes
+
+        ## 📁 Project Structure
+
+        ```
+        /app/
+        ├── src/                 # React frontend source
+        ├── server/              # Django backend
+        ├── scripts/             # Development scripts
+        ├── .devcontainer/       # Codespace configuration
+        ├── hybrid-dev.sh        # Main development script
+        └── docker-compose.dev.yml
+        ```
+
+        ## 🔧 Development Commands
+
+        ```bash
+        # Start development environment
+        /app/hybrid-dev.sh start
+
+        # Check status
+        /app/hybrid-dev.sh status
+
+        # Stop environment
+        /app/hybrid-dev.sh stop
+
+        # Autonomous development session
+        /app/scripts/auto-dev.sh
+        ```
+
+        ## 🎯 Development Goals
+
+        The Copilot autonomous system is configured to:
+        - Maintain code quality and consistency
+        - Follow established patterns and conventions
+        - Ensure backward compatibility
+        - Write comprehensive tests
+        - Document all changes
+        - Optimize performance
+        - Maintain security best practices
+
+        ## 🚀 Ready for Development!
+
+        Your Codespace is pre-configured with:
+        - Full-stack development environment
+        - Docker containerization
+        - GitHub Copilot integration
+        - Automated development workflows
+        - Security and quality controls
+
+        Happy coding! 🎉
+        EOF
+
+    - name: 🏷️ Create release tag
+      if: github.event_name == 'push'
+      run: |
+        # Create a release tag
+        TAG="codespace-$(date +%Y%m%d-%H%M%S)"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "$TAG" -m "Codespace release $TAG"
+        git push origin "$TAG"
+
+    - name: 📢 Create release
+      if: github.event_name == 'push'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: codespace-${{ github.run_number }}
+        release_name: 🚀 Codespace Release ${{ github.run_number }}
+        body: |
+          ## 🚀 Higgs Boson React - Codespace Ready!
+          
+          ### ✨ New in this release:
+          - Unified Docker development environment
+          - GitHub Copilot autonomous development configuration
+          - Full-stack React + Django setup
+          - Auto-configured development tools
+          
+          ### 🤖 Copilot Features:
+          - File operations with safety guardrails
+          - Intelligent code suggestions
+          - Automated formatting and linting
+          - Context-aware completions
+          
+          ### 🚀 Quick Start:
+          1. Click "Code" → "Codespaces" → "Create codespace on main"
+          2. Wait for automatic setup (2-3 minutes)
+          3. Access your app at http://localhost:5174
+          
+          ### 🔗 Direct Links:
+          - [Open in Codespace](https://github.com/${{ github.repository }}/codespaces)
+          - [Documentation](./CODESPACE_README.md)
+        draft: false
+        prerelease: false
+
+  # Notify about public availability
+  notify-completion:
+    needs: [build-and-test, setup-codespace]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+    - name: 📋 Summary
+      run: |
+        echo "## 🎉 Codespace Public Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ Completed Tasks:" >> $GITHUB_STEP_SUMMARY
+        echo "- Docker image built and tested" >> $GITHUB_STEP_SUMMARY
+        echo "- Codespace configuration validated" >> $GITHUB_STEP_SUMMARY
+        echo "- Public release created" >> $GITHUB_STEP_SUMMARY
+        echo "- GitHub Copilot autonomous development enabled" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Ready for Use:" >> $GITHUB_STEP_SUMMARY
+        echo "Your Higgs Boson React project is now publicly available with Codespace support!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Quick Access:" >> $GITHUB_STEP_SUMMARY
+        echo "- Repository: https://github.com/${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Codespaces: https://github.com/${{ github.repository }}/codespaces" >> $GITHUB_STEP_SUMMARY
+        echo "- Docker Image: ghcr.io/${{ github.repository }}:latest" >> $GITHUB_STEP_SUMMARY

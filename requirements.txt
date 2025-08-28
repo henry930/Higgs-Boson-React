@@ -6,8 +6,16 @@ django-cors-headers==4.3.1
 # Database
 # SQLite is included with Python, no additional package needed
 
+# Supabase integration
+supabase==2.8.1
+
+# AI/ML services
+openai==1.52.2
+
 # Development dependencies
 python-decouple==3.8
+python-dotenv==1.0.0
+bleach==6.0.0
 
 # Optional: for better development experience
 django-extensions==3.2.3

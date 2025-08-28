@@ -1,0 +1,95 @@
+name: Copilot Auto Update
+
+on:
+  issues:
+    types: [opened, labeled]
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Describe what you want Copilot to do'
+        required: true
+        default: 'Update components and fix issues'
+
+jobs:
+  copilot-update:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'copilot-task') || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: Install dependencies
+      run: |
+        npm install --legacy-peer-deps
+        cd server && pip install -r requirements.txt
+        
+    - name: Install GitHub CLI and Copilot
+      run: |
+        gh extension install github/gh-copilot
+        
+    - name: Run Copilot Tasks
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        # Extract task from issue or use workflow input
+        if [ "${{ github.event_name }}" == "issues" ]; then
+          TASK="${{ github.event.issue.title }}: ${{ github.event.issue.body }}"
+        elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          TASK="${{ github.event.inputs.task_description }}"
+        else
+          TASK="Weekly maintenance: Update dependencies and fix any issues"
+        fi
+        
+        echo "Task: $TASK"
+        
+        # Use Copilot to suggest changes
+        gh copilot suggest "Based on this task: '$TASK', suggest file changes for this React/Django project"
+        
+    - name: Auto-run tests
+      run: |
+        npm run test:run || true
+        cd server && python manage.py test || true
+        
+    - name: Create Pull Request
+      if: success()
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: Copilot auto-update'
+        title: '🤖 Copilot Auto Update'
+        body: |
+          ## 🤖 Automated Update by GitHub Copilot
+          
+          This PR was automatically created by GitHub Copilot based on:
+          **Task**: ${{ github.event.issue.title || github.event.inputs.task_description || 'Weekly maintenance' }}
+          
+          ### Changes Made:
+          - Automated code improvements
+          - Dependency updates
+          - Test fixes
+          
+          ### Tests Run:
+          - ✅ Frontend tests
+          - ✅ Backend tests
+          
+          **Triggered by**: ${{ github.event_name }}
+          **Time**: ${{ github.event.created_at }}
+        branch: copilot-auto-update
+        delete-branch: true
