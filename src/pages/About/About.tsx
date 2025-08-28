@@ -34,34 +34,6 @@ const About = () => {
     }
   ];
 
-  const milestones = [
-    {
-      year: '2019',
-      title: 'Company Founded',
-      description: 'Started with a vision to democratize AI development for businesses of all sizes.'
-    },
-    {
-      year: '2020',
-      title: 'First Enterprise Client',
-      description: 'Delivered our first major AI transformation project for a Fortune 500 company.'
-    },
-    {
-      year: '2021',
-      title: 'Team Expansion',
-      description: 'Grew to 25+ AI specialists and opened offices in Hong Kong and London.'
-    },
-    {
-      year: '2022',
-      title: 'Industry Recognition',
-      description: 'Named "AI Consultancy of the Year" by TechCrunch and featured in Forbes.'
-    },
-    {
-      year: '2023',
-      title: 'Global Reach',
-      description: 'Expanded to serve clients across 15 countries with 100+ successful projects.'
-    }
-  ];
-
   return (
     <div className={styles.about}>
       <div className={styles.heroSection}>
@@ -120,25 +92,6 @@ const About = () => {
                 <div className={styles.valueIcon}>{value.icon}</div>
                 <h3 className={styles.valueTitle}>{value.title}</h3>
                 <p className={styles.valueDescription}>{value.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.aboutSection}>
-        <div className={styles.container}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Our Journey</h2>
-          </div>
-          <div className={styles.timeline}>
-            {milestones.map((milestone, index) => (
-              <div key={index} className={styles.timelineItem}>
-                <div className={styles.timelineYear}>{milestone.year}</div>
-                <div className={styles.timelineContent}>
-                  <h3>{milestone.title}</h3>
-                  <p>{milestone.description}</p>
-                </div>
               </div>
             ))}
           </div>

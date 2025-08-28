@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './Careers.module.scss';
 import apiService from '../../services/apiService';
-
-interface JobPosition {
-  id: number;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  experience: string;
-  description: string;
-  requirements: string[];
-  benefits: string[];
-}
 
 interface ApplicationForm {
   firstName: string;
@@ -27,89 +15,8 @@ interface ApplicationForm {
   portfolio: string;
 }
 
-const fallbackJobPositions: JobPosition[] = [
-  {
-    id: 1,
-    title: "Senior AI Engineer",
-    department: "Engineering",
-    location: "Remote / London",
-    type: "Full-time",
-    experience: "5+ years",
-    description: "Join our AI engineering team to build cutting-edge solutions that transform how businesses develop software. You'll work with the latest AI technologies and help scale our platform globally.",
-    requirements: [
-      "5+ years of experience in AI/ML engineering",
-      "Strong Python programming skills",
-      "Experience with TensorFlow, PyTorch, or similar frameworks",
-      "Knowledge of NLP, computer vision, or generative AI",
-      "Experience with cloud platforms (AWS, GCP, Azure)",
-      "Strong problem-solving and analytical skills"
-    ],
-    benefits: [
-      "Competitive salary + equity",
-      "Remote-first culture",
-      "Health & dental insurance",
-      "£3,000 learning budget",
-      "Latest MacBook Pro + equipment",
-      "25 days holiday + bank holidays"
-    ]
-  },
-  {
-    id: 2,
-    title: "Full-Stack Developer",
-    department: "Engineering",
-    location: "Remote / London",
-    type: "Full-time",
-    experience: "3+ years",
-    description: "Build the future of software development with us. Work on our React frontend and Node.js backend, creating seamless experiences for developers worldwide.",
-    requirements: [
-      "3+ years of full-stack development experience",
-      "Strong React and TypeScript skills",
-      "Experience with Node.js and Express",
-      "Knowledge of PostgreSQL or similar databases",
-      "Understanding of RESTful APIs and GraphQL",
-      "Experience with version control (Git)"
-    ],
-    benefits: [
-      "Competitive salary + equity",
-      "Remote-first culture",
-      "Health & dental insurance",
-      "£2,500 learning budget",
-      "Flexible working hours",
-      "25 days holiday + bank holidays"
-    ]
-  },
-  {
-    id: 3,
-    title: "Product Designer",
-    department: "Design",
-    location: "Remote / London",
-    type: "Full-time",
-    experience: "4+ years",
-    description: "Shape the user experience of our AI-powered development platform. Create intuitive designs that make complex AI technology accessible to developers.",
-    requirements: [
-      "4+ years of product design experience",
-      "Proficiency in Figma, Sketch, or similar tools",
-      "Strong understanding of UX/UI principles",
-      "Experience with design systems",
-      "Knowledge of frontend development (HTML/CSS)",
-      "Portfolio showcasing B2B SaaS experience"
-    ],
-    benefits: [
-      "Competitive salary + equity",
-      "Remote-first culture",
-      "Health & dental insurance",
-      "£2,000 design tools budget",
-      "Conference attendance budget",
-      "25 days holiday + bank holidays"
-    ]
-  }
-];
-
 const Careers: React.FC = () => {
-  const [selectedJob, setSelectedJob] = useState<JobPosition | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
-  const [jobPositions, setJobPositions] = useState<JobPosition[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [applicationForm, setApplicationForm] = useState<ApplicationForm>({
     firstName: '',
     lastName: '',
@@ -124,34 +31,6 @@ const Careers: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
-  // Fetch job positions on component mount
-  useEffect(() => {
-    const fetchJobPositions = async () => {
-      try {
-        const response = await apiService.getJobPositions();
-        if (response.status === 'success' && response.data) {
-          setJobPositions(response.data);
-        } else {
-          // Use fallback data
-          setJobPositions(fallbackJobPositions);
-        }
-      } catch (error) {
-        console.error('Error fetching job positions:', error);
-        setJobPositions(fallbackJobPositions);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchJobPositions();
-  }, []);
-
-  const handleApplyClick = (job: JobPosition) => {
-    setSelectedJob(job);
-    setApplicationForm(prev => ({ ...prev, position: job.title }));
-    setShowApplicationForm(true);
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -308,54 +187,22 @@ const Careers: React.FC = () => {
         </div>
       </section>
 
-      {/* Open Positions */}
+      {/* Application CTA Section */}
       <section className={styles.aboutSection}>
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Open Positions</h2>
+            <h2 className={styles.sectionTitle}>Join Our Team</h2>
+            <p>We're always looking for talented people. Send us your application and we'll keep you in mind for opportunities.</p>
           </div>
-          {isLoading ? (
-            <div className={styles.loading}>Loading positions...</div>
-          ) : (
-            <div className={styles.positionsGrid}>
-              {jobPositions.map((job) => (
-              <div key={job.id} className={styles.jobCard}>
-                <div className={styles.jobHeader}>
-                  <h3>{job.title}</h3>
-                  <div className={styles.jobMeta}>
-                    <span className={styles.department}>{job.department}</span>
-                    <span className={styles.location}>{job.location}</span>
-                    <span className={styles.type}>{job.type}</span>
-                  </div>
-                </div>
-                <p className={styles.jobDescription}>{job.description}</p>
-                <div className={styles.jobDetails}>
-                  <span className={styles.experience}>Experience: {job.experience}</span>
-                </div>
-                <button 
-                  className={styles.applyBtn}
-                  onClick={() => handleApplyClick(job)}
-                >
-                  Apply Now
-                </button>
-              </div>
-            ))}
-            </div>
-          )}
-
-          {/* General Application */}
           <div className={styles.generalApplication}>
-            <h3>Don't see a perfect fit?</h3>
-            <p>We're always looking for talented people. Send us your CV and we'll keep you in mind for future opportunities.</p>
             <button 
               className={styles.generalApplyBtn}
               onClick={() => {
-                setSelectedJob(null);
                 setApplicationForm(prev => ({ ...prev, position: 'General Application' }));
                 setShowApplicationForm(true);
               }}
             >
-              Send General Application
+              Send Application
             </button>
           </div>
         </div>
@@ -366,7 +213,7 @@ const Careers: React.FC = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h2>Apply for {selectedJob ? selectedJob.title : applicationForm.position}</h2>
+              <h2>Apply for {applicationForm.position}</h2>
               <button 
                 className={styles.closeBtn}
                 onClick={() => setShowApplicationForm(false)}

@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
+import GoogleCalendarScheduler from '../../components/GoogleCalendarScheduler';
 import styles from './Home.module.scss';
 
 const Home = () => {
   const { data, loading, error, apiConnected } = useHomeDataRedux();
   const { benefits, processSteps, testimonials } = data;
+  const [showScheduler, setShowScheduler] = useState(false);
   
   // Show notification for offline mode
   const isUsingFallback = !apiConnected;
@@ -51,13 +54,16 @@ const Home = () => {
               Do you believe this website is 100% AI code generation? By professional developer guidance, AI can follow your rituals, and fit your culture, do you want to know more?
             </p>
             <div className={styles.heroButtons}>
-              <Link to="/contact" className={styles.primaryButton}>
+              <button 
+                onClick={() => setShowScheduler(true)}
+                className={styles.primaryButton}
+              >
                 Start Your Project
                 <svg className={styles.buttonIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="m9 18 6-6-6-6"/>
                 </svg>
-              </Link>
-              <Link to="/services" className={styles.secondaryButton}>
+              </button>
+              <Link to="/how-it-works" className={styles.secondaryButton}>
                 Learn More
               </Link>
             </div>
@@ -192,9 +198,12 @@ const Home = () => {
                   We combine cutting-edge AI technology with elite development talent to deliver exceptional results. 
                   Backed by proven methodologies and modern infrastructure, our teams are embedded fast and built to scale with your vision.
                 </p>
-                <Link to="/contact" className={styles.buildCta}>
+                <button 
+                  onClick={() => setShowScheduler(true)}
+                  className={styles.buildCta}
+                >
                   Start Your Project Now
-                </Link>
+                </button>
               </div>
             </div>
             <div className="col-lg-4">
@@ -236,6 +245,13 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Schedule a Call Dialog */}
+      {showScheduler && (
+        <GoogleCalendarScheduler 
+          onClose={() => setShowScheduler(false)}
+        />
+      )}
     </div>
   );
 };
