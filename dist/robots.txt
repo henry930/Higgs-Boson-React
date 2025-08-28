@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://higgsboson.tech/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /server/
+
+# Allow important pages
+Allow: /
+Allow: /about
+Allow: /services
+Allow: /contact
+Allow: /careers
+Allow: /how-it-works
+Allow: /price-comparison
+Allow: /project-estimation
+
+# Crawl delay (optional, in seconds)
+Crawl-delay: 1
