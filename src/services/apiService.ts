@@ -1,12 +1,19 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const STATIC_MODE = import.meta.env.VITE_MODE === 'static' || !import.meta.env.VITE_API_BASE_URL;
 
 console.log('🔧 API_BASE_URL configured as:', API_BASE_URL);
+console.log('🔧 STATIC_MODE:', STATIC_MODE);
 
 // Import fallback data
 import { fallbackData } from '../data/fallbackData';
 
-// Add a connectivity test
+// Add a connectivity test - only if not in static mode
 const testConnectivity = async () => {
+  if (STATIC_MODE) {
+    console.log('📦 Running in static mode - using fallback data only');
+    return false;
+  }
+  
   try {
     const response = await fetch(`${API_BASE_URL}/api/`, { 
       method: 'GET',
@@ -22,8 +29,10 @@ const testConnectivity = async () => {
   }
 };
 
-// Test connectivity on module load
-testConnectivity();
+// Test connectivity on module load (only if not in static mode)
+if (!STATIC_MODE) {
+  testConnectivity();
+}
 
 export interface ApiResponse<T> {
   status?: 'success' | 'error';  // For fallback data
@@ -77,6 +86,15 @@ class ApiService {
 
   // Benefits
   async getBenefits() {
+    if (STATIC_MODE) {
+      console.log('📦 Static mode: Using fallback benefits data');
+      return {
+        status: 'success' as const,
+        data: fallbackData.benefits,
+        message: 'Using fallback data (static mode)'
+      };
+    }
+    
     try {
       return await this.request<any[]>('/api/benefits/');
     } catch (error) {
