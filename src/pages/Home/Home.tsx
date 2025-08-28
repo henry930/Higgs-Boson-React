@@ -264,14 +264,12 @@ const Home = () => {
               Join forward-thinking companies that have already revolutionized their software development with our AI-powered approach. Experience faster delivery, lower costs, and superior quality.
             </p>
             <div className="d-flex flex-column align-items-center gap-4">
-              <Link to="/contact" className="btn btn-primary btn-lg text-center">
+              <Link to="/contact" className="btn btn-primary btn-lg">
                 Start Your Transformation
               </Link>
-              <div className="text-center">
-                <p className={styles.disclaimer}>
-                  Low upfront fees • No long-term contracts • Cancel anytime
-                </p>
-              </div>
+              <p className={styles.disclaimer}>
+                Low upfront fees • No long-term contracts • Cancel anytime
+              </p>
             </div>
           </div>
         </div>
