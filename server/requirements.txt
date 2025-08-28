@@ -7,3 +7,6 @@ psycopg2-binary==2.9.9
 whitenoise==6.6.0
 gunicorn==21.2.0
 python-decouple==3.8
+supabase==2.18.1
+supabase_auth==2.12.3
+supabase_functions==0.10.1
