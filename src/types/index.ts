@@ -1,34 +1,30 @@
 export interface Benefit {
   id: number;
-  icon: string;
   title: string;
   description: string;
-  order: number;
-  active: boolean;
+  icon: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface ProcessStep {
   id: number;
-  number: number;
   title: string;
   description: string;
-  order: number;
-  active: boolean;
+  icon: string;
+  step_number: number;
   created_at: string;
   updated_at: string;
 }
 
 export interface Testimonial {
   id: number;
-  quote: string;
-  author_name: string;
-  author_title: string;
+  name: string;
+  position: string;
   company: string;
+  content: string;
   rating: number;
-  order: number;
-  active: boolean;
+  image_url?: string;
   featured: boolean;
   created_at: string;
   updated_at: string;
@@ -38,12 +34,13 @@ export interface HeroSlide {
   id: number;
   title: string;
   subtitle: string;
+  background_image: string;
   primary_button_text: string;
-  primary_button_link: string;
+  primary_button_action: string;
   secondary_button_text: string;
   secondary_button_link: string;
-  background_class: string;
-  order: number;
+  stats: string;
+  slide_order: number;
   active: boolean;
   created_at: string;
   updated_at: string;

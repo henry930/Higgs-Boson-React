@@ -22,7 +22,7 @@ export const fetchProcessSteps = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getProcessSteps();
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to fetch process steps');
@@ -34,10 +34,10 @@ export const fetchProcessSteps = createAsyncThunk(
 
 export const createProcessStep = createAsyncThunk(
   'processSteps/createProcessStep',
-  async (step: Omit<ProcessStep, 'id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
+  async (processStep: Omit<ProcessStep, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
-      const response = await apiService.createProcessStep(step);
-      if (response.status === 'success' && response.data) {
+      const response = await apiService.createProcessStep(processStep);
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create process step');
@@ -49,10 +49,10 @@ export const createProcessStep = createAsyncThunk(
 
 export const updateProcessStep = createAsyncThunk(
   'processSteps/updateProcessStep',
-  async ({ id, step }: { id: number; step: Partial<ProcessStep> }, { rejectWithValue }) => {
+  async ({ id, processStep }: { id: number; processStep: Partial<ProcessStep> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.updateProcessStep(id, step);
-      if (response.status === 'success' && response.data) {
+      const response = await apiService.updateProcessStep(id, processStep);
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update process step');
@@ -67,7 +67,7 @@ export const deleteProcessStep = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteProcessStep(id);
-      if (response.status === 'success') {
+      if ((response.success === true || response.status === 'success')) {
         return id;
       }
       throw new Error(response.message || 'Failed to delete process step');

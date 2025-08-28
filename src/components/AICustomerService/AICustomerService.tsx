@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { dataService } from '../../services/supabaseDataService';
 import styles from './AICustomerService.module.scss';
 
 interface Message {
@@ -42,10 +43,21 @@ const AICustomerService: React.FC = () => {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
+      // Create chat session in Supabase when chat opens
+      initializeChatSession();
       // Send initial greeting when chat opens
       sendMessage('Hello');
     }
   }, [isOpen]);
+
+  const initializeChatSession = async () => {
+    try {
+      await dataService.createChatSession(sessionId);
+      console.log('Chat session created in Supabase:', sessionId);
+    } catch (error) {
+      console.error('Failed to create chat session:', error);
+    }
+  };
 
   const sendMessage = async (messageText: string = inputMessage) => {
     if (!messageText.trim()) return;
@@ -60,6 +72,13 @@ const AICustomerService: React.FC = () => {
     setMessages(prev => [...prev, newMessage]);
     setInputMessage('');
     setIsLoading(true);
+
+    // Save customer message to Supabase
+    try {
+      await dataService.saveChatMessage(sessionId, 'customer', messageText);
+    } catch (error) {
+      console.error('Failed to save customer message:', error);
+    }
 
     try {
       const response = await fetch('http://localhost:8000/api/ai-chat/', {
@@ -90,8 +109,24 @@ const AICustomerService: React.FC = () => {
 
       setMessages(prev => [...prev, aiMessage]);
 
+      // Save AI response to Supabase
+      try {
+        await dataService.saveChatMessage(sessionId, 'ai', aiResponseData.response);
+      } catch (error) {
+        console.error('Failed to save AI message:', error);
+      }
+
       if (aiResponseData.requirement_complete) {
         setRequirementComplete(true);
+        // Update session status in Supabase
+        try {
+          await dataService.updateChatSession(sessionId, { 
+            status: 'requirements_complete',
+            project_requirements: messageText
+          });
+        } catch (error) {
+          console.error('Failed to update session status:', error);
+        }
       }
 
     } catch (error) {

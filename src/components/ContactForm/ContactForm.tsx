@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Card from '../UI/Card';
+import { dataService } from '../../services/supabaseDataService';
 import styles from './ContactForm.module.scss';
 
 interface FormData {
@@ -28,6 +29,10 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
     timeline: ''
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     console.log(`I am changing ${name} ${value}`);
@@ -37,18 +42,77 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSubmit) {
-      onSubmit(formData);
-    } else {
-      console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      // Create a simplified data object for Supabase
+      const submissionData = {
+        name: formData.name,
+        email: formData.email,
+        subject: `Contact Form - ${formData.company || 'Project Inquiry'}`,
+        message: `
+Company: ${formData.company || 'Not specified'}
+Phone: ${formData.phone || 'Not provided'}
+Budget: ${formData.budget || 'Not specified'}
+Timeline: ${formData.timeline || 'Not specified'}
+
+Message:
+${formData.message}
+        `.trim()
+      };
+
+      const result = await dataService.submitContactForm(submissionData);
+
+      if (result.success) {
+        setSubmitStatus('success');
+        // Reset form on success
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          phone: '',
+          message: '',
+          budget: '',
+          timeline: ''
+        });
+        
+        // Call parent onSubmit if provided
+        if (onSubmit) {
+          onSubmit(formData);
+        }
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(result.error || 'Failed to submit form');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('Network error occurred. Please try again.');
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Card className={`${styles.contactForm} ${className}`} padding="xl" shadow="xl">
       <h2 className={styles.title}>Start Your Project</h2>
+      
+      {submitStatus === 'success' && (
+        <div className={styles.successMessage}>
+          ✅ Thank you! Your message has been sent successfully. We'll get back to you soon.
+        </div>
+      )}
+      
+      {submitStatus === 'error' && (
+        <div className={styles.errorMessage}>
+          ❌ {errorMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
@@ -60,6 +124,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               value={formData.name}
               onChange={handleChange}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className={styles.formGroup}>
@@ -71,6 +136,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               value={formData.email}
               onChange={handleChange}
               required
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -84,6 +150,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               name="company"
               value={formData.company}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
           <div className={styles.formGroup}>
@@ -94,6 +161,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -106,6 +174,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               name="budget"
               value={formData.budget}
               onChange={handleChange}
+              disabled={isSubmitting}
             >
               <option value="">Select budget range</option>
               <option value="10k-25k">$10k - $25k</option>
@@ -121,6 +190,7 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
               name="timeline"
               value={formData.timeline}
               onChange={handleChange}
+              disabled={isSubmitting}
             >
               <option value="">Select timeline</option>
               <option value="asap">ASAP</option>
@@ -141,11 +211,16 @@ const ContactForm = ({ onSubmit, className = '' }: ContactFormProps) => {
             onChange={handleChange}
             placeholder="Tell us about your project, goals, and requirements..."
             required
+            disabled={isSubmitting}
           />
         </div>
 
-        <button type="submit" className={styles.submitButton}>
-          Send Message
+        <button 
+          type="submit" 
+          className={styles.submitButton}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Sending...' : 'Send Message'}
         </button>
       </form>
     </Card>

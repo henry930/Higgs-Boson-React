@@ -9,6 +9,28 @@
     color: $dark-color;
     text-align: center;
   }
+
+  .successMessage {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: $space-md;
+    border-radius: $radius-md;
+    margin-bottom: $space-lg;
+    text-align: center;
+    font-weight: $font-medium;
+  }
+
+  .errorMessage {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: $space-md;
+    border-radius: $radius-md;
+    margin-bottom: $space-lg;
+    text-align: center;
+    font-weight: $font-medium;
+  }
   
   .formRow {
     display: grid;
@@ -85,13 +107,19 @@
     transition: all $transition-normal $ease-out;
     margin-top: $space-lg;
     
-    &:hover {
+    &:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: $shadow-lg;
     }
     
-    &:active {
+    &:active:not(:disabled) {
       transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
   }
 }

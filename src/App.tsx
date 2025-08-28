@@ -9,6 +9,7 @@ import DynamicPage from './components/DynamicPage/DynamicPage';
 import AICustomerService from './components/AICustomerService/AICustomerService';
 import Dashboard from './components/Dashboard/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import SupabaseTest from './components/SupabaseTest';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Services from './pages/Services/Services';
@@ -50,6 +51,7 @@ function App() {
                     <Route path="/project-estimation" element={<ProjectEstimation />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/supabase-test" element={<SupabaseTest />} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <Dashboard />

@@ -26,7 +26,8 @@ const testConnectivity = async () => {
 testConnectivity();
 
 export interface ApiResponse<T> {
-  status: 'success' | 'error';
+  status?: 'success' | 'error';  // For fallback data
+  success?: boolean;              // For Supabase API responses
   data?: T;
   message?: string;
 }

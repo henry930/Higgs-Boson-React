@@ -8,29 +8,46 @@ import styles from './Home.module.scss';
 
 const Home = () => {
   const { data, loading, error, apiConnected } = useHomeDataRedux();
-  const { benefits, processSteps, testimonials } = data;
+  const { benefits, processSteps, testimonials, heroSlides: apiHeroSlides } = data;
   const [showScheduler, setShowScheduler] = useState(false);
   
   // Show notification for offline mode
   const isUsingFallback = !apiConnected;
 
-  // Hero carousel slides data
-  const heroSlides = [
-    {
-      id: 1,
-      title: "AI-powered development that feels in-house",
-      subtitle: "Experience the future of software development. Our AI-driven approach delivers enterprise-grade solutions with the precision and quality of your best in-house team.",
-      backgroundImage: "/images/how-it-works-hero-bg.jpg",
-      primaryButton: {
-        text: "Start Your Project",
-        action: () => setShowScheduler(true)
-      },
-      secondaryButton: {
-        text: "Learn More",
-        link: "/how-it-works"
-      },
-      stats: "<strong>Trusted by 100+ innovative companies</strong> • <span class=\"stat-highlight\">70% cost reduction</span> • <span class=\"stat-highlight\">75% faster delivery</span>"
-    },
+  // Transform API hero slides to component format, or use fallback
+  const heroSlides = apiHeroSlides && apiHeroSlides.length > 0 
+    ? apiHeroSlides.map(slide => ({
+        id: slide.id,
+        title: slide.title,
+        subtitle: slide.subtitle || '',
+        backgroundImage: slide.background_image || '/images/how-it-works-hero-bg.jpg',
+        primaryButton: {
+          text: slide.primary_button_text || 'Get Started',
+          action: () => slide.primary_button_action === 'schedule' ? setShowScheduler(true) : null
+        },
+        secondaryButton: {
+          text: slide.secondary_button_text || 'Learn More',
+          link: slide.secondary_button_link || '/how-it-works'
+        },
+        stats: slide.stats || ''
+      }))
+    : [
+        // Fallback hero carousel slides data
+        {
+          id: 1,
+          title: "AI-powered development that feels in-house",
+          subtitle: "Experience the future of software development. Our AI-driven approach delivers enterprise-grade solutions with the precision and quality of your best in-house team.",
+          backgroundImage: "/images/how-it-works-hero-bg.jpg",
+          primaryButton: {
+            text: "Start Your Project",
+            action: () => setShowScheduler(true)
+          },
+          secondaryButton: {
+            text: "Learn More",
+            link: "/how-it-works"
+          },
+          stats: "<strong>Trusted by 100+ innovative companies</strong> • <span class=\"stat-highlight\">70% cost reduction</span> • <span class=\"stat-highlight\">75% faster delivery</span>"
+        },
     {
       id: 2,
       title: "Transform Your Business with Innovative AI Solutions",

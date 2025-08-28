@@ -22,7 +22,7 @@ export const fetchTestimonials = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getTestimonials();
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to fetch testimonials');
@@ -34,10 +34,10 @@ export const fetchTestimonials = createAsyncThunk(
 
 export const createTestimonial = createAsyncThunk(
   'testimonials/createTestimonial',
-  async (testimonial: Omit<Testimonial, 'id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
+  async (testimonial: Omit<Testimonial, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createTestimonial(testimonial);
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create testimonial');
@@ -52,7 +52,7 @@ export const updateTestimonial = createAsyncThunk(
   async ({ id, testimonial }: { id: number; testimonial: Partial<Testimonial> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateTestimonial(id, testimonial);
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update testimonial');
@@ -67,7 +67,7 @@ export const deleteTestimonial = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteTestimonial(id);
-      if (response.status === 'success') {
+      if ((response.success === true || response.status === 'success')) {
         return id;
       }
       throw new Error(response.message || 'Failed to delete testimonial');

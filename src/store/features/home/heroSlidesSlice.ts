@@ -22,7 +22,7 @@ export const fetchHeroSlides = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getHeroSlides();
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to fetch hero slides');
@@ -34,10 +34,10 @@ export const fetchHeroSlides = createAsyncThunk(
 
 export const createHeroSlide = createAsyncThunk(
   'heroSlides/createHeroSlide',
-  async (slide: Omit<HeroSlide, 'id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
+  async (heroSlide: Omit<HeroSlide, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
-      const response = await apiService.createHeroSlide(slide);
-      if (response.status === 'success' && response.data) {
+      const response = await apiService.createHeroSlide(heroSlide);
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create hero slide');
@@ -49,10 +49,10 @@ export const createHeroSlide = createAsyncThunk(
 
 export const updateHeroSlide = createAsyncThunk(
   'heroSlides/updateHeroSlide',
-  async ({ id, slide }: { id: number; slide: Partial<HeroSlide> }, { rejectWithValue }) => {
+  async ({ id, heroSlide }: { id: number; heroSlide: Partial<HeroSlide> }, { rejectWithValue }) => {
     try {
-      const response = await apiService.updateHeroSlide(id, slide);
-      if (response.status === 'success' && response.data) {
+      const response = await apiService.updateHeroSlide(id, heroSlide);
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update hero slide');
@@ -67,7 +67,7 @@ export const deleteHeroSlide = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteHeroSlide(id);
-      if (response.status === 'success') {
+      if ((response.success === true || response.status === 'success')) {
         return id;
       }
       throw new Error(response.message || 'Failed to delete hero slide');

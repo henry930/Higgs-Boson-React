@@ -77,7 +77,8 @@ export const fetchBenefits = createAsyncThunk(
       console.log('📡 Calling apiService.getBenefits()');
       const response = await apiService.getBenefits();
       console.log('📊 getBenefits response:', response);
-      if (response.status === 'success' && response.data) {
+      // Check for both our API format and fallback format
+      if ((response.success === true || response.status === 'success') && response.data) {
         console.log('✅ Benefits fetch successful:', response.data);
         return response.data;
       }
@@ -92,10 +93,10 @@ export const fetchBenefits = createAsyncThunk(
 
 export const createBenefit = createAsyncThunk(
   'benefits/createBenefit',
-  async (benefit: Omit<Benefit, 'id' | 'createdAt' | 'updatedAt'>, { rejectWithValue }) => {
+  async (benefit: Omit<Benefit, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createBenefit(benefit);
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create benefit');
@@ -110,7 +111,7 @@ export const updateBenefit = createAsyncThunk(
   async ({ id, benefit }: { id: number; benefit: Partial<Benefit> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateBenefit(id, benefit);
-      if (response.status === 'success' && response.data) {
+      if ((response.success === true || response.status === 'success') && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update benefit');
@@ -125,7 +126,7 @@ export const deleteBenefit = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteBenefit(id);
-      if (response.status === 'success') {
+      if ((response.success === true || response.status === 'success')) {
         return id;
       }
       throw new Error(response.message || 'Failed to delete benefit');
