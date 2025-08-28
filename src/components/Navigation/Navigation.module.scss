@@ -54,6 +54,11 @@
     text-decoration: none;
     transition: all 0.2s ease;
 
+    img {
+      height: 80px;
+      width: auto;
+    }
+
     &:hover {
       color: $primary-color;
     }

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import SEO from '../../components/SEO/SEO';
 import styles from './HowItWorks.module.scss';
 
 const HowItWorks = () => {
@@ -33,6 +34,12 @@ const HowItWorks = () => {
 
   return (
     <div className={styles.howItWorks}>
+      <SEO 
+        title="How It Works"
+        description="Learn how Higgs Boson Consultancy delivers AI-powered development solutions. Our streamlined process makes finding and working with top technical talent simple and cost-effective."
+        keywords="how it works, AI development process, technical talent, development methodology, project workflow"
+        url="https://higgsboson.tech/how-it-works"
+      />
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroContainer}>

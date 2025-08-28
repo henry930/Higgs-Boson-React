@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
 import GoogleCalendarScheduler from '../../components/GoogleCalendarScheduler';
+import HeroCarousel from '../../components/HeroCarousel/HeroCarousel';
+import SEO from '../../components/SEO/SEO';
 import styles from './Home.module.scss';
 
 const Home = () => {
@@ -11,6 +13,55 @@ const Home = () => {
   
   // Show notification for offline mode
   const isUsingFallback = !apiConnected;
+
+  // Hero carousel slides data
+  const heroSlides = [
+    {
+      id: 1,
+      title: "AI-powered development that feels in-house",
+      subtitle: "Experience the future of software development. Our AI-driven approach delivers enterprise-grade solutions with the precision and quality of your best in-house team.",
+      backgroundImage: "/images/how-it-works-hero-bg.jpg",
+      primaryButton: {
+        text: "Start Your Project",
+        action: () => setShowScheduler(true)
+      },
+      secondaryButton: {
+        text: "Learn More",
+        link: "/how-it-works"
+      },
+      stats: "<strong>Trusted by 100+ innovative companies</strong> • <span class=\"stat-highlight\">70% cost reduction</span> • <span class=\"stat-highlight\">75% faster delivery</span>"
+    },
+    {
+      id: 2,
+      title: "Transform Your Business with Innovative AI Solutions",
+      subtitle: "Leverage cutting-edge artificial intelligence to automate processes, enhance decision-making, and unlock new opportunities for growth and efficiency.",
+      backgroundImage: "/images/step3-strategy.jpg",
+      primaryButton: {
+        text: "Get AI Consultation",
+        action: () => setShowScheduler(true)
+      },
+      secondaryButton: {
+        text: "View Services",
+        link: "/services"
+      },
+      stats: "<strong>AI-First Approach</strong> • <span class=\"stat-highlight\">500+ AI models deployed</span> • <span class=\"stat-highlight\">95% accuracy rate</span>"
+    },
+    {
+      id: 3,
+      title: "Build the Future with Transformative Technology",
+      subtitle: "From web applications to mobile apps, cloud infrastructure to data analytics - we provide comprehensive technology solutions that scale with your business.",
+      backgroundImage: "/images/step4-development.jpg",
+      primaryButton: {
+        text: "Start Building",
+        action: () => setShowScheduler(true)
+      },
+      secondaryButton: {
+        text: "Price Calculator",
+        link: "/price-comparison"
+      },
+      stats: "<strong>Full-Stack Excellence</strong> • <span class=\"stat-highlight\">200+ technologies mastered</span> • <span class=\"stat-highlight\">99.9% uptime</span>"
+    }
+  ];
 
   if (loading) {
     return (
@@ -37,44 +88,22 @@ const Home = () => {
 
   return (
     <div className={styles.home}>
+      <SEO 
+        title="Higgs Boson Consultancy Ltd | AI & Technology Solutions"
+        description="Transform your business with our AI-powered solutions. Expert consultancy in machine learning, data science, and digital transformation."
+        keywords="AI consultancy, machine learning, data science, technology solutions, digital transformation, artificial intelligence, business automation"
+        url="https://higgsboson.tech/"
+      />
       {isUsingFallback && (
         <div className={styles.fallbackNotice}>
           <p>⚠️ Using offline content - some features may be limited</p>
         </div>
       )}
 
-      {/* Hero Section - CloudEmployee Style */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroContainer}>
-          <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>
-              AI-powered development that feels <span className={styles.heroAccent}>in-house</span>
-            </h1>
-            <p className={styles.heroSubtitle}>
-              Do you believe this website is 100% AI code generation? By professional developer guidance, AI can follow your rituals, and fit your culture, do you want to know more?
-            </p>
-            <div className={styles.heroButtons}>
-              <button 
-                onClick={() => setShowScheduler(true)}
-                className={styles.primaryButton}
-              >
-                Start Your Project
-                <svg className={styles.buttonIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m9 18 6-6-6-6"/>
-                </svg>
-              </button>
-              <Link to="/how-it-works" className={styles.secondaryButton}>
-                Learn More
-              </Link>
-            </div>
-            <div className={styles.heroStats}>
-              <p className={styles.heroStatsText}>
-                <strong>Trusted by 100+ innovative companies</strong> • <span className={styles.statHighlight}>70% cost reduction</span> • <span className={styles.statHighlight}>75% faster delivery</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Carousel Section */}
+      <HeroCarousel 
+        slides={heroSlides}
+      />
 
       {/* Benefits Section - CloudEmployee Style */}
       <section className="section-lg bg-gradient">
@@ -235,12 +264,14 @@ const Home = () => {
               Join forward-thinking companies that have already revolutionized their software development with our AI-powered approach. Experience faster delivery, lower costs, and superior quality.
             </p>
             <div className="d-flex flex-column align-items-center gap-4">
-              <Link to="/contact" className="btn btn-primary btn-lg">
+              <Link to="/contact" className="btn btn-primary btn-lg text-center">
                 Start Your Transformation
               </Link>
-              <p className="text-muted mb-0">
-                No upfront fees • No long-term contracts • Cancel anytime
-              </p>
+              <div className="text-center">
+                <p className={styles.disclaimer}>
+                  Low upfront fees • No long-term contracts • Cancel anytime
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -249,6 +280,7 @@ const Home = () => {
       {/* Schedule a Call Dialog */}
       {showScheduler && (
         <GoogleCalendarScheduler 
+          isOpen={showScheduler}
           onClose={() => setShowScheduler(false)}
         />
       )}

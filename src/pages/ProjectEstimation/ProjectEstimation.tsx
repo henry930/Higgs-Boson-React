@@ -1,10 +1,17 @@
 import React from 'react';
 import EmbeddedAIChat from '../../components/EmbeddedAIChat/EmbeddedAIChat';
+import SEO from '../../components/SEO/SEO';
 import styles from './ProjectEstimation.module.scss';
 
 const ProjectEstimation: React.FC = () => {
   return (
     <div className={styles.projectEstimation}>
+      <SEO 
+        title="Project Estimation"
+        description="Get a detailed project estimate through Sarah, our AI Assistant. Comprehensive project estimation for your technology and AI development needs."
+        keywords="project estimation, AI project estimation, development cost estimation, project calculator, software development quotes"
+        url="https://higgsboson.tech/project-estimation"
+      />
       <div className={styles.heroSection}>
         <div className={styles.container}>
           <div className={styles.heroContent}>

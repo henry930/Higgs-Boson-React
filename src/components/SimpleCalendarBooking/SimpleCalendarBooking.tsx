@@ -42,7 +42,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
     email: '',
     phone: '',
     company: '',
-    service: '',
+    service: 'Free Consultation (30 min)',
     preferredDate: '',
     preferredTime: '',
     message: ''
@@ -54,14 +54,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   const serviceOptions = [
-    'Web Development',
-    'Mobile App Development',
-    'Cloud Solutions',
-    'DevOps Consulting',
-    'AI/ML Implementation',
-    'Blockchain Development',
-    'Technical Consulting',
-    'System Architecture'
+    'Free Consultation (30 min)'
   ];
 
   // Fetch available time slots when date changes
@@ -75,7 +68,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
         email: '',
         phone: '',
         company: '',
-        service: '',
+        service: 'Free Consultation (30 min)',
         preferredDate: '',
         preferredTime: '',
         message: ''
@@ -243,7 +236,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
           email: '',
           phone: '',
           company: '',
-          service: '',
+          service: 'Free Consultation (30 min)',
           preferredDate: '',
           preferredTime: '',
           message: ''

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logoSvg from '../../assets/logo.svg';
 import styles from './Footer.module.scss';
 
 const Footer: React.FC = () => {
@@ -11,36 +12,20 @@ const Footer: React.FC = () => {
           <div className={styles.footerSection}>
             <h3 className={styles.sectionTitle}>Services</h3>
             <div className={styles.linkGroup}>
-              <Link to="/services/staff-augmentation" className={styles.footerLink}>
-                Staff Augmentation
+              <Link to="/services" className={styles.footerLink}>
+                AI-Powered Development
               </Link>
-              <Link to="/services/software-engineers" className={styles.footerLink}>
-                Software Engineers
+              <Link to="/services" className={styles.footerLink}>
+                Fractional CTOs
               </Link>
-              <Link to="/services/ai-engineers" className={styles.footerLink}>
-                AI Engineers
+              <Link to="/services" className={styles.footerLink}>
+                HR Recruitment
               </Link>
-              <Link to="/services/mobile-developers" className={styles.footerLink}>
-                Mobile Developers
+              <Link to="/services" className={styles.footerLink}>
+                Project Management
               </Link>
-              <Link to="/services/qa-analysts" className={styles.footerLink}>
-                QA Analysts & Testers
-              </Link>
-              <Link to="/services/devops-engineers" className={styles.footerLink}>
-                DevOps Engineers
-              </Link>
-            </div>
-
-            <div className={styles.productSection}>
-              <h4 className={styles.subSectionTitle}>Product Builds</h4>
-              <Link to="/services/mvp-development" className={styles.footerLink}>
-                MVP Development
-              </Link>
-              <Link to="/services/mobile-apps" className={styles.footerLink}>
-                Mobile Apps
-              </Link>
-              <Link to="/services/ai-product-builds" className={styles.footerLink}>
-                AI Product Builds
+              <Link to="/services" className={styles.footerLink}>
+                AI Training and Strategies
               </Link>
             </div>
           </div>
@@ -49,32 +34,39 @@ const Footer: React.FC = () => {
           <div className={styles.footerSection}>
             <h3 className={styles.sectionTitle}>Technology</h3>
             <div className={styles.techSection}>
-              <h4 className={styles.subSectionTitle}>Frequently Supplied Tech</h4>
-              <Link to="/technology/react-developers" className={styles.footerLink}>
-                React
-              </Link>
-              <Link to="/technology/nodejs-developers" className={styles.footerLink}>
-                Node.js
-              </Link>
-              <Link to="/technology/python-developers" className={styles.footerLink}>
-                Python
-              </Link>
-              <Link to="/services/data-scientists" className={styles.footerLink}>
-                Data Scientists
-              </Link>
-              <Link to="/services/full-stack-developers" className={styles.footerLink}>
-                Full-Stack Developers
-              </Link>
-            </div>
-
-            <div className={styles.talentSection}>
-              <h4 className={styles.subSectionTitle}>Talent Locations</h4>
-              <Link to="/services/remote-developers" className={styles.footerLink}>
-                Remote Developers
-              </Link>
-              <Link to="/services/offshore-developers" className={styles.footerLink}>
-                Offshore Developers
-              </Link>
+              <div className={styles.techColumns}>
+                <div className={styles.techColumn}>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Frontend
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Backend
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Mobile
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Cloud
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    DevOps
+                  </Link>
+                </div>
+                <div className={styles.techColumn}>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Database
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    AI
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Blockchain
+                  </Link>
+                  <Link to="/services#tech-stacks" className={styles.footerLink}>
+                    Tools
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -82,28 +74,27 @@ const Footer: React.FC = () => {
           <div className={styles.footerSection}>
             <h3 className={styles.sectionTitle}>Navigation</h3>
             <div className={styles.mainNav}>
-              <h4 className={styles.subSectionTitle}>Main</h4>
               <Link to="/how-it-works" className={styles.footerLink}>
                 How it works
               </Link>
               <Link to="/about" className={styles.footerLink}>
                 About us
               </Link>
-              <Link to="/reviews" className={styles.footerLink}>
+              <a href="#" className={styles.footerLink}>
                 Reviews
-              </Link>
-              <Link to="/pricing" className={styles.footerLink}>
+              </a>
+              <Link to="/price-comparison" className={styles.footerLink}>
                 Pricing
               </Link>
               <Link to="/careers" className={styles.footerLink}>
                 Careers
               </Link>
-              <Link to="/resources" className={styles.footerLink}>
+              <a href="#" className={styles.footerLink}>
                 Learn
-              </Link>
-              <Link to="/customer-stories" className={styles.footerLink}>
+              </a>
+              <a href="#" className={styles.footerLink}>
                 Customer Stories
-              </Link>
+              </a>
             </div>
 
             <div className={styles.subscribeSection}>
@@ -130,8 +121,13 @@ const Footer: React.FC = () => {
           <div className={styles.bottomLeft}>
             <div className={styles.logoSection}>
               <div className={styles.logo}>
-                <div className={styles.logoIcon}>HB</div>
-                <span className={styles.logoText}>Higgs Boson</span>
+                <img 
+                  src={logoSvg} 
+                  alt="Higgs Boson Consultancy Logo" 
+                  style={{ 
+                    filter: 'invert(1)'
+                  }}
+                />
               </div>
             </div>
             <p className={styles.copyright}>

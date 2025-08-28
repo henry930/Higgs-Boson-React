@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import GoogleCalendarScheduler from '../GoogleCalendarScheduler';
+import logoSvg from '../../assets/logo.svg';
 import styles from './Navigation.module.scss';
 
 const Navigation: React.FC = () => {
@@ -45,10 +46,15 @@ const Navigation: React.FC = () => {
     <nav className={`${styles.navigation} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
         <div className={`${styles.navContainer} ${isScrolled ? styles.scrolled : ''}`}>
-          {/* Logo - CloudEmployee style */}
+          {/* Logo - Your Custom SVG Logo */}
           <Link to="/" className={styles.logo}>
-            <div className={styles.logoIcon}>HB</div>
-            <span className={styles.logoText}>Higgs Boson</span>
+            <img 
+              src={logoSvg} 
+              alt="Higgs Boson Consultancy Logo" 
+              style={{ 
+                filter: 'invert(1)'
+              }}
+            />
           </Link>
 
           {/* Desktop Navigation */}

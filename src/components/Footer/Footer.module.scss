@@ -86,6 +86,24 @@
   }
 }
 
+.techColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.techColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .mainNav {
   .footerLink {
     margin-bottom: 0.5rem;
@@ -182,6 +200,11 @@
       align-items: center;
       gap: 0.75rem;
       text-decoration: none;
+
+      img {
+        height: 80px;
+        width: auto;
+      }
 
       .logoIcon {
         width: 32px;

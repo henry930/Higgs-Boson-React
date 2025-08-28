@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import Navigation from './components/Navigation/Navigation';
 import Footer from './components/Footer/Footer';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import NotificationCenter from './components/NotificationCenter/NotificationCenter';
 import DynamicPage from './components/DynamicPage/DynamicPage';
 import AICustomerService from './components/AICustomerService/AICustomerService';
@@ -33,6 +34,7 @@ function App() {
         <ThemeProvider>
           <AppProvider>
             <Router>
+              <ScrollToTop />
               <div className="App">
                 <Navigation />
                 <NotificationCenter />

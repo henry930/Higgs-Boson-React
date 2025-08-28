@@ -1,4 +1,5 @@
 import styles from './About.module.scss';
+import SEO from '../../components/SEO/SEO';
 
 const About = () => {
   const values = [
@@ -24,24 +25,30 @@ const About = () => {
     },
     {
       icon: '💰',
-      title: 'Lower Cost',
-      description: 'AI-Powered development can drastically cost cutting, almost 50% you can save comparing with developers recruitment.'
+      title: 'Cost Efficiency',
+      description: 'AI-powered development drastically reduces costs, delivering up to 50% savings compared to traditional developer recruitment.'
     },
     {
       icon: '👂',
-      title: 'Listen',
-      description: 'Not only AI, we deploy account manager for each project, they can focusly listen on your need and provide professional consultation.'
+      title: 'Personal Attention',
+      description: 'Beyond AI capabilities, we assign dedicated account managers to each project who focus entirely on your needs and provide expert consultation.'
     }
   ];
 
   return (
     <div className={styles.about}>
+      <SEO 
+        title="About Us"
+        description="Learn about Higgs Boson Consultancy Ltd - pioneering AI development and transforming businesses through cutting-edge technology and innovative solutions."
+        keywords="about higgs boson, AI company, technology consultancy, AI development, business transformation, company history"
+        url="https://higgsboson.tech/about"
+      />
       <div className={styles.heroSection}>
         <div className={styles.container}>
           <div className={styles.heroContent}>
             <h1 className={styles.heroTitle}>Pioneering the Future of <span className={styles.accent}>AI Development</span></h1>
             <p className={styles.heroDescription}>
-              Founded by AI researchers and industry veterans, Higgs Boson Consultancy is dedicated to transforming businesses through using AI and cutting-edge technology to optimize in software development.
+              Founded by AI researchers and industry veterans, Higgs Boson Consultancy is dedicated to transforming businesses through cutting-edge AI technology and optimized software development processes.
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import StackIcon from 'tech-stack-icons';
+import SEO from '../../components/SEO/SEO';
 import styles from './Services.module.scss';
 import SimpleCalendarBooking from '../../components/SimpleCalendarBooking/SimpleCalendarBooking';
 
@@ -87,7 +88,7 @@ const Services = () => {
   const teamBuildingServices = [
     {
       title: "AI-powered development",
-      description: "By using AI in development, it saves you enormous time and money.",
+      description: "Harness the power of AI in development to dramatically reduce project timelines and costs while maintaining exceptional quality.",
       icon: "🤖",
       featured: true
     },
@@ -107,13 +108,8 @@ const Services = () => {
       icon: "📋"
     },
     {
-      title: "Fund Seeking",
-      description: "Support in preparing technical documentation and presentations for investor meetings.",
-      icon: "💰"
-    },
-    {
-      title: "IT Training",
-      description: "Comprehensive training programs to upskill your existing team on latest technologies.",
+      title: "AI Training and Strategies",
+      description: "Comprehensive AI training programs and strategic consulting to help your team leverage artificial intelligence effectively in your business operations.",
       icon: "🎓"
     }
   ];
@@ -407,24 +403,24 @@ const Services = () => {
       answer: "We use advanced AI-powered screening combined with rigorous technical assessments, code reviews, and cultural fit evaluations. Our multi-stage process ensures only the top 3% of candidates make it to our talent pool."
     },
     {
-      question: "Do you provide a human developer servicing me?",
-      answer: "Yes. And he is a talent specializing based on your requirement. Moreover, we always can provide different talents for your different needs."
+      question: "Do you provide a human developer to service me?",
+      answer: "Yes, absolutely. You'll work with talented specialists selected specifically based on your requirements. We can also provide different experts for various aspects of your project as needed."
     },
     {
       question: "What technologies and frameworks do you specialize in?",
       answer: "We cover the full spectrum of modern technologies including React, Angular, Vue.js, Node.js, Python, Java, AWS, Azure, Docker, Kubernetes, and emerging technologies like AI/ML and blockchain development etc."
     },
     {
-      question: "What if my requirements are niche and difficult to find talents?",
-      answer: "As we are AI-powered development, AI always can help even your requirements are unprecedented and lacks of talents."
+      question: "What if my requirements are niche and difficult to find talent for?",
+      answer: "Our AI-powered development approach enables us to handle even unprecedented requirements where traditional talent may be scarce. AI assistance bridges skill gaps and accelerates learning curves."
     },
     {
       question: "How quickly can you provide development services?",
-      answer: "For most tech stacks, we can provide pre-vetted candidates within 48-72 hours. For niche requirements, we may provide the closest experienced developers with AI-powered developing process."
+      answer: "For most tech stacks, we can provide pre-vetted candidates within 48-72 hours. For niche requirements, we can deploy experienced developers with our AI-powered development process to meet your specific needs."
     },
     {
       question: "What are your engagement models?",
-      answer: "Generally, we offer guaranteed development services, full-time hires, contract-to-hire, project-based work, and dedicated development teams. Choose what works best for your business needs."
+      answer: "We offer flexible engagement models including guaranteed development services, full-time hires, contract-to-hire arrangements, project-based work, and dedicated development teams. Choose what works best for your business needs."
     },
     {
       question: "Do you provide ongoing support after placement?",
@@ -432,24 +428,24 @@ const Services = () => {
     },
     {
       question: "How does your AI-powered development work?",
-      answer: "AI enhances through intelligent code generation, automated testing, performance optimization, and quality assurance, allowing our developers to deliver faster without compromising quality."
+      answer: "AI enhances our development process through intelligent code generation, automated testing, performance optimization, and quality assurance, allowing our developers to deliver faster without compromising quality."
     },
     // Original FAQs
     {
-      question: "Will outsourcing development have less performance than employing a developer?",
-      answer: "Certainly not. Unless you are big companies, and specializing in IT development, otherwise, your small team developers can't compete with large teams professional."
+      question: "Will outsourcing development result in lower performance than employing a developer?",
+      answer: "Not at all. Unless you're a large company specializing in IT development, small teams typically cannot compete with the expertise and resources of professional development teams."
     },
     {
-      question: "What's your edges comparing to other competitors?",
-      answer: "We are using AI on our development. Most of our development tasks can be tackled by AI. Developers can more focus on product design, development architecture, testing and customer service. You can pay a less price for better service."
+      question: "What are your advantages compared to other competitors?",
+      answer: "We leverage AI throughout our development process. Most development tasks are enhanced by AI, allowing our developers to focus on product design, development architecture, testing, and customer service. You receive better service at a lower cost."
     },
     {
-      question: "What benefits I can have if chosen your service?",
-      answer: "You pay extremely lower than salaries and taxes. Waive all recruitment processes and those risks and times."
+      question: "What benefits will I receive if I choose your service?",
+      answer: "You'll pay significantly less than traditional salaries and taxes while avoiding all recruitment processes, associated risks, and time investments."
     },
     {
-      question: "How you can guarantee your service delivery?",
-      answer: "By using AI project estimation, we can evaluate a good fit budget and time for you. Weekly evaluation and test can make sure your projects would not have distortion. Direct communication with developers can reduce mis-understanding. Most important, we will return your money if we can't deliver on your requirement."
+      question: "How do you guarantee your service delivery?",
+      answer: "Through AI-powered project estimation, we provide accurate budget and timeline assessments. Weekly evaluations and testing ensure projects stay on track. Direct communication with developers reduces misunderstandings. Most importantly, we offer a money-back guarantee if we cannot deliver according to your requirements."
     }
   ];
 
@@ -459,6 +455,12 @@ const Services = () => {
 
   return (
     <div className={styles.services}>
+      <SEO 
+        title="Our Services"
+        description="Comprehensive AI and technology services including machine learning, web development, mobile apps, data science, and digital transformation solutions."
+        keywords="AI services, machine learning services, web development, mobile development, data science, cloud solutions, digital transformation"
+        url="https://higgsboson.tech/services"
+      />
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.container}>
@@ -576,7 +578,7 @@ const Services = () => {
       </section>
 
       {/* Tech Stack Section */}
-      <section className={styles.techStackSection}>
+      <section id="tech-stacks" className={styles.techStackSection}>
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>All Tech Stacks Supported</h2>

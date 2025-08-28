@@ -172,10 +172,7 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
   };
 
   const meetingTypes = [
-    { value: 'consultation', label: 'Free Consultation (30 min)', duration: 30 },
-    { value: 'technical', label: 'Technical Discussion (45 min)', duration: 45 },
-    { value: 'project-planning', label: 'Project Planning (60 min)', duration: 60 },
-    { value: 'demo', label: 'Product Demo (30 min)', duration: 30 }
+    { value: 'consultation', label: 'Free Consultation (30 min)', duration: 30 }
   ];
 
   const handleScheduleCall = async () => {

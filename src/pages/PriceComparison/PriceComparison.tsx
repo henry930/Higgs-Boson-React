@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../../components/SEO/SEO';
 import styles from './PriceComparison.module.scss';
 
 const PriceComparison = () => {
@@ -226,6 +227,12 @@ const PriceComparison = () => {
 
   return (
     <div className={styles.priceComparison}>
+      <SEO 
+        title="Price Comparison"
+        description="Compare the true cost of building an in-house UK development team versus partnering with Higgs Boson Consultancy. Calculate potential savings with our cost comparison tool."
+        keywords="price comparison, development costs, UK developer salaries, cost calculator, in-house vs outsourcing, development team costs"
+        url="https://higgsboson.tech/price-comparison"
+      />
       {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.container}>

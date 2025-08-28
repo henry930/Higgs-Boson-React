@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SEO from '../../components/SEO/SEO';
 import styles from './Careers.module.scss';
 import apiService from '../../services/apiService';
 
@@ -107,6 +108,12 @@ const Careers: React.FC = () => {
 
   return (
     <div className={styles.careers}>
+      <SEO 
+        title="Careers"
+        description="Join Higgs Boson Consultancy Ltd - Help us revolutionize software development with AI. Explore career opportunities in AI, machine learning, and technology."
+        keywords="careers higgs boson, AI jobs, machine learning careers, technology jobs, software development careers, AI consultancy jobs"
+        url="https://higgsboson.tech/careers"
+      />
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.container}>
@@ -182,6 +189,73 @@ const Careers: React.FC = () => {
               </div>
               <h3>Work-Life Balance</h3>
               <p>We value sustainable work practices with flexible hours, unlimited PTO, and mental health support.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How We Work Section */}
+      <section className={`${styles.aboutSection} ${styles.howWeWorkSection}`}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>How We Work</h2>
+            <p className={styles.sectionSubtitle}>The Future of Development is Here</p>
+          </div>
+          
+          <div className={styles.howWeWorkContent}>
+            <div className={styles.analogySection}>
+              <div className={styles.analogyIcon}>
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M12 1v11" stroke="currentColor" strokeWidth="2"/>
+                  <path d="m3.5 7 8.5 5 8.5-5" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </div>
+              <h3 className={styles.analogyTitle}>
+                Our developers are the <span className={styles.highlight}>pilot of a jet</span>
+              </h3>
+              <p className={styles.analogyDescription}>
+                We provide comprehensive autopilot features throughout the development process. Your role is to guide AI systems to work for you, enabling you to focus on architecture planning, testing strategies, solving complex problems, understanding customer requirements, and providing expert consultation.
+              </p>
+            </div>
+
+            <div className={styles.focusAreas}>
+              <div className={styles.focusGrid}>
+                <div className={styles.focusCard}>
+                  <div className={styles.focusIcon}>🏗️</div>
+                  <h4>Architecture Planning</h4>
+                  <p>Design robust system architectures while AI handles implementation details</p>
+                </div>
+                <div className={styles.focusCard}>
+                  <div className={styles.focusIcon}>🔍</div>
+                  <h4>Testing & Quality</h4>
+                  <p>Focus on comprehensive testing strategies and quality assurance</p>
+                </div>
+                <div className={styles.focusCard}>
+                  <div className={styles.focusIcon}>🎯</div>
+                  <h4>Problem Solving</h4>
+                  <p>Tackle the biggest technical challenges and innovative solutions</p>
+                </div>
+                <div className={styles.focusCard}>
+                  <div className={styles.focusIcon}>🤝</div>
+                  <h4>Client Consulting</h4>
+                  <p>Understand customer requirements and provide expert guidance</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.ctaMessage}>
+              <h3>Pretty Cool, right?</h3>
+              <p>Do you want to take on these challenges?</p>
+              <button 
+                className={styles.contactUsBtn}
+                onClick={() => {
+                  setApplicationForm(prev => ({ ...prev, position: 'Developer - AI Pilot' }));
+                  setShowApplicationForm(true);
+                }}
+              >
+                Contact Us
+              </button>
             </div>
           </div>
         </div>

@@ -891,3 +891,22 @@
     }
   }
 }
+
+// Disclaimer text with proper contrast
+.disclaimer {
+  color: #a8b3c1; // Light gray with good contrast on dark backgrounds
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  opacity: 0.9;
+  
+  // Ensure good contrast ratios
+  @media (prefers-contrast: high) {
+    color: #e2e8f0;
+    opacity: 1;
+  }
+  
+  // Dark mode support
+  @media (prefers-color-scheme: dark) {
+    color: #cbd5e1;
+  }
+}

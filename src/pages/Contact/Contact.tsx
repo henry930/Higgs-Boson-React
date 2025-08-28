@@ -1,4 +1,5 @@
 import styles from './Contact.module.scss';
+import SEO from '../../components/SEO/SEO';
 import { useNavigate } from 'react-router-dom';
 
 const Contact = () => {
@@ -10,6 +11,12 @@ const Contact = () => {
 
   return (
     <div className={styles.contact}>
+      <SEO 
+        title="Contact Us"
+        description="Get in touch with Higgs Boson Consultancy Ltd for AI and technology solutions. Contact our experts for consultation and project estimation."
+        keywords="contact higgs boson, AI consultation, technology consultation, project estimation, get quote"
+        url="https://higgsboson.tech/contact"
+      />
       <div className={styles.heroSection}>
         <div className={styles.container}>
           <div className={styles.heroContent}>
@@ -99,13 +106,13 @@ const Contact = () => {
                     <div className={styles.messageContent}>
                       <p><strong>Hello, I am Sarah, your AI Project Assistant.</strong></p>
                       
-                      <p>At first, please give me your company name, contact person, contact email and contact phone.</p>
+                      <p>First, please provide me with your company name, contact person, contact email, and contact phone.</p>
                       
-                      <p>Then, please give me your project requirement. Please be detailed, as it will be binded in contract later.</p>
+                      <p>Then, please give me your project requirements. Please be detailed, as this will be included in the contract later.</p>
                       
-                      <p><strong>Our daily rate is £160. All startup and NGO will have 20% off discount.</strong></p>
+                      <p><strong>Our daily rate is £160. All startups and NGOs receive a 20% discount.</strong></p>
                       
-                      <p>The estimation is not final, our specialist will contact you lately for deeply understanding.</p>
+                      <p>This estimation is preliminary - our specialist will contact you later for a deeper understanding of your needs.</p>
                       
                       <p><strong>Let's start!</strong></p>
                     </div>
@@ -148,15 +155,15 @@ const Contact = () => {
             </div>
             <div className={styles.faqCard}>
               <h3 className={styles.faqQuestion}>What's included in your AI development services?</h3>
-              <p className={styles.faqAnswer}>Any software development, AI Integration, deployment and ongoing support</p>
+              <p className={styles.faqAnswer}>Complete software development, AI integration, deployment, and ongoing support services.</p>
             </div>
             <div className={styles.faqCard}>
               <h3 className={styles.faqQuestion}>Can you help with existing projects?</h3>
               <p className={styles.faqAnswer}>Absolutely! We can enhance existing applications with AI capabilities or optimize current systems.</p>
             </div>
             <div className={styles.faqCard}>
-              <h3 className={styles.faqQuestion}>Can you reform our system to AI maintenance service?</h3>
-              <p className={styles.faqAnswer}>Yes, of course. We can train your stuffs on how to use AI for maintaining your system.</p>
+              <h3 className={styles.faqQuestion}>Can you convert our system to AI-powered maintenance?</h3>
+              <p className={styles.faqAnswer}>Yes, absolutely. We can train your staff on how to use AI for maintaining and optimizing your systems.</p>
             </div>
           </div>
         </div>
