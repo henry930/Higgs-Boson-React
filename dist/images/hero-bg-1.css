@@ -1,0 +1,11 @@
+/* AI Development Background - Circuit pattern with blue tones */
+.hero-bg-1 {
+  background: 
+    linear-gradient(45deg, rgba(59, 130, 246, 0.1) 25%, transparent 25%), 
+    linear-gradient(-45deg, rgba(59, 130, 246, 0.1) 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, rgba(59, 130, 246, 0.1) 75%), 
+    linear-gradient(-45deg, transparent 75%, rgba(59, 130, 246, 0.1) 75%),
+    linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: 30px 30px, 30px 30px, 30px 30px, 30px 30px, 100% 100%;
+  background-position: 0 0, 15px 0, 15px -15px, 0px 15px, 0 0;
+}
