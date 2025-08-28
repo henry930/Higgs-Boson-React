@@ -8,7 +8,16 @@ import styles from './Home.module.scss';
 
 const Home = () => {
   const { data, loading, error, apiConnected } = useHomeDataRedux();
-  const { benefits, processSteps, testimonials, heroSlides: apiHeroSlides } = data;
+  const { benefits, processSteps, testimonials: apiTestimonials, heroSlides: apiHeroSlides } = data;
+  // Transform API testimonials to expected format
+  const testimonials = apiTestimonials && apiTestimonials.length > 0
+    ? apiTestimonials.map(t => ({
+        quote: t.content,
+        author_name: t.name,
+        author_title: `${t.position}${t.company ? ' @ ' + t.company : ''}`,
+        ...t
+      }))
+    : [];
   const [showScheduler, setShowScheduler] = useState(false);
   
   // Show notification for offline mode
@@ -158,7 +167,7 @@ const Home = () => {
               <div key={index} className="card card-hover">
                 <div className="card-body text-center">
                   <div className="feature-icon mb-4">
-                    {step.number}
+                    {step.step_number || step.number || index + 1}
                   </div>
                   <h3 className="card-title">{step.title}</h3>
                   <p className="card-text">{step.description}</p>

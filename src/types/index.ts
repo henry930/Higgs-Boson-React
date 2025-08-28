@@ -3,6 +3,8 @@ export interface Benefit {
   title: string;
   description: string;
   icon: string;
+  order?: number;
+  active?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -13,6 +15,9 @@ export interface ProcessStep {
   description: string;
   icon: string;
   step_number: number;
+  number?: number; // For backward compatibility
+  order?: number;
+  active?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +31,12 @@ export interface Testimonial {
   rating: number;
   image_url?: string;
   featured: boolean;
+  // Additional fields for fallback data compatibility
+  quote?: string;
+  author_name?: string;
+  author_title?: string;
+  order?: number;
+  active?: boolean;
   created_at: string;
   updated_at: string;
 }

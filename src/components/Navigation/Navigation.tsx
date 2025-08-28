@@ -52,7 +52,8 @@ const Navigation: React.FC = () => {
               src={logoSvg} 
               alt="Higgs Boson Consultancy Logo" 
               style={{ 
-                filter: 'invert(1)'
+                filter: 'invert(1)',
+                height: '80px'
               }}
             />
           </Link>

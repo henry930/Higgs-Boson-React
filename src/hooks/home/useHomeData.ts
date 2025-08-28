@@ -66,7 +66,7 @@ export const useProcessSteps = () => {
     actions: {
       fetch: () => dispatch(fetchProcessSteps()),
       create: (step: any) => dispatch(createProcessStep(step)),
-      update: (id: number, step: any) => dispatch(updateProcessStep({ id, step })),
+      update: (id: number, step: any) => dispatch(updateProcessStep({ id, processStep: step })),
       delete: (id: number) => dispatch(deleteProcessStep(id)),
       clearError: () => dispatch(clearProcessStepsError()),
       reset: () => dispatch(resetProcessSteps()),
@@ -114,7 +114,7 @@ export const useHeroSlides = () => {
     actions: {
       fetch: () => dispatch(fetchHeroSlides()),
       create: (slide: any) => dispatch(createHeroSlide(slide)),
-      update: (id: number, slide: any) => dispatch(updateHeroSlide({ id, slide })),
+      update: (id: number, slide: any) => dispatch(updateHeroSlide({ id, heroSlide: slide })),
       delete: (id: number) => dispatch(deleteHeroSlide(id)),
       clearError: () => dispatch(clearHeroSlidesError()),
       reset: () => dispatch(resetHeroSlides()),

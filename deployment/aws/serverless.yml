@@ -1,0 +1,104 @@
+service: higgs-boson-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  timeout: 30
+  memorySize: 512
+  environment:
+    DJANGO_SETTINGS_MODULE: settings
+    STAGE: ${self:provider.stage}
+    SUPABASE_URL: ${env:SUPABASE_URL}
+    SUPABASE_SERVICE_KEY: ${env:SUPABASE_SERVICE_KEY}
+    OPENAI_API_KEY: ${env:OPENAI_API_KEY}
+    SECRET_KEY: ${env:SECRET_KEY}
+    DEBUG: false
+    ALLOWED_HOSTS: "*"
+    CORS_ALLOW_ALL_ORIGINS: true
+  
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "*"
+
+functions:
+  django:
+    handler: lambda_handler.lambda_handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Requested-With
+            allowCredentials: false
+      - http:
+          path: /
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Requested-With
+            allowCredentials: false
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!.git/**'
+    - '!.serverless/**'
+    - '!.venv/**'
+    - '!venv/**'
+    - '!__pycache__/**'
+    - '!.pytest_cache/**'
+    - '!tests/**'
+    - '!.env.local'
+    - '!.env.development'
+    - '!.env.test'
+    - 'server/**'
+    - lambda_handler.py
+    - '!server/__pycache__/**'
+    - '!server/**/migrations/**'
+    - '!server/**/*.pyc'
+    - '!server/**/tests.py'
+    - '!server/**/test_*.py'
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    zip: true
+    slim: true
+    strip: false
+    noDeps:
+      - boto3
+      - botocore
+    pipCmdExtraArgs:
+      - --no-cache-dir
