@@ -26,7 +26,9 @@
     "test:env": "node scripts/test-environment.js",
     "test:all": "npm run test:env && npm run test:run",
     "test:quick": "./scripts/quick-test.sh",
-    "test:comprehensive": "./scripts/run-all-tests.sh"
+    "test:comprehensive": "./scripts/run-all-tests.sh",
+    "deploy": "npm run build && gh-pages -d dist",
+    "deploy:github": "gh-pages -d dist -b gh-pages"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -73,6 +75,7 @@
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "tsx": "^4.20.4",
