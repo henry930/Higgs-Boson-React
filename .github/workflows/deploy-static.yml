@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy Static Site to Pages
 
 on:
   push:
-    branches: [ master ]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
@@ -15,36 +15,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+        
+      - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-
+          node-version: 18
+          cache: npm
+          
       - name: Install dependencies
-        run: npm install
-
+        run: npm ci
+        
       - name: Build project
         run: npm run build
         env:
-          VITE_API_BASE_URL: https://henry930.github.io/Higgs-Boson-React
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          VITE_API_BASE_URL: "https://henry930.github.io/Higgs-Boson-React"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
-      - name: Upload to GitHub Pages
+        
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
-
+          path: "./dist"
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
