@@ -2,9 +2,16 @@
 
 echo "🚀 Setting up Higgs Boson React in Codespace..."
 
-# Install Node dependencies
+# Configure GitHub CLI and Copilot
+echo "🔐 Setting up GitHub authentication..."
+if [ -n "$GITHUB_TOKEN" ]; then
+    echo "$GITHUB_TOKEN" | gh auth login --with-token
+    gh auth refresh -h github.com -s copilot
+fi
+
+# Install Node dependencies with legacy peer deps for React 19
 echo "📦 Installing Node.js dependencies..."
-npm install
+npm install --legacy-peer-deps
 
 # Set up Python virtual environment
 echo "🐍 Setting up Python environment..."
@@ -36,6 +43,7 @@ cd server && python manage.py migrate && cd ..
 chmod +x scripts/*.sh 2>/dev/null || true
 
 echo "✅ Codespace setup complete!"
+echo "🤖 GitHub Copilot should now be ready to use!"
 echo "🌐 To start the development servers:"
 echo "   Frontend: npm run dev"
 echo "   Backend: cd server && ../venv/bin/python manage.py runserver"
