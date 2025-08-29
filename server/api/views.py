@@ -1825,9 +1825,9 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions required for this view.
-        Public can create applications, but only admin can view them.
+        Public can create applications, but admin endpoints need authentication.
         """
-        if self.action == 'create':
+        if self.action in ['create', 'dashboard', 'list']:
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsAuthenticated]
@@ -1839,6 +1839,14 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=request.data)
             if serializer.is_valid():
                 application = serializer.save()
+                
+                # Auto-parse CV if uploaded
+                if application.cv:
+                    try:
+                        from .cv_parser import process_uploaded_cv
+                        process_uploaded_cv(application)
+                    except Exception as e:
+                        logging.warning(f"CV parsing failed: {e}")
                 
                 # Send confirmation email to applicant
                 try:
@@ -1868,6 +1876,180 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
             return api_response(
                 message="Failed to submit application. Please try again.",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def dashboard(self, request):
+        """Get job application dashboard data for admin"""
+        # Get statistics
+        total_applications = JobApplication.objects.count()
+        new_applications = JobApplication.objects.filter(status='new').count()
+        reviewing_applications = JobApplication.objects.filter(status='reviewing').count()
+        interview_applications = JobApplication.objects.filter(status='interview').count()
+        accepted_applications = JobApplication.objects.filter(status='accepted').count()
+        rejected_applications = JobApplication.objects.filter(status='rejected').count()
+        
+        # Get recent applications
+        recent_applications = JobApplication.objects.all().order_by('-created_at')[:10]
+        
+        # Get applications by position
+        position_stats = {}
+        positions = JobApplication.objects.values_list('position', flat=True).distinct()
+        for position in positions:
+            position_stats[position] = JobApplication.objects.filter(position=position).count()
+        
+        return Response({
+            'statistics': {
+                'total': total_applications,
+                'new': new_applications,
+                'reviewing': reviewing_applications,
+                'interview': interview_applications,
+                'accepted': accepted_applications,
+                'rejected': rejected_applications
+            },
+            'recent': JobApplicationSerializer(recent_applications, many=True).data,
+            'by_position': position_stats
+        })
+    
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        """Update application status"""
+        application = self.get_object()
+        new_status = request.data.get('status')
+        notes = request.data.get('notes', '')
+        
+        if new_status not in ['new', 'reviewing', 'interview', 'rejected', 'accepted']:
+            return Response({
+                'status': 'error',
+                'message': 'Invalid status'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        old_status = application.status
+        application.status = new_status
+        
+        if notes:
+            application.notes = (application.notes or '') + f"\n\n[{timezone.now().strftime('%Y-%m-%d %H:%M')}] Status changed from {old_status} to {new_status}: {notes}"
+        else:
+            application.notes = (application.notes or '') + f"\n\n[{timezone.now().strftime('%Y-%m-%d %H:%M')}] Status changed from {old_status} to {new_status}"
+        
+        application.save()
+        
+        # Send status update email to applicant
+        self.send_status_update_email(application, old_status, new_status)
+        
+        serializer = self.get_serializer(application)
+        return Response({
+            'status': 'success',
+            'message': f'Application status updated to {new_status}',
+            'data': serializer.data
+        })
+    
+    @action(detail=True, methods=['post'])
+    def parse_cv(self, request, pk=None):
+        """Manually trigger CV parsing for an application"""
+        application = self.get_object()
+        
+        if not application.cv:
+            return Response({
+                'status': 'error',
+                'message': 'No CV file found for this application'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            from .cv_parser import process_uploaded_cv
+            success = process_uploaded_cv(application)
+            
+            if success:
+                # Refresh from database
+                application.refresh_from_db()
+                serializer = self.get_serializer(application)
+                return Response({
+                    'status': 'success',
+                    'message': 'CV parsed successfully',
+                    'data': serializer.data
+                })
+            else:
+                return Response({
+                    'status': 'error',
+                    'message': 'Failed to parse CV'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': f'CV parsing error: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['post'])
+    def bulk_parse_cvs(self, request):
+        """Parse all CVs in the CV directory"""
+        try:
+            from .cv_parser import parse_cv_directory
+            results = parse_cv_directory()
+            
+            return Response({
+                'status': 'success',
+                'message': f'Parsed {len(results)} CV files',
+                'data': results
+            })
+        
+        except Exception as e:
+            return Response({
+                'status': 'error',
+                'message': f'Bulk CV parsing error: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def send_status_update_email(self, application, old_status, new_status):
+        """Send status update email to applicant"""
+        if new_status in ['rejected', 'accepted', 'interview']:
+            subject = f"Application Update - {application.position}"
+            
+            if new_status == 'interview':
+                message = f"""
+Dear {application.first_name},
+
+We're pleased to inform you that your application for the {application.position} position has progressed to the interview stage!
+
+Our team was impressed with your qualifications and we'd like to schedule an interview with you. We'll contact you shortly to arrange a convenient time.
+
+Thank you for your interest in joining the Higgs Boson team.
+
+Best regards,
+The Higgs Boson Team
+                """
+            elif new_status == 'accepted':
+                message = f"""
+Dear {application.first_name},
+
+Congratulations! We're delighted to offer you the {application.position} position at Higgs Boson.
+
+Our HR team will contact you shortly with the offer details and next steps.
+
+We're excited to welcome you to the team!
+
+Best regards,
+The Higgs Boson Team
+                """
+            elif new_status == 'rejected':
+                message = f"""
+Dear {application.first_name},
+
+Thank you for your interest in the {application.position} position at Higgs Boson.
+
+After careful consideration, we've decided to move forward with other candidates whose experience more closely matches our current needs.
+
+We appreciate the time you took to apply and wish you the best in your career search.
+
+Best regards,
+The Higgs Boson Team
+                """
+            
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[application.email],
+                fail_silently=True
             )
     
     def send_application_confirmation_email(self, application):
@@ -2097,6 +2279,112 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             'upcoming': AppointmentSerializer(upcoming_appointments, many=True).data,
             'recent': AppointmentSerializer(recent_appointments, many=True).data
         })
+    
+    @action(detail=True, methods=['patch'])
+    def confirm(self, request, pk=None):
+        """Confirm an appointment"""
+        appointment = self.get_object()
+        meeting_link = request.data.get('meeting_link', '')
+        
+        appointment.confirm_appointment(meeting_link)
+        
+        # Send confirmation email to client
+        self.send_appointment_confirmation_email(appointment)
+        
+        serializer = self.get_serializer(appointment)
+        return Response({
+            'status': 'success',
+            'message': 'Appointment confirmed successfully',
+            'data': serializer.data
+        })
+    
+    @action(detail=True, methods=['patch'])
+    def cancel(self, request, pk=None):
+        """Cancel an appointment"""
+        appointment = self.get_object()
+        notes = request.data.get('notes', '')
+        
+        appointment.cancel_appointment(notes)
+        
+        # Send cancellation email to client
+        self.send_appointment_cancellation_email(appointment)
+        
+        serializer = self.get_serializer(appointment)
+        return Response({
+            'status': 'success',
+            'message': 'Appointment cancelled successfully',
+            'data': serializer.data
+        })
+    
+    @action(detail=True, methods=['patch'])
+    def complete(self, request, pk=None):
+        """Mark appointment as completed"""
+        appointment = self.get_object()
+        appointment.status = 'completed'
+        appointment.save()
+        
+        serializer = self.get_serializer(appointment)
+        return Response({
+            'status': 'success',
+            'message': 'Appointment marked as completed',
+            'data': serializer.data
+        })
+    
+    def send_appointment_confirmation_email(self, appointment):
+        """Send appointment confirmation email to client"""
+        subject = f"Appointment Confirmed - {appointment.service}"
+        message = f"""
+Dear {appointment.name},
+
+Great news! Your consultation appointment has been confirmed.
+
+Appointment Details:
+- Service: {appointment.service}
+- Date: {appointment.preferred_date.strftime('%B %d, %Y')}
+- Time: {appointment.preferred_time}
+- Duration: {appointment.duration} minutes
+
+{f"Meeting Link: {appointment.meeting_link}" if appointment.meeting_link else "Meeting details will be shared separately."}
+
+Please ensure you're available at the scheduled time. If you need to reschedule, please contact us at least 24 hours in advance.
+
+If you have any questions, feel free to reach out to us.
+
+Best regards,
+The Higgs Boson Team
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[appointment.email],
+            fail_silently=True
+        )
+    
+    def send_appointment_cancellation_email(self, appointment):
+        """Send appointment cancellation email to client"""
+        subject = f"Appointment Cancelled - {appointment.service}"
+        message = f"""
+Dear {appointment.name},
+
+We regret to inform you that your consultation appointment scheduled for {appointment.preferred_date.strftime('%B %d, %Y')} at {appointment.preferred_time} has been cancelled.
+
+If you would still like to schedule a consultation, please feel free to book a new appointment through our website or contact us directly.
+
+We apologize for any inconvenience this may cause.
+
+Best regards,
+The Higgs Boson Team
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[appointment.email],
+            fail_silently=True
+        )
     
     def send_confirmation_email(self, appointment):
         """Send confirmation email to the applicant"""
