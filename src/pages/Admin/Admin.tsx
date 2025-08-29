@@ -3,6 +3,9 @@ import PagesManager from '../../components/PagesManager/PagesManager';
 import PageEditor from '../../components/PageEditor/PageEditor';
 import AICustomerServiceDashboard from '../../components/AdminDashboard/AdminDashboard';
 import AppointmentDashboard from '../../components/AppointmentDashboard/AppointmentDashboard';
+import AdminLogin from '../../components/AdminLogin/AdminLogin';
+import FullAdminDashboard from '../../components/FullAdminDashboard/FullAdminDashboard';
+import { useState, useEffect } from 'react';
 import styles from './Admin.module.scss';
 
 const Admin = () => {
@@ -39,6 +42,12 @@ const Admin = () => {
             Appointments
           </Link>
           <Link 
+            to="/admin/management" 
+            className={location.pathname === '/admin/management' ? styles.active : ''}
+          >
+            Admin Dashboard
+          </Link>
+          <Link 
             to="/admin/create-article" 
             className={`${styles.createBtn} ${location.pathname === '/admin/create-article' ? styles.active : ''}`}
           >
@@ -53,6 +62,7 @@ const Admin = () => {
           <Route path="/pages" element={<PagesManager />} />
           <Route path="/ai-service" element={<AICustomerServiceDashboard />} />
           <Route path="/appointments" element={<AppointmentDashboard />} />
+          <Route path="/management" element={<FullAdminDashboard />} />
           <Route path="/create-article" element={<PageEditor isStandalone={true} />} />
         </Routes>
       </div>

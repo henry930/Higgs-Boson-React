@@ -12,6 +12,9 @@ from .views import (
 )
 from .dashboard_views import DashboardViewSet
 from .auth_views import login_view, register_view, logout_view, user_profile
+from .admin_dashboard_views import (
+    AdminAppointmentViewSet, AdminJobApplicationViewSet, admin_dashboard_overview
+)
 
 router = DefaultRouter()
 router.register(r'benefits', BenefitViewSet)
@@ -37,6 +40,10 @@ router.register(r'job-applications', JobApplicationViewSet)
 
 # Appointment endpoints
 router.register(r'appointments', AppointmentViewSet)
+
+# Admin Dashboard endpoints
+router.register(r'admin/appointments', AdminAppointmentViewSet, basename='admin-appointments')
+router.register(r'admin/job-applications', AdminJobApplicationViewSet, basename='admin-job-applications')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -68,4 +75,7 @@ urlpatterns = [
     
     # Calendar scheduling endpoints
     path('schedule-notification/', schedule_notification, name='schedule-notification'),
+    
+    # Admin Dashboard endpoints
+    path('admin/dashboard/overview/', admin_dashboard_overview, name='admin-dashboard-overview'),
 ]

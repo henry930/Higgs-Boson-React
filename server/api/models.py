@@ -881,6 +881,20 @@ class JobApplication(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     notes = models.TextField(blank=True, help_text='Internal notes for HR team')
     
+    # Parsed CV Data (extracted from PDF)
+    parsed_name = models.CharField(max_length=200, blank=True, help_text='Name extracted from CV')
+    parsed_email = models.EmailField(blank=True, help_text='Email extracted from CV')
+    parsed_phone = models.CharField(max_length=50, blank=True, help_text='Phone extracted from CV')
+    parsed_linkedin = models.URLField(blank=True, help_text='LinkedIn extracted from CV')
+    parsed_skills = models.TextField(blank=True, help_text='Skills extracted from CV (JSON format)')
+    parsed_experience_years = models.CharField(max_length=50, blank=True, help_text='Experience years extracted from CV')
+    parsed_education = models.TextField(blank=True, help_text='Education extracted from CV')
+    parsed_summary = models.TextField(blank=True, help_text='Professional summary extracted from CV')
+    cv_text_preview = models.TextField(blank=True, help_text='First 2000 chars of extracted CV text')
+    cv_parsed_at = models.DateTimeField(null=True, blank=True, help_text='When CV was last parsed')
+    cv_parse_success = models.BooleanField(default=False, help_text='Whether CV parsing was successful')
+    cv_parse_error = models.TextField(blank=True, help_text='Error message if CV parsing failed')
+    
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -897,6 +911,65 @@ class JobApplication(models.Model):
     def full_name(self):
         """Return full name of the applicant"""
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def application_age_days(self):
+        """Return how many days ago this application was submitted"""
+        from django.utils import timezone
+        return (timezone.now() - self.created_at).days
+    
+    def parse_cv(self):
+        """Parse the uploaded CV and extract information"""
+        if not self.cv:
+            return False
+        
+        try:
+            from .cv_parser import parse_cv_file
+            from django.utils import timezone
+            import json
+            
+            # Get full file path
+            cv_path = self.cv.path
+            
+            # Parse the CV
+            parsed_info = parse_cv_file(cv_path)
+            
+            if parsed_info.get('success', False):
+                # Store parsed information
+                self.parsed_name = parsed_info.get('name', '')
+                self.parsed_email = parsed_info.get('email', '')
+                self.parsed_phone = parsed_info.get('phone', '')
+                self.parsed_linkedin = parsed_info.get('linkedin', '')
+                self.parsed_skills = json.dumps(parsed_info.get('skills', []))
+                self.parsed_experience_years = parsed_info.get('experience_years', '')
+                self.parsed_education = parsed_info.get('education', '')
+                self.parsed_summary = parsed_info.get('summary', '')
+                self.cv_text_preview = parsed_info.get('extracted_text', '')
+                self.cv_parse_success = True
+                self.cv_parse_error = ''
+            else:
+                self.cv_parse_success = False
+                self.cv_parse_error = parsed_info.get('error', 'Unknown error')
+            
+            self.cv_parsed_at = timezone.now()
+            self.save()
+            
+            return self.cv_parse_success
+            
+        except Exception as e:
+            self.cv_parse_success = False
+            self.cv_parse_error = str(e)
+            self.cv_parsed_at = timezone.now()
+            self.save()
+            return False
+    
+    def get_parsed_skills_list(self):
+        """Get parsed skills as a Python list"""
+        try:
+            import json
+            return json.loads(self.parsed_skills) if self.parsed_skills else []
+        except:
+            return []
 
 
 class Appointment(models.Model):
