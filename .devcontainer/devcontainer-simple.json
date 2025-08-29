@@ -1,0 +1,59 @@
+{
+    "name": "Higgs Boson React - Simple Codespace",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:18",
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11",
+            "installTools": true
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true,
+            "installOhMyZsh": true
+        }
+    },
+    "postCreateCommand": "bash .devcontainer/setup-codespace.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.vscode-typescript-next",
+                "bradlc.vscode-tailwindcss",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-eslint",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "ms-azuretools.vscode-docker"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.tabSize": 2,
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "github.copilot.enable": {
+                    "*": true
+                }
+            }
+        }
+    },
+    "forwardPorts": [
+        5174,
+        8000,
+        54321
+    ],
+    "portsAttributes": {
+        "5174": {
+            "label": "React Frontend",
+            "onAutoForward": "openBrowser"
+        },
+        "8000": {
+            "label": "Django Backend"
+        },
+        "54321": {
+            "label": "Supabase"
+        }
+    }
+}
