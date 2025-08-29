@@ -23,6 +23,7 @@ import PriceComparison from './pages/PriceComparison/PriceComparison';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
+import TestAdminPage from './pages/TestAdmin';
 import NotFound from './pages/NotFound/NotFound';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -61,6 +62,7 @@ function App() {
                     <Route path="/admin/login" element={<AdminLogin onLoginSuccess={handleAdminLoginSuccess} />} />
                     <Route path="/admin/dashboard" element={<FullAdminDashboard />} />
                     <Route path="/supabase-test" element={<SupabaseTest />} />
+                    <Route path="/test-admin" element={<TestAdminPage />} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <Dashboard />
