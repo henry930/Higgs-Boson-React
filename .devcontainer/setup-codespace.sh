@@ -2,11 +2,16 @@
 
 echo "🚀 Setting up Higgs Boson React in Codespace..."
 
-# Configure GitHub CLI and Copilot
+# Configure GitHub CLI and Copilot for full automation
 echo "🔐 Setting up GitHub authentication..."
 if [ -n "$GITHUB_TOKEN" ]; then
     echo "$GITHUB_TOKEN" | gh auth login --with-token
     gh auth refresh -h github.com -s copilot
+    
+    # Configure GitHub Copilot for autonomous operation
+    echo "🤖 Configuring GitHub Copilot for full automation..."
+    gh copilot config set editor vscode
+    gh auth refresh -s copilot
 fi
 
 # Install Node dependencies with legacy peer deps for React 19
@@ -42,8 +47,31 @@ cd server && python manage.py migrate && cd ..
 # Make scripts executable
 chmod +x scripts/*.sh 2>/dev/null || true
 
+# Configure VS Code settings for autonomous Copilot operation
+echo "⚙️ Configuring VS Code for autonomous operation..."
+mkdir -p .vscode
+cat > .vscode/settings.json << 'EOF'
+{
+  "github.copilot.enable": {
+    "*": true
+  },
+  "github.copilot.advanced": {
+    "inlineSuggestEnable": true,
+    "suggestions.enabled": true
+  },
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "security.workspace.trust.enabled": false,
+  "security.workspace.trust.untrustedFiles": "open",
+  "terminal.integrated.confirmOnExit": "never",
+  "files.autoSave": "onFocusChange",
+  "explorer.confirmDelete": false,
+  "git.confirmSync": false
+}
+EOF
+
 echo "✅ Codespace setup complete!"
-echo "🤖 GitHub Copilot should now be ready to use!"
+echo "🤖 GitHub Copilot configured for FULL AUTOMATION - no more confirmation prompts!"
 echo "🌐 To start the development servers:"
 echo "   Frontend: npm run dev"
 echo "   Backend: cd server && ../venv/bin/python manage.py runserver"
