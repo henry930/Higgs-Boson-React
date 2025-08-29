@@ -38,13 +38,61 @@
         "editor.formatOnSave": true,
         "editor.tabSize": 2,
         "terminal.integrated.defaultProfile.linux": "zsh",
+        // GitHub Copilot - Full Automation Settings
         "github.copilot.enable": {
-          "*": true
+          "*": true,
+          "yaml": true,
+          "plaintext": true,
+          "markdown": true,
+          "javascript": true,
+          "typescript": true,
+          "python": true,
+          "json": true,
+          "html": true,
+          "css": true,
+          "scss": true,
+          "jsx": true,
+          "tsx": true,
+          "dockerfile": true,
+          "shellscript": true,
+          "sql": true
         },
         "github.copilot.advanced": {
-          "debug.overrideEngine": "copilot-codex"
+          "debug.overrideEngine": "copilot-codex",
+          "inlineSuggestEnable": true,
+          "suggestions.enabled": true
         },
-        "security.workspace.trust.enabled": false
+        "github.copilot.chat.followUps": "on",
+        "github.copilot.chat.localeOverride": "zh-TW",
+        // Security & Trust Settings for Full Automation
+        "security.workspace.trust.enabled": false,
+        "security.workspace.trust.untrustedFiles": "open",
+        "extensions.ignoreRecommendations": false,
+        "git.autofetch": true,
+        "git.enableSmartCommit": true,
+        "git.confirmSync": false,
+        // Disable confirmation prompts for autonomous operation
+        "editor.suggest.preview": true,
+        "editor.acceptSuggestionOnCommitCharacter": true,
+        "editor.acceptSuggestionOnEnter": "on",
+        "editor.quickSuggestions": {
+          "other": true,
+          "comments": true,
+          "strings": true
+        },
+        "editor.wordBasedSuggestions": "off",
+        "editor.parameterHints.enabled": true,
+        "editor.autoIndent": "full",
+        // Terminal automation settings
+        "terminal.integrated.confirmOnExit": "never",
+        "terminal.integrated.confirmOnKill": "never",
+        // File operations automation
+        "files.autoSave": "onFocusChange",
+        "files.autoSaveDelay": 100,
+        "explorer.confirmDelete": false,
+        "explorer.confirmDragAndDrop": false,
+        // Copilot workspace trust for autonomous development
+        "copilot.advanced.directSuggestions": true
       }
     }
   },
