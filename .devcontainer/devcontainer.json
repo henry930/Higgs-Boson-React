@@ -96,7 +96,11 @@
       }
     }
   },
-  "forwardPorts": [5174, 8000, 54321],
+  "forwardPorts": [
+    5174,
+    8000,
+    54321
+  ],
   "portsAttributes": {
     "5174": {
       "label": "React Frontend",
