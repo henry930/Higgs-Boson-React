@@ -2,7 +2,8 @@
 
 # Django Server Start Script
 # Navigate to the correct directory
-cd /Users/navcolon/Documents/higgsbosonconsultancy2/React/server
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 echo "🚀 Starting Django Server..."
 echo "📁 Current directory: $(pwd)"
