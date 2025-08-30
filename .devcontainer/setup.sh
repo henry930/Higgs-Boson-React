@@ -15,9 +15,9 @@ cd server
 pip install -r requirements.txt
 cd ..
 
-# Install Node.js dependencies
+# Install Node.js dependencies (with faster options)
 echo "📦 Installing Node.js dependencies..."
-npm install
+npm ci --silent --prefer-offline --no-audit --no-fund
 
 # Create environment files
 echo "🔧 Creating environment files..."
