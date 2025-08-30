@@ -50,6 +50,60 @@ interface ProjectRequirement {
   updated_at: string;
 }
 
+interface Appointment {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  service: string;
+  preferred_date: string;
+  preferred_time: string;
+  message: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rescheduled';
+  duration: number;
+  meeting_link: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface JobApplication {
+  id: number;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  position: string;
+  experience: string;
+  cover_letter: string;
+  cv: string;
+  linkedin: string;
+  portfolio: string;
+  status: 'new' | 'reviewing' | 'interview' | 'rejected' | 'accepted';
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  application_age_days: number;
+}
+
+interface AppointmentStats {
+  total: number;
+  pending: number;
+  confirmed: number;
+  completed: number;
+}
+
+interface JobApplicationStats {
+  total: number;
+  new: number;
+  reviewing: number;
+  interview: number;
+  accepted: number;
+  rejected: number;
+}
+
 interface AdminSettings {
   id: number;
   admin_email: string;
@@ -65,8 +119,16 @@ const AdminDashboard: React.FC = () => {
   const [selectedRequirement, setSelectedRequirement] = useState<ProjectRequirement | null>(null);
   const [adminSettings, setAdminSettings] = useState<AdminSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'requirements' | 'customers' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'requirements' | 'customers' | 'appointments' | 'applications' | 'settings'>('overview');
   const [settingsLoading, setSettingsLoading] = useState(false);
+
+  // New state for appointments and job applications
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentStats, setAppointmentStats] = useState<AppointmentStats | null>(null);
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  const [jobApplicationStats, setJobApplicationStats] = useState<JobApplicationStats | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -85,6 +147,24 @@ const AdminDashboard: React.FC = () => {
       const requirementsResponse = await fetch('http://localhost:8000/api/requirements/');
       const requirementsData = await requirementsResponse.json();
       setRequirements(requirementsData.data);
+
+      // Fetch appointments and appointment stats
+      const appointmentStatsResponse = await fetch('http://localhost:8000/api/appointments/dashboard/');
+      const appointmentStatsData = await appointmentStatsResponse.json();
+      setAppointmentStats(appointmentStatsData.statistics);
+      
+      const appointmentsResponse = await fetch('http://localhost:8000/api/appointments/');
+      const appointmentsData = await appointmentsResponse.json();
+      setAppointments(appointmentsData.data || appointmentsData);
+
+      // Fetch job applications and job application stats
+      const jobApplicationStatsResponse = await fetch('http://localhost:8000/api/job-applications/dashboard/');
+      const jobApplicationStatsData = await jobApplicationStatsResponse.json();
+      setJobApplicationStats(jobApplicationStatsData.statistics);
+      
+      const jobApplicationsResponse = await fetch('http://localhost:8000/api/job-applications/');
+      const jobApplicationsData = await jobApplicationsResponse.json();
+      setJobApplications(jobApplicationsData.data || jobApplicationsData);
 
       // Fetch admin settings
       const settingsResponse = await fetch('http://localhost:8000/api/admin-settings/');
@@ -215,8 +295,122 @@ const AdminDashboard: React.FC = () => {
       in_progress: '#fd7e14',
       completed: '#20c997',
       cancelled: '#dc3545',
+      // Appointment statuses
+      pending: '#ffc107',
+      confirmed: '#28a745',
+      rescheduled: '#17a2b8',
+      // Job application statuses
+      new: '#007bff',
+      reviewing: '#ffc107',
+      interview: '#17a2b8',
+      rejected: '#dc3545',
+      accepted: '#28a745',
     };
     return colors[status] || '#6c757d';
+  };
+
+  // Appointment management functions
+  const updateAppointmentStatus = async (appointmentId: number, action: string, data: any = {}) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/appointments/${appointmentId}/${action}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        fetchDashboardData();
+        alert(`Appointment ${action} successfully!`);
+      } else {
+        alert(`Failed to ${action} appointment`);
+      }
+    } catch (error) {
+      console.error(`Error ${action} appointment:`, error);
+      alert(`Failed to ${action} appointment`);
+    }
+  };
+
+  const confirmAppointment = (appointment: Appointment) => {
+    const meetingLink = prompt('Enter meeting link (optional):');
+    updateAppointmentStatus(appointment.id, 'confirm', { meeting_link: meetingLink });
+  };
+
+  const cancelAppointment = (appointment: Appointment) => {
+    const notes = prompt('Enter cancellation reason:');
+    if (notes !== null) {
+      updateAppointmentStatus(appointment.id, 'cancel', { notes });
+    }
+  };
+
+  const completeAppointment = (appointment: Appointment) => {
+    updateAppointmentStatus(appointment.id, 'complete');
+  };
+
+  // Job application management functions
+  const updateJobApplicationStatus = async (applicationId: number, newStatus: string, notes: string = '') => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/job-applications/${applicationId}/update_status/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus, notes }),
+      });
+
+      if (response.ok) {
+        fetchDashboardData();
+        alert(`Application status updated to ${newStatus}!`);
+      } else {
+        alert('Failed to update application status');
+      }
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      alert('Failed to update application status');
+    }
+  };
+
+  const parseCV = async (applicationId: number) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/job-applications/${applicationId}/parse_cv/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        fetchDashboardData();
+        alert('CV parsed successfully!');
+      } else {
+        alert('Failed to parse CV');
+      }
+    } catch (error) {
+      console.error('Error parsing CV:', error);
+      alert('Failed to parse CV');
+    }
+  };
+
+  const bulkParseCV = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/job-applications/bulk_parse_cvs/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Bulk CV parsing completed! ${data.message}`);
+      } else {
+        alert('Failed to perform bulk CV parsing');
+      }
+    } catch (error) {
+      console.error('Error performing bulk CV parsing:', error);
+      alert('Failed to perform bulk CV parsing');
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -240,7 +434,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
-        <h1>AI Customer Service Dashboard</h1>
+        <h1>Admin Dashboard</h1>
         <div className={styles.tabs}>
           <button
             className={`${styles.tab} ${activeTab === 'overview' ? styles.active : ''}`}
@@ -253,6 +447,18 @@ const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('requirements')}
           >
             Requirements
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'appointments' ? styles.active : ''}`}
+            onClick={() => setActiveTab('appointments')}
+          >
+            Appointments
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'applications' ? styles.active : ''}`}
+            onClick={() => setActiveTab('applications')}
+          >
+            Job Applications
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'settings' ? styles.active : ''}`}
@@ -282,6 +488,26 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
+            {appointmentStats && (
+              <div className={styles.statCard}>
+                <h3>Appointments</h3>
+                <div className={styles.statValue}>{appointmentStats.total}</div>
+                <div className={styles.statSubtext}>
+                  {appointmentStats.pending} pending
+                </div>
+              </div>
+            )}
+
+            {jobApplicationStats && (
+              <div className={styles.statCard}>
+                <h3>Job Applications</h3>
+                <div className={styles.statValue}>{jobApplicationStats.total}</div>
+                <div className={styles.statSubtext}>
+                  {jobApplicationStats.new} new
+                </div>
+              </div>
+            )}
+
             <div className={styles.statCard}>
               <h3>Active Conversations</h3>
               <div className={styles.statValue}>{stats.active_conversations}</div>
@@ -295,8 +521,110 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Appointment Stats */}
+          {appointmentStats && (
+            <div className={styles.statusBreakdown}>
+              <h3>Appointment Status Breakdown</h3>
+              <div className={styles.statusChart}>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('pending'),
+                      width: `${(appointmentStats.pending / appointmentStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    PENDING: {appointmentStats.pending}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('confirmed'),
+                      width: `${(appointmentStats.confirmed / appointmentStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    CONFIRMED: {appointmentStats.confirmed}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('completed'),
+                      width: `${(appointmentStats.completed / appointmentStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    COMPLETED: {appointmentStats.completed}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Job Application Stats */}
+          {jobApplicationStats && (
+            <div className={styles.statusBreakdown}>
+              <h3>Job Application Status Breakdown</h3>
+              <div className={styles.statusChart}>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('new'),
+                      width: `${(jobApplicationStats.new / jobApplicationStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    NEW: {jobApplicationStats.new}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('reviewing'),
+                      width: `${(jobApplicationStats.reviewing / jobApplicationStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    REVIEWING: {jobApplicationStats.reviewing}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('interview'),
+                      width: `${(jobApplicationStats.interview / jobApplicationStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    INTERVIEW: {jobApplicationStats.interview}
+                  </span>
+                </div>
+                <div className={styles.statusItem}>
+                  <div
+                    className={styles.statusBar}
+                    style={{
+                      backgroundColor: getStatusColor('accepted'),
+                      width: `${(jobApplicationStats.accepted / jobApplicationStats.total) * 100}%`,
+                    }}
+                  ></div>
+                  <span className={styles.statusLabel}>
+                    ACCEPTED: {jobApplicationStats.accepted}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className={styles.statusBreakdown}>
-            <h3>Status Breakdown</h3>
+            <h3>Project Status Breakdown</h3>
             <div className={styles.statusChart}>
               {stats.status_breakdown.map((item) => (
                 <div key={item.status} className={styles.statusItem}>
@@ -466,6 +794,386 @@ const AdminDashboard: React.FC = () => {
                     )}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Appointments Tab */}
+      {activeTab === 'appointments' && (
+        <div className={styles.content}>
+          <div className={styles.sectionHeader}>
+            <h2>Appointment Management</h2>
+            {appointmentStats && (
+              <div className={styles.quickStats}>
+                <span className={styles.statBadge}>
+                  Total: {appointmentStats.total}
+                </span>
+                <span className={styles.statBadge}>
+                  Pending: {appointmentStats.pending}
+                </span>
+                <span className={styles.statBadge}>
+                  Confirmed: {appointmentStats.confirmed}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {appointments.map((appointment) => (
+                  <tr key={appointment.id}>
+                    <td>
+                      <div className={styles.clientInfo}>
+                        <div className={styles.clientName}>{appointment.name}</div>
+                        <div className={styles.clientEmail}>{appointment.email}</div>
+                        {appointment.company && (
+                          <div className={styles.clientCompany}>{appointment.company}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td>{appointment.service}</td>
+                    <td>
+                      <div className={styles.dateTime}>
+                        <div>{appointment.preferred_date}</div>
+                        <div>{appointment.preferred_time}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <span 
+                        className={styles.statusBadge}
+                        style={{ backgroundColor: getStatusColor(appointment.status) }}
+                      >
+                        {appointment.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        {appointment.status === 'pending' && (
+                          <>
+                            <button
+                              className={styles.confirmBtn}
+                              onClick={() => confirmAppointment(appointment)}
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              className={styles.cancelBtn}
+                              onClick={() => cancelAppointment(appointment)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                        {appointment.status === 'confirmed' && (
+                          <button
+                            className={styles.completeBtn}
+                            onClick={() => completeAppointment(appointment)}
+                          >
+                            Complete
+                          </button>
+                        )}
+                        <button
+                          className={styles.viewBtn}
+                          onClick={() => setSelectedAppointment(appointment)}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedAppointment && (
+            <div className={styles.modal}>
+              <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                  <h3>Appointment Details</h3>
+                  <button
+                    className={styles.closeBtn}
+                    onClick={() => setSelectedAppointment(null)}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className={styles.modalBody}>
+                  <div className={styles.detailGrid}>
+                    <div className={styles.detailItem}>
+                      <label>Client Name:</label>
+                      <span>{selectedAppointment.name}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Email:</label>
+                      <span>{selectedAppointment.email}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Phone:</label>
+                      <span>{selectedAppointment.phone || 'Not provided'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Company:</label>
+                      <span>{selectedAppointment.company || 'Not specified'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Service:</label>
+                      <span>{selectedAppointment.service}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Date:</label>
+                      <span>{selectedAppointment.preferred_date}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Time:</label>
+                      <span>{selectedAppointment.preferred_time}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Duration:</label>
+                      <span>{selectedAppointment.duration} minutes</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Status:</label>
+                      <span style={{ color: getStatusColor(selectedAppointment.status) }}>
+                        {selectedAppointment.status.toUpperCase()}
+                      </span>
+                    </div>
+                    {selectedAppointment.meeting_link && (
+                      <div className={styles.detailItem}>
+                        <label>Meeting Link:</label>
+                        <a href={selectedAppointment.meeting_link} target="_blank" rel="noopener noreferrer">
+                          {selectedAppointment.meeting_link}
+                        </a>
+                      </div>
+                    )}
+                    {selectedAppointment.message && (
+                      <div className={styles.detailItem}>
+                        <label>Message:</label>
+                        <span>{selectedAppointment.message}</span>
+                      </div>
+                    )}
+                    {selectedAppointment.notes && (
+                      <div className={styles.detailItem}>
+                        <label>Notes:</label>
+                        <span>{selectedAppointment.notes}</span>
+                      </div>
+                    )}
+                    <div className={styles.detailItem}>
+                      <label>Created:</label>
+                      <span>{formatDate(selectedAppointment.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Job Applications Tab */}
+      {activeTab === 'applications' && (
+        <div className={styles.content}>
+          <div className={styles.sectionHeader}>
+            <h2>Job Application Management</h2>
+            <div className={styles.headerActions}>
+              <button
+                className={styles.bulkBtn}
+                onClick={bulkParseCV}
+              >
+                Parse All CVs
+              </button>
+              {jobApplicationStats && (
+                <div className={styles.quickStats}>
+                  <span className={styles.statBadge}>
+                    Total: {jobApplicationStats.total}
+                  </span>
+                  <span className={styles.statBadge}>
+                    New: {jobApplicationStats.new}
+                  </span>
+                  <span className={styles.statBadge}>
+                    Reviewing: {jobApplicationStats.reviewing}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th>Applicant</th>
+                  <th>Position</th>
+                  <th>Experience</th>
+                  <th>Status</th>
+                  <th>Applied</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobApplications.map((application) => (
+                  <tr key={application.id}>
+                    <td>
+                      <div className={styles.applicantInfo}>
+                        <div className={styles.applicantName}>{application.full_name}</div>
+                        <div className={styles.applicantEmail}>{application.email}</div>
+                        {application.phone && (
+                          <div className={styles.applicantPhone}>{application.phone}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td>{application.position}</td>
+                    <td>{application.experience}</td>
+                    <td>
+                      <span 
+                        className={styles.statusBadge}
+                        style={{ backgroundColor: getStatusColor(application.status) }}
+                      >
+                        {application.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.appliedDate}>
+                        {formatDate(application.created_at)}
+                        <div className={styles.ageText}>
+                          {application.application_age_days} days ago
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.actionButtons}>
+                        <select
+                          className={styles.statusSelect}
+                          value={application.status}
+                          onChange={(e) => {
+                            const notes = prompt('Add notes (optional):');
+                            updateJobApplicationStatus(application.id, e.target.value, notes || '');
+                          }}
+                        >
+                          <option value="new">New</option>
+                          <option value="reviewing">Reviewing</option>
+                          <option value="interview">Interview</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="accepted">Accepted</option>
+                        </select>
+                        {application.cv && (
+                          <button
+                            className={styles.parseBtn}
+                            onClick={() => parseCV(application.id)}
+                          >
+                            Parse CV
+                          </button>
+                        )}
+                        <button
+                          className={styles.viewBtn}
+                          onClick={() => setSelectedApplication(application)}
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedApplication && (
+            <div className={styles.modal}>
+              <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                  <h3>Application Details</h3>
+                  <button
+                    className={styles.closeBtn}
+                    onClick={() => setSelectedApplication(null)}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className={styles.modalBody}>
+                  <div className={styles.detailGrid}>
+                    <div className={styles.detailItem}>
+                      <label>Full Name:</label>
+                      <span>{selectedApplication.full_name}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Email:</label>
+                      <span>{selectedApplication.email}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Phone:</label>
+                      <span>{selectedApplication.phone || 'Not provided'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Position:</label>
+                      <span>{selectedApplication.position}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Experience:</label>
+                      <span>{selectedApplication.experience}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Status:</label>
+                      <span style={{ color: getStatusColor(selectedApplication.status) }}>
+                        {selectedApplication.status.toUpperCase()}
+                      </span>
+                    </div>
+                    {selectedApplication.linkedin && (
+                      <div className={styles.detailItem}>
+                        <label>LinkedIn:</label>
+                        <a href={selectedApplication.linkedin} target="_blank" rel="noopener noreferrer">
+                          {selectedApplication.linkedin}
+                        </a>
+                      </div>
+                    )}
+                    {selectedApplication.portfolio && (
+                      <div className={styles.detailItem}>
+                        <label>Portfolio:</label>
+                        <a href={selectedApplication.portfolio} target="_blank" rel="noopener noreferrer">
+                          {selectedApplication.portfolio}
+                        </a>
+                      </div>
+                    )}
+                    {selectedApplication.cv && (
+                      <div className={styles.detailItem}>
+                        <label>CV:</label>
+                        <a href={selectedApplication.cv} target="_blank" rel="noopener noreferrer">
+                          View CV
+                        </a>
+                      </div>
+                    )}
+                    <div className={styles.detailItem}>
+                      <label>Applied:</label>
+                      <span>{formatDate(selectedApplication.created_at)}</span>
+                    </div>
+                    <div className={styles.detailItemFull}>
+                      <label>Cover Letter:</label>
+                      <div className={styles.coverLetter}>
+                        {selectedApplication.cover_letter}
+                      </div>
+                    </div>
+                    {selectedApplication.notes && (
+                      <div className={styles.detailItemFull}>
+                        <label>Notes:</label>
+                        <div className={styles.notes}>
+                          {selectedApplication.notes}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -10,6 +10,8 @@ import AICustomerService from './components/AICustomerService/AICustomerService'
 import Dashboard from './components/Dashboard/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import SupabaseTest from './components/SupabaseTest';
+import AdminLogin from './components/AdminLogin/AdminLogin';
+import FullAdminDashboard from './components/FullAdminDashboard/FullAdminDashboard';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Services from './pages/Services/Services';
@@ -21,13 +23,19 @@ import PriceComparison from './pages/PriceComparison/PriceComparison';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Admin from './pages/Admin/Admin';
+import TestAdminPage from './pages/TestAdmin';
 import NotFound from './pages/NotFound/NotFound';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { useState } from 'react';
 
 function App() {
   console.log('🚀 Main App component mounted/rendered');
+  
+  const handleAdminLoginSuccess = (token: string) => {
+    console.log('Admin login successful:', token);
+  };
   
   return (
     <Provider store={store}>
@@ -51,7 +59,10 @@ function App() {
                     <Route path="/project-estimation" element={<ProjectEstimation />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/admin/login" element={<AdminLogin onLoginSuccess={handleAdminLoginSuccess} />} />
+                    <Route path="/admin/dashboard" element={<FullAdminDashboard />} />
                     <Route path="/supabase-test" element={<SupabaseTest />} />
+                    <Route path="/test-admin" element={<TestAdminPage />} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <Dashboard />

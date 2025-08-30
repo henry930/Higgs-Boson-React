@@ -12,6 +12,9 @@ from .views import (
 )
 from .dashboard_views import DashboardViewSet
 from .auth_views import login_view, register_view, logout_view, user_profile
+from .admin_dashboard_views import (
+    AdminAppointmentViewSet, AdminJobApplicationViewSet, admin_dashboard_overview
+)
 
 router = DefaultRouter()
 router.register(r'benefits', BenefitViewSet)
@@ -38,34 +41,49 @@ router.register(r'job-applications', JobApplicationViewSet)
 # Appointment endpoints
 router.register(r'appointments', AppointmentViewSet)
 
+# Admin Dashboard endpoints
+router.register(r'admin/appointments', AdminAppointmentViewSet,
+                basename='admin-appointments')
+router.register(r'admin/job-applications',
+                AdminJobApplicationViewSet, basename='admin-job-applications')
+
 urlpatterns = [
     path('', include(router.urls)),
-    
+
     # Authentication endpoints
     path('auth/login/', login_view, name='auth-login'),
     path('auth/register/', register_view, name='auth-register'),
     path('auth/logout/', logout_view, name='auth-logout'),
     path('auth/profile/', user_profile, name='auth-profile'),
-    
+
     # AI Customer Service endpoints
     path('ai-chat/', AICustomerServiceView.as_view(), name='ai-chat'),
     path('dashboard/stats/', dashboard_stats, name='dashboard-stats'),
     path('test-email/', test_email, name='test-email'),
-    path('test-confirmation/', test_confirmation_notification, name='test-confirmation'),
-    
+    path('test-confirmation/', test_confirmation_notification,
+         name='test-confirmation'),
+
     # AI Management endpoints
     path('ai/usage-stats/', AIUsageStatsView.as_view(), name='ai-usage-stats'),
-    path('ai/configuration/', AIConfigurationView.as_view(), name='ai-configuration'),
-    
+    path('ai/configuration/', AIConfigurationView.as_view(),
+         name='ai-configuration'),
+
     # Company Authentication endpoints
-    path('company/register/', CompanyRegistrationView.as_view(), name='company-register'),
+    path('company/register/', CompanyRegistrationView.as_view(),
+         name='company-register'),
     path('company/login/', CompanyLoginView.as_view(), name='company-login'),
     path('company/verify/', CompanyVerificationView.as_view(), name='company-verify'),
-    path('company/dashboard/', CompanyDashboardView.as_view(), name='company-dashboard'),
-    
+    path('company/dashboard/', CompanyDashboardView.as_view(),
+         name='company-dashboard'),
+
     # Career endpoints
     path('job-positions/', job_positions, name='job-positions'),
-    
+
     # Calendar scheduling endpoints
-    path('schedule-notification/', schedule_notification, name='schedule-notification'),
+    path('schedule-notification/', schedule_notification,
+         name='schedule-notification'),
+
+    # Admin Dashboard endpoints
+    path('admin/dashboard/overview/', admin_dashboard_overview,
+         name='admin-dashboard-overview'),
 ]
