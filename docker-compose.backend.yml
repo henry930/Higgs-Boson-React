@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Django Backend Service
+  django-backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: higgs-boson-django
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount server directory for hot reload
+      - ./server:/app:cached
+      # Exclude virtual environment from sync
+      - django_venv:/app/venv
+    environment:
+      - DJANGO_ENV=development
+      - DEBUG=True
+      - DATABASE_URL=sqlite:///app/db.sqlite3
+      - CORS_ALLOWED_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
+    stdin_open: true
+    tty: true
+    command: ["/bin/bash", "/app/start-django.sh"]
+    restart: unless-stopped
+
+  # Optional: Database service (PostgreSQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: higgs-boson-db
+    environment:
+      - POSTGRES_DB=higgs_boson
+      - POSTGRES_USER=developer
+      - POSTGRES_PASSWORD=devpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    profiles: ["postgres"]  # Only start with --profile postgres
+
+  # Optional: Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: higgs-boson-redis
+    ports:
+      - "6379:6379"
+    profiles: ["cache"]  # Only start with --profile cache
+
+volumes:
+  django_venv:
+  postgres_data:
