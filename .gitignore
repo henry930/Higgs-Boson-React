@@ -211,3 +211,18 @@ Temporary Items
 
 # Open AI Key
 Open_AI_Key
+
+# Sensitive credentials and AWS configuration
+SENSITIVE_CREDENTIALS.md
+*.credentials
+**/aws-config-*.json
+**/lambda-deployment.zip
+**/cloudfront-config.json
+**/dns-records.json
+deployment/lambda/lambda_deployment.zip
+deployment/migrate-to-new-account.sh
+**/.serverless/
+deployment/lambda/.serverless/
+*.zip
+**/serverless-state.json
+**/cloudformation-template-*.json
