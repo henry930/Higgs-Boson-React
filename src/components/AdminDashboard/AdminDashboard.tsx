@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.scss';
+import { API_CONFIG } from '../../config/api';
 
 interface DashboardStats {
   total_customers: number;
@@ -77,17 +78,17 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       
       // Fetch dashboard stats
-      const statsResponse = await fetch('http://localhost:8000/api/dashboard/stats/');
+      const statsResponse = await fetch(`${API_CONFIG.BASE_URL}/api/dashboard/stats/`);
       const statsData = await statsResponse.json();
       setStats(statsData.data);
 
       // Fetch requirements
-      const requirementsResponse = await fetch('http://localhost:8000/api/requirements/');
+      const requirementsResponse = await fetch(`${API_CONFIG.BASE_URL}/api/requirements/`);
       const requirementsData = await requirementsResponse.json();
       setRequirements(requirementsData.data);
 
       // Fetch admin settings
-      const settingsResponse = await fetch('http://localhost:8000/api/admin-settings/');
+      const settingsResponse = await fetch(`${API_CONFIG.BASE_URL}/api/admin-settings/`);
       const settingsData = await settingsResponse.json();
       if (settingsData.status === 'success') {
         setAdminSettings(settingsData.data);
@@ -103,7 +104,7 @@ const AdminDashboard: React.FC = () => {
   const updateAdminSettings = async (settings: Partial<AdminSettings>) => {
     try {
       setSettingsLoading(true);
-      const response = await fetch('http://localhost:8000/api/admin-settings/1/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/admin-settings/1/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +127,7 @@ const AdminDashboard: React.FC = () => {
 
   const testEmail = async (email: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/test-email/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/test-email/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +149,7 @@ const AdminDashboard: React.FC = () => {
 
   const updateRequirementStatus = async (requirementId: number, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/requirements/${requirementId}/update_status/`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/requirements/${requirementId}/update_status/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +168,7 @@ const AdminDashboard: React.FC = () => {
 
   const assignAgent = async (requirementId: number, agentName: string, notes: string = '') => {
     try {
-      const response = await fetch(`http://localhost:8000/api/requirements/${requirementId}/assign_agent/`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/requirements/${requirementId}/assign_agent/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

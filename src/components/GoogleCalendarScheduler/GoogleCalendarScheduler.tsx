@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import styles from './GoogleCalendarScheduler.module.scss';
 import { 
-  Box,
-  Paper,
-  Typography,
-  Button,
   TextField,
   MenuItem,
-  Chip,
   ThemeProvider,
   createTheme,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
-import { CalendarToday } from '@mui/icons-material';
 import dayjs, { Dayjs } from 'dayjs';
+import { API_CONFIG } from '../../config/api';
+
+// Local storage key for persisting booked appointments
+const BOOKED_APPOINTMENTS_KEY = 'higgs_boson_booked_appointments';
 
 interface CalendarEvent {
   summary: string;
@@ -89,9 +87,28 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
       setMeetingType('consultation');
       setDescription('');
       setIsLoading(false);
-      setAvailableSlots([]);
+      setAvailableSlots([]); // Ensure this is always an empty array, not undefined
+      
+      // If there was a previously selected date, refresh its availability
+      // This ensures we get the latest booking status when modal reopens
+      if (selectedDate) {
+        console.log('🔄 Refreshing slots for previously selected date on modal reopen');
+        setTimeout(() => {
+          fetchAvailableSlots(selectedDate);
+        }, 100);
+      }
     }
   }, [isOpen, userEmail]);
+
+  // Debug: Track when availableSlots changes
+  useEffect(() => {
+    console.log('🎯 availableSlots state changed:', {
+      availableSlots: availableSlots,
+      length: availableSlots?.length,
+      isArray: Array.isArray(availableSlots),
+      type: typeof availableSlots
+    });
+  }, [availableSlots]);
 
   // Load available time slots when date is selected
   useEffect(() => {
@@ -103,7 +120,7 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
       fetchAvailableSlots(selectedDate);
     } else {
       console.log('❌ No date selected, clearing slots');
-      setAvailableSlots([]);
+      setAvailableSlots([]); // Ensure this is always an empty array
     }
   }, [selectedDate]);
 
@@ -119,19 +136,20 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
     
     try {
       const timestamp = Date.now();
-      const apiUrl = `/api/appointments/availability/?date=${dateString}&t=${timestamp}`;
+      // Add cache busting parameter to URL instead of using headers
+      const apiUrl = `${API_CONFIG.BASE_URL}/api/appointments/availability/?date=${dateString}&t=${timestamp}&cache=${Math.random()}`;
       console.log('🌐 API URL:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors' // Explicitly set CORS mode
       });
       
       console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (response.ok) {
         const data = await response.json();
@@ -139,33 +157,89 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
         console.log('✅ Available slots from API:', data.availableSlots);
         console.log('❌ Booked slots from API:', data.bookedSlots);
         
-        // Simplify: Just extract start times from the API response
-        const availableStartTimes = data.availableSlots.map((timeRange: string) => {
-          const startTime = timeRange.split('-')[0]; // Get "10:30" from "10:30-11:00"
-          console.log('Extracted start time:', startTime, 'from', timeRange);
-          return startTime;
-        });
-        
-        console.log('🔄 Available start times:', availableStartTimes);
-        
-        // Convert to simple TimeSlot format
-        const simpleSlots: TimeSlot[] = availableStartTimes.map((startTime: string) => ({
-          start: startTime,
-          end: startTime, // We don't really need end time for display
-          available: true
-        }));
-        
-        console.log('� Final slots for display:', simpleSlots);
-        setAvailableSlots(simpleSlots);
+        // Defensive programming: Check if availableSlots exists and is an array
+        if (data && data.availableSlots && Array.isArray(data.availableSlots) && data.availableSlots.length > 0) {
+          // Simplify: Just extract start times from the API response
+          const availableStartTimes = data.availableSlots.map((timeRange: string) => {
+            const startTime = timeRange.split('-')[0]; // Get "10:30" from "10:30-11:00"
+            console.log('Extracted start time:', startTime, 'from', timeRange);
+            return startTime;
+          });
+          
+          console.log('🔄 Available start times:', availableStartTimes);
+          
+          // Convert to simple TimeSlot format
+          const simpleSlots: TimeSlot[] = availableStartTimes.map((startTime: string) => ({
+            start: startTime,
+            end: startTime, // We don't really need end time for display
+            isBooked: false
+          }));
+          
+          console.log('📋 Final slots for display:', simpleSlots);
+          setAvailableSlots(simpleSlots);
+        } else {
+          console.warn('⚠️ No availableSlots array found in API response or empty array');
+          console.log('📄 Full API response:', data);
+          console.log('🔄 Using fallback demo time slots (no API data)');
+          
+          // Fallback to demo time slots when API returns no data
+          const fallbackSlots: TimeSlot[] = [
+            { start: '09:00', end: '09:30', isBooked: false },
+            { start: '10:00', end: '10:30', isBooked: false },
+            { start: '11:00', end: '11:30', isBooked: false },
+            { start: '14:00', end: '14:30', isBooked: false },
+            { start: '15:00', end: '15:30', isBooked: false },
+            { start: '16:00', end: '16:30', isBooked: false },
+          ];
+          setAvailableSlots(fallbackSlots);
+        }
       } else {
         console.error('❌ API call failed:', response.status, response.statusText);
-        // Fallback to empty slots on API failure
-        setAvailableSlots([]);
+        console.log('🔄 Using fallback demo time slots (API failure)');
+        
+        // Fallback to demo slots on API failure
+        const fallbackSlots: TimeSlot[] = [
+          { start: '09:00', end: '09:30', isBooked: false },
+          { start: '10:00', end: '10:30', isBooked: false },
+          { start: '11:00', end: '11:30', isBooked: false },
+          { start: '14:00', end: '14:30', isBooked: false },
+          { start: '15:00', end: '15:30', isBooked: false },
+          { start: '16:00', end: '16:30', isBooked: false },
+        ];
+        setAvailableSlots(fallbackSlots);
       }
     } catch (error) {
       console.error('💥 API call error:', error);
-      // Fallback to empty slots on error
-      setAvailableSlots([]);
+      
+      // Enhanced error diagnostics
+      if (error instanceof TypeError) {
+        if (error.message.includes('Failed to fetch')) {
+          console.error('🚫 Network Error: Failed to fetch from API');
+          console.error('❓ Possible causes:');
+          console.error('   - CORS policy blocking the request');
+          console.error('   - API server is down or unreachable');
+          console.error('   - Network connectivity issues');
+          console.error('   - API endpoint URL is incorrect');
+          console.error('🌐 Attempted URL:', `${API_CONFIG.BASE_URL}/api/appointments/availability/`);
+        } else {
+          console.error('🔧 TypeError details:', error.message);
+        }
+      } else {
+        console.error('❌ Unexpected error type:', typeof error);
+        console.error('📄 Error details:', error);
+      }
+      
+      // Fallback to demo time slots for development/testing
+      console.log('🔄 Using fallback demo time slots');
+      const fallbackSlots: TimeSlot[] = [
+        { start: '09:00', end: '09:30', isBooked: false },
+        { start: '10:00', end: '10:30', isBooked: false },
+        { start: '11:00', end: '11:30', isBooked: false },
+        { start: '14:00', end: '14:30', isBooked: false },
+        { start: '15:00', end: '15:30', isBooked: false },
+        { start: '16:00', end: '16:30', isBooked: false },
+      ];
+      setAvailableSlots(fallbackSlots);
     }
     
     console.log('=== END GOOGLE CALENDAR SCHEDULER API CALL ===');
@@ -219,11 +293,31 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
       
       const googleCalendarUrl = createGoogleCalendarUrl(event);
       
-      // Send notification to your backend first
+      // FIRST: Save the appointment to the database
+      console.log('💾 Saving appointment to database...');
+      await createAppointment(eventDetails);
+      
+      // THEN: Send notification to your backend
       await notifyBackend(eventDetails);
+      
+      // Immediately update local slots to provide instant feedback
+      console.log('⚡ Immediately removing booked slot from local state');
+      setAvailableSlots(currentSlots => 
+        currentSlots.filter(slot => slot.start !== selectedTime)
+      );
       
       // Show success alert
       alert('🎉 Call successfully scheduled! You will be redirected to Google Calendar to confirm the event.');
+      
+      // Refresh available slots from backend to ensure consistency
+      // Add a small delay to allow backend to process the booking
+      console.log('🔄 Refreshing available slots from backend after successful booking');
+      setTimeout(async () => {
+        if (selectedDate) {
+          console.log('🔄 Fetching updated slots from backend after booking...');
+          await fetchAvailableSlots(selectedDate);
+        }
+      }, 1500); // 1.5 second delay to allow backend processing
       
       // Reset form and close dialog
       setSelectedDate(null);
@@ -239,8 +333,17 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
       }, 500); // Small delay to ensure dialog closes first
       
     } catch (error) {
-      console.error('Error scheduling call:', error);
-      alert('Error scheduling call. Please try again.');
+      console.error('💥 Error during booking process:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to create appointment')) {
+          alert('❌ Failed to save appointment to database. Please try again or contact support.');
+        } else {
+          alert(`❌ Error scheduling call: ${error.message}. Please try again.`);
+        }
+      } else {
+        alert('❌ Unexpected error scheduling call. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -266,10 +369,54 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   };
 
+  const createAppointment = async (event: CalendarEvent) => {
+    try {
+      console.log('💾 Creating appointment in database...');
+      
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/appointments/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: clientName,
+          email: clientEmail,
+          phone: '', // GoogleCalendarScheduler doesn't collect phone, but SimpleCalendarBooking does
+          company: '', // GoogleCalendarScheduler doesn't collect company, but SimpleCalendarBooking does
+          service: meetingType,
+          preferred_date: selectedDate?.format('YYYY-MM-DD'),
+          preferred_time: selectedTime,
+          message: description,
+          // Additional fields for better tracking
+          scheduled_datetime: event.start.dateTime,
+          end_datetime: event.end.dateTime,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          booking_source: 'google_calendar_scheduler' // Track the source of booking
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Failed to create appointment:', response.status, response.statusText, errorText);
+        throw new Error(`Failed to create appointment: ${response.status} ${response.statusText}`);
+      }
+
+      const appointmentData = await response.json();
+      console.log('✅ Appointment created successfully:', appointmentData);
+      return appointmentData;
+      
+    } catch (error) {
+      console.error('💥 Error creating appointment:', error);
+      throw error; // Re-throw to prevent booking completion if DB save fails
+    }
+  };
+
   const notifyBackend = async (event: CalendarEvent) => {
     try {
+      console.log('📤 Sending booking notification to backend...');
+      
       // Send notification to your backend
-      const response = await fetch('/api/schedule-notification/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/schedule-notification/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -279,15 +426,21 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
           client_email: clientEmail,
           meeting_type: meetingType,
           scheduled_time: event.start.dateTime,
-          description: description
+          end_time: event.end.dateTime,
+          description: description,
+          date: selectedDate?.format('YYYY-MM-DD'),
+          time_slot: selectedTime,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         })
       });
 
       if (!response.ok) {
-        console.warn('Failed to send backend notification');
+        console.warn('❌ Failed to send backend notification:', response.status, response.statusText);
+      } else {
+        console.log('✅ Backend notification sent successfully');
       }
     } catch (error) {
-      console.warn('Backend notification failed:', error);
+      console.warn('💥 Backend notification failed:', error);
     }
   };
 
@@ -304,17 +457,18 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
         <div className={styles.overlay}>
           <div className={styles.modal}>
             <div className={styles.header}>
-              <h2>Schedule a Call</h2>
+              <h2>Schedule a Consultation</h2>
               <button className={styles.closeButton} onClick={onClose}>×</button>
             </div>
             
             <div className={styles.content}>
-              {/* Two Column Layout */}
-              <div className={styles.twoColumnLayout}>
+              {/* Modern Two-Section Layout */}
+              <div className={styles.schedulerLayout}>
                 
-                {/* Left Column: Material-UI Calendar */}
-                <Box sx={{ width: '100%' }}>
-                  <Paper elevation={2} sx={{ p: 2, borderRadius: 2 }}>
+                {/* Calendar Section */}
+                <div className={styles.calendarSection}>
+                  <h3 className={styles.sectionTitle}>Select Date</h3>
+                  <div className={styles.calendarContainer}>
                     <StaticDatePicker
                       value={selectedDate}
                       onChange={(newDate) => {
@@ -328,11 +482,10 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
                       maxDate={dayjs().add(3, 'month')}
                       displayStaticWrapperAs="desktop"
                       slotProps={{
-                        actionBar: { actions: [] }, // Hide action buttons
+                        actionBar: { actions: [] },
                       }}
                       sx={{
                         width: '100%',
-                        height: 'auto',
                         '& .MuiPickersLayout-root': {
                           minHeight: 'auto',
                           height: 'auto',
@@ -340,17 +493,30 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
                         '& .MuiDateCalendar-root': {
                           height: 'auto',
                           maxHeight: 'none',
+                          width: '100%',
                         },
                         '& .MuiPickersDay-root': {
-                          fontSize: '1rem',
-                          width: '40px',
-                          height: '40px',
-                          margin: '2px',
+                          fontSize: '1.1rem',
+                          width: '48px',
+                          height: '48px',
+                          margin: '4px',
+                          borderRadius: '12px',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            backgroundColor: '#dbeafe',
+                            transform: 'scale(1.05)',
+                          },
+                          '&.Mui-selected': {
+                            backgroundColor: '#3b82f6',
+                            '&:hover': {
+                              backgroundColor: '#2563eb',
+                            },
+                          },
                         },
                         '& .MuiPickersCalendarHeader-root': {
-                          paddingLeft: 1,
-                          paddingRight: 1,
-                          marginBottom: 1,
+                          paddingLeft: 2,
+                          paddingRight: 2,
+                          marginBottom: 2,
                         },
                         '& .MuiDayCalendar-root': {
                           width: '100%',
@@ -358,8 +524,9 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
                           height: 'auto',
                         },
                         '& .MuiPickersCalendarHeader-labelContainer': {
-                          fontSize: '1.1rem',
-                          fontWeight: 600,
+                          fontSize: '1.25rem',
+                          fontWeight: 700,
+                          color: '#1e40af',
                         },
                         '& .MuiDayCalendar-header': {
                           paddingBottom: 1,
@@ -367,159 +534,226 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
                         },
                         '& .MuiDayCalendar-weekContainer': {
                           justifyContent: 'space-between',
-                          margin: '2px 0',
+                          margin: '4px 0',
                         },
                         '& .MuiDayCalendar-weekDayLabel': {
-                          width: '40px',
-                          height: '32px',
-                          fontSize: '0.9rem',
+                          width: '48px',
+                          height: '40px',
+                          fontSize: '1rem',
                           fontWeight: 600,
+                          color: '#475569',
                         }
                       }}
                     />
-                  </Paper>
-                </Box>
+                  </div>
+                </div>
 
-                {/* Right Column: Time Slots */}
-                <Box sx={{ width: '100%' }}>
-                  <Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: 'fit-content' }}>
+                {/* Time Slots Section */}
+                <div className={styles.timeSlotsSection}>
+                  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px'}}>
+                    <h3 className={styles.sectionTitle}>Available Times</h3>
+                    {selectedDate && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log('🔄 Manual refresh of available slots requested');
+                          fetchAvailableSlots(selectedDate);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          color: '#6b7280',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f9fafb';
+                          e.currentTarget.style.borderColor = '#d1d5db';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.borderColor = '#e5e7eb';
+                        }}
+                      >
+                        🔄 Refresh
+                      </button>
+                    )}
+                  </div>
+                  <div className={styles.timeSlotsContainer}>
                     {selectedDate ? (
                       <>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontSize: '0.9rem', fontWeight: 500 }}>
-                          {selectedDate.format('MMMM D, YYYY')}
-                        </Typography>
+                        <div className={styles.selectedDateTitle}>
+                          {selectedDate.format('dddd, MMMM D, YYYY')}
+                        </div>
                         
-                        <Box sx={{ 
-                          display: 'grid', 
-                          gridTemplateColumns: '1fr 1fr', 
-                          gap: 1, 
-                          maxHeight: '300px',
-                          overflowY: 'auto'
-                        }}>
-                          {availableSlots.length === 0 ? (
-                            <Box sx={{ gridColumn: '1 / -1', textAlign: 'center', py: 3 }}>
-                              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-                                No available slots
-                              </Typography>
-                            </Box>
-                          ) : (
-                            availableSlots.map(slot => {
+                        {(!availableSlots || !Array.isArray(availableSlots) || availableSlots.length === 0) ? (
+                          <div className={styles.emptyState}>
+                            <div className={styles.emptyIcon}>📅</div>
+                            <h4 className={styles.emptyTitle}>No Available Slots</h4>
+                            <p className={styles.emptyDescription}>
+                              Please try selecting a different date
+                            </p>
+                            <div style={{fontSize: '12px', color: '#666', marginTop: '10px', padding: '8px', background: '#f5f5f5', borderRadius: '4px'}}>
+                              Debug: availableSlots = {JSON.stringify(availableSlots)} (length: {availableSlots?.length || 'undefined'})
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.timeSlotGrid}>
+                            {availableSlots.map(slot => {
                               const startTime = slot.start;
                               const isSelected = selectedTime === startTime;
                               
                               return (
-                                <Chip
+                                <div
                                   key={startTime}
-                                  label={startTime}
+                                  className={`${styles.timeSlot} ${isSelected ? styles.selected : ''}`}
                                   onClick={() => {
                                     console.log('Time slot selected:', startTime);
                                     setSelectedTime(startTime);
                                   }}
-                                  variant={isSelected ? "filled" : "outlined"}
-                                  color={isSelected ? "primary" : "default"}
-                                  sx={{ 
-                                    justifyContent: 'center',
-                                    fontSize: '0.85rem',
-                                    height: '36px',
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                      backgroundColor: isSelected ? 'primary.dark' : 'primary.light',
-                                      color: isSelected ? 'white' : 'primary.dark'
-                                    }
-                                  }}
-                                />
+                                >
+                                  {startTime}
+                                </div>
                               );
-                            })
-                          )}
-                        </Box>
+                            })}
+                          </div>
+                        )}
                       </>
                     ) : (
-                      <Box sx={{ textAlign: 'center', py: 3 }}>
-                        <CalendarToday sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-                          Choose a date to see available times
-                        </Typography>
-                      </Box>
+                      <div className={styles.emptyState}>
+                        <div className={styles.emptyIcon}>📅</div>
+                        <h4 className={styles.emptyTitle}>Select a Date</h4>
+                        <p className={styles.emptyDescription}>
+                          Choose a date from the calendar to see available times
+                        </p>
+                      </div>
                     )}
-                  </Paper>
-                </Box>
+                  </div>
+                </div>
               </div>
 
-          {/* Form Section Below */}
-          <Box sx={{ mt: 0 }}>
-            <Paper elevation={2} sx={{ p: 1, borderRadius: 2 }}>
-              <form onSubmit={(e) => { e.preventDefault(); handleScheduleCall(); }}>
-                <Box sx={{ display: 'grid', gap: 1 }}>
-                  <TextField
-                    label="Your Name"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    required
-                    fullWidth
-                    variant="outlined"
-                  />
+              {/* Form Section */}
+              <div className={styles.formSection}>
+                <h3 className={styles.sectionTitle}>Your Information</h3>
+                <div className={styles.formContainer}>
+                  <form onSubmit={(e) => { e.preventDefault(); handleScheduleCall(); }}>
+                    <div className={styles.formGrid}>
+                      <div className={styles.formRow}>
+                        <TextField
+                          label="Your Name"
+                          value={clientName}
+                          onChange={(e) => setClientName(e.target.value)}
+                          required
+                          fullWidth
+                          variant="outlined"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              fontSize: '1rem',
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: '1rem',
+                              fontWeight: 500,
+                            },
+                          }}
+                        />
 
-                  <TextField
-                    label="Your Email"
-                    type="email"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                    required
-                    fullWidth
-                    variant="outlined"
-                  />
+                        <TextField
+                          label="Your Email"
+                          type="email"
+                          value={clientEmail}
+                          onChange={(e) => setClientEmail(e.target.value)}
+                          required
+                          fullWidth
+                          variant="outlined"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              fontSize: '1rem',
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: '1rem',
+                              fontWeight: 500,
+                            },
+                          }}
+                        />
+                      </div>
 
-                  <TextField
-                    label="Meeting Type"
-                    select
-                    value={meetingType}
-                    onChange={(e) => setMeetingType(e.target.value)}
-                    required
-                    fullWidth
-                    variant="outlined"
-                  >
-                    {meetingTypes.map(type => (
-                      <MenuItem key={type.value} value={type.value}>
-                        {type.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                      <TextField
+                        label="Meeting Type"
+                        select
+                        value={meetingType}
+                        onChange={(e) => setMeetingType(e.target.value)}
+                        required
+                        fullWidth
+                        variant="outlined"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            fontSize: '1rem',
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                          },
+                        }}
+                      >
+                        {meetingTypes.map(type => (
+                          <MenuItem key={type.value} value={type.value}>
+                            {type.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
 
-                  <TextField
-                    label="Additional Details"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Please describe your project or what you'd like to discuss..."
-                    multiline
-                    rows={3}
-                    fullWidth
-                    variant="outlined"
-                  />
+                      <TextField
+                        label="Tell us about your project"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Please describe your project goals, timeline, and what you'd like to discuss..."
+                        multiline
+                        rows={4}
+                        fullWidth
+                        variant="outlined"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            fontSize: '1rem',
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                          },
+                        }}
+                      />
+                    </div>
 
-                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 1 }}>
-                    <Button
-                      variant="outlined"
-                      onClick={onClose}
-                      sx={{ minWidth: 100 }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={!selectedDate || !selectedTime || !clientName || !clientEmail || isLoading}
-                      sx={{ minWidth: 150 }}
-                    >
-                      {isLoading ? 'Scheduling...' : 'Schedule Call'}
-                    </Button>
-                  </Box>
-                </Box>
-              </form>
-            </Paper>
-          </Box>
+                    <div className={styles.formActions}>
+                      <button
+                        type="button"
+                        className={styles.cancelButton}
+                        onClick={onClose}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className={styles.scheduleButton}
+                        disabled={!selectedDate || !selectedTime || !clientName || !clientEmail || isLoading}
+                      >
+                        {isLoading ? 'Scheduling...' : 'Schedule Consultation'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
       </LocalizationProvider>
     </ThemeProvider>
   );

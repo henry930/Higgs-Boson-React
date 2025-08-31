@@ -17,13 +17,13 @@ const initialState: HeroSlidesState = {
 };
 
 // Async thunks
-export const fetchHeroSlides = createAsyncThunk(
+export const fetchHeroSlides = createAsyncThunk<HeroSlide[]>(
   'heroSlides/fetchHeroSlides',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getHeroSlides();
-      if ((response.success === true || response.status === 'success') && response.data) {
-        return response.data;
+      if (response.status === 'success' && response.data) {
+        return response.data as HeroSlide[];
       }
       throw new Error(response.message || 'Failed to fetch hero slides');
     } catch (error) {
@@ -37,7 +37,7 @@ export const createHeroSlide = createAsyncThunk(
   async (heroSlide: Omit<HeroSlide, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createHeroSlide(heroSlide);
-      if ((response.success === true || response.status === 'success') && response.data) {
+      if (response.status === 'success' && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create hero slide');
@@ -52,7 +52,7 @@ export const updateHeroSlide = createAsyncThunk(
   async ({ id, heroSlide }: { id: number; heroSlide: Partial<HeroSlide> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateHeroSlide(id, heroSlide);
-      if ((response.success === true || response.status === 'success') && response.data) {
+      if (response.status === 'success' && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update hero slide');
@@ -67,7 +67,7 @@ export const deleteHeroSlide = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteHeroSlide(id);
-      if ((response.success === true || response.status === 'success')) {
+      if (response.status === 'success') {
         return id;
       }
       throw new Error(response.message || 'Failed to delete hero slide');
@@ -96,7 +96,7 @@ const heroSlidesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchHeroSlides.fulfilled, (state, action: PayloadAction<HeroSlide[]>) => {
+      .addCase(fetchHeroSlides.fulfilled, (state, action) => {
         state.loading = false;
         state.heroSlides = action.payload;
         state.lastFetched = Date.now();

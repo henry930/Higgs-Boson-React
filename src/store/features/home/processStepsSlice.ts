@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../../services/apiService';
 import type { ProcessStep } from '../../../types';
 
@@ -9,21 +9,58 @@ interface ProcessStepsState {
   lastFetched: number | null;
 }
 
+// Fallback data
+const fallbackProcessSteps: ProcessStep[] = [
+  {
+    id: 1,
+    title: "Discovery & Requirements",
+    description: "We analyze your needs and define project requirements with precision.",
+    icon: "🔍",
+    step_number: 1,
+    order: 1,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  },
+  {
+    id: 2,
+    title: "AI-Powered Development",
+    description: "Our AI-enhanced team builds your solution with unprecedented speed and quality.",
+    icon: "🚀",
+    step_number: 2,
+    order: 2,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  },
+  {
+    id: 3,
+    title: "Quality Assurance & Delivery",
+    description: "Rigorous testing and seamless deployment ensure your solution exceeds expectations.",
+    icon: "✅",
+    step_number: 3,
+    order: 3,
+    active: true,
+    created_at: "",
+    updated_at: ""
+  }
+];
+
 const initialState: ProcessStepsState = {
-  processSteps: [],
+  processSteps: fallbackProcessSteps,
   loading: false,
   error: null,
   lastFetched: null,
 };
 
 // Async thunks
-export const fetchProcessSteps = createAsyncThunk(
+export const fetchProcessSteps = createAsyncThunk<ProcessStep[]>(
   'processSteps/fetchProcessSteps',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getProcessSteps();
-      if ((response.success === true || response.status === 'success') && response.data) {
-        return response.data;
+      if (response.status === 'success' && response.data) {
+        return response.data as ProcessStep[];
       }
       throw new Error(response.message || 'Failed to fetch process steps');
     } catch (error) {
@@ -32,13 +69,13 @@ export const fetchProcessSteps = createAsyncThunk(
   }
 );
 
-export const createProcessStep = createAsyncThunk(
+export const createProcessStep = createAsyncThunk<ProcessStep, Omit<ProcessStep, 'id' | 'created_at' | 'updated_at'>>(
   'processSteps/createProcessStep',
   async (processStep: Omit<ProcessStep, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createProcessStep(processStep);
-      if ((response.success === true || response.status === 'success') && response.data) {
-        return response.data;
+      if (response.status === 'success' && response.data) {
+        return response.data as ProcessStep;
       }
       throw new Error(response.message || 'Failed to create process step');
     } catch (error) {
@@ -47,13 +84,13 @@ export const createProcessStep = createAsyncThunk(
   }
 );
 
-export const updateProcessStep = createAsyncThunk(
+export const updateProcessStep = createAsyncThunk<ProcessStep, { id: number; processStep: Partial<ProcessStep> }>(
   'processSteps/updateProcessStep',
   async ({ id, processStep }: { id: number; processStep: Partial<ProcessStep> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateProcessStep(id, processStep);
-      if ((response.success === true || response.status === 'success') && response.data) {
-        return response.data;
+      if (response.status === 'success' && response.data) {
+        return response.data as ProcessStep;
       }
       throw new Error(response.message || 'Failed to update process step');
     } catch (error) {
@@ -67,7 +104,7 @@ export const deleteProcessStep = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteProcessStep(id);
-      if ((response.success === true || response.status === 'success')) {
+      if (response.status === 'success') {
         return id;
       }
       throw new Error(response.message || 'Failed to delete process step');
@@ -96,22 +133,27 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProcessSteps.fulfilled, (state, action: PayloadAction<ProcessStep[]>) => {
+      .addCase(fetchProcessSteps.fulfilled, (state, action) => {
         state.loading = false;
-        state.processSteps = action.payload;
+        // Ensure payload is an array before setting processSteps
+        state.processSteps = Array.isArray(action.payload) ? action.payload : fallbackProcessSteps;
         state.lastFetched = Date.now();
         state.error = null;
       })
       .addCase(fetchProcessSteps.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        // Keep fallback data when API fails
+        if (!Array.isArray(state.processSteps) || state.processSteps.length === 0) {
+          state.processSteps = fallbackProcessSteps;
+        }
       })
       // Create process step
       .addCase(createProcessStep.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createProcessStep.fulfilled, (state, action: PayloadAction<ProcessStep>) => {
+      .addCase(createProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         state.processSteps.push(action.payload);
         state.error = null;
@@ -125,7 +167,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProcessStep.fulfilled, (state, action: PayloadAction<ProcessStep>) => {
+      .addCase(updateProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.processSteps.findIndex((s: ProcessStep) => s.id === action.payload.id);
         if (index !== -1) {
@@ -142,7 +184,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProcessStep.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         state.processSteps = state.processSteps.filter((s: ProcessStep) => s.id !== action.payload);
         state.error = null;

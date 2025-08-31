@@ -1,6 +1,7 @@
 import type { Benefit, ProcessStep, Testimonial, HeroSlide, ApiResponse } from '../types';
+import { API_CONFIG } from '../config/api';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Helper function for making API requests
 const apiRequest = async <T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> => {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { apiService } from '../services/apiService'
+import { API_CONFIG } from '../config/api'
 
 describe('API Service Tests', () => {
   const mockSuccessResponse = {
@@ -39,7 +40,7 @@ describe('API Service Tests', () => {
 
       const result = await apiService.getServices()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services', expect.objectContaining({
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services`, expect.objectContaining({
         headers: expect.objectContaining({
           'Content-Type': 'application/json'
         })
@@ -102,7 +103,7 @@ describe('API Service Tests', () => {
 
       const result = await apiService.createService(newService)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services`, {
         headers: {
           'Content-Type': 'application/json',
         },

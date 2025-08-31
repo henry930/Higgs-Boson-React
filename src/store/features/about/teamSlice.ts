@@ -35,13 +35,13 @@ const initialState: TeamState = {
 };
 
 // Async thunks
-export const fetchTeamMembers = createAsyncThunk(
+export const fetchTeamMembers = createAsyncThunk<any[]>(
   'team/fetchTeamMembers',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getTeamMembers();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch team members');
     } catch (error) {
@@ -50,13 +50,13 @@ export const fetchTeamMembers = createAsyncThunk(
   }
 );
 
-export const createTeamMember = createAsyncThunk(
+export const createTeamMember = createAsyncThunk<TeamMember, Omit<TeamMember, 'id' | 'created_at' | 'updated_at'>>(
   'team/createTeamMember',
   async (member: Omit<TeamMember, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createTeamMember(member);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as TeamMember;
       }
       throw new Error(response.message || 'Failed to create team member');
     } catch (error) {
@@ -65,13 +65,13 @@ export const createTeamMember = createAsyncThunk(
   }
 );
 
-export const updateTeamMember = createAsyncThunk(
+export const updateTeamMember = createAsyncThunk<TeamMember, { id: number; member: Partial<TeamMember> }>(
   'team/updateTeamMember',
   async ({ id, member }: { id: number; member: Partial<TeamMember> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateTeamMember(id, member);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as TeamMember;
       }
       throw new Error(response.message || 'Failed to update team member');
     } catch (error) {

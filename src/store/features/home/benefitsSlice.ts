@@ -69,7 +69,7 @@ const initialState: BenefitsState = {
 };
 
 // Async thunks
-export const fetchBenefits = createAsyncThunk(
+export const fetchBenefits = createAsyncThunk<Benefit[]>(
   'benefits/fetchBenefits',
   async (_, { rejectWithValue }) => {
     console.log('🚀 fetchBenefits thunk called');
@@ -77,10 +77,10 @@ export const fetchBenefits = createAsyncThunk(
       console.log('📡 Calling apiService.getBenefits()');
       const response = await apiService.getBenefits();
       console.log('📊 getBenefits response:', response);
-      // Check for both our API format and fallback format
-      if ((response.success === true || response.status === 'success') && response.data) {
+      // Check for our standardized API response format
+      if (response.status === 'success' && response.data) {
         console.log('✅ Benefits fetch successful:', response.data);
-        return response.data;
+        return response.data as Benefit[];
       }
       console.log('❌ Benefits fetch failed - invalid response:', response);
       throw new Error(response.message || 'Failed to fetch benefits');
@@ -96,7 +96,7 @@ export const createBenefit = createAsyncThunk(
   async (benefit: Omit<Benefit, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createBenefit(benefit);
-      if ((response.success === true || response.status === 'success') && response.data) {
+      if (response.status === 'success' && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to create benefit');
@@ -111,7 +111,7 @@ export const updateBenefit = createAsyncThunk(
   async ({ id, benefit }: { id: number; benefit: Partial<Benefit> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateBenefit(id, benefit);
-      if ((response.success === true || response.status === 'success') && response.data) {
+      if (response.status === 'success' && response.data) {
         return response.data;
       }
       throw new Error(response.message || 'Failed to update benefit');
@@ -126,7 +126,7 @@ export const deleteBenefit = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await apiService.deleteBenefit(id);
-      if ((response.success === true || response.status === 'success')) {
+      if (response.status === 'success') {
         return id;
       }
       throw new Error(response.message || 'Failed to delete benefit');
@@ -155,15 +155,20 @@ const benefitsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchBenefits.fulfilled, (state, action: PayloadAction<Benefit[]>) => {
+      .addCase(fetchBenefits.fulfilled, (state, action) => {
         state.loading = false;
-        state.benefits = action.payload;
+        // Ensure payload is an array before setting benefits
+        state.benefits = Array.isArray(action.payload) ? action.payload : fallbackBenefits;
         state.lastFetched = Date.now();
         state.error = null;
       })
       .addCase(fetchBenefits.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        // Keep fallback data when API fails
+        if (!Array.isArray(state.benefits) || state.benefits.length === 0) {
+          state.benefits = fallbackBenefits;
+        }
       })
       // Create benefit
       .addCase(createBenefit.pending, (state) => {

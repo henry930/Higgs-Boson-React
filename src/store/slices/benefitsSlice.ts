@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../services/apiService';
 import type { Benefit } from '../../types';
 
@@ -17,13 +17,13 @@ const initialState: BenefitsState = {
 };
 
 // Async thunks
-export const fetchBenefits = createAsyncThunk(
+export const fetchBenefits = createAsyncThunk<any[]>(
   'benefits/fetchBenefits',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getBenefits();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch benefits');
     } catch (error) {
@@ -38,7 +38,7 @@ export const createBenefit = createAsyncThunk(
     try {
       const response = await apiService.createBenefit(benefit);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to create benefit');
     } catch (error) {
@@ -53,7 +53,7 @@ export const updateBenefit = createAsyncThunk(
     try {
       const response = await apiService.updateBenefit(id, benefit);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to update benefit');
     } catch (error) {
@@ -96,7 +96,7 @@ const benefitsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchBenefits.fulfilled, (state, action: PayloadAction<Benefit[]>) => {
+      .addCase(fetchBenefits.fulfilled, (state, action) => {
         state.loading = false;
         state.benefits = action.payload;
         state.lastFetched = Date.now();
@@ -111,7 +111,7 @@ const benefitsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createBenefit.fulfilled, (state, action: PayloadAction<Benefit>) => {
+      .addCase(createBenefit.fulfilled, (state, action) => {
         state.loading = false;
         state.benefits.push(action.payload);
         state.error = null;
@@ -125,7 +125,7 @@ const benefitsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateBenefit.fulfilled, (state, action: PayloadAction<Benefit>) => {
+      .addCase(updateBenefit.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.benefits.findIndex(b => b.id === action.payload.id);
         if (index !== -1) {
@@ -142,7 +142,7 @@ const benefitsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteBenefit.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteBenefit.fulfilled, (state, action) => {
         state.loading = false;
         state.benefits = state.benefits.filter(b => b.id !== action.payload);
         state.error = null;

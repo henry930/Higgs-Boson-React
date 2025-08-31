@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../services/apiService';
 import type { Testimonial } from '../../types';
 
@@ -17,13 +17,13 @@ const initialState: TestimonialsState = {
 };
 
 // Async thunks
-export const fetchTestimonials = createAsyncThunk(
+export const fetchTestimonials = createAsyncThunk<any[]>(
   'testimonials/fetchTestimonials',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getTestimonials();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch testimonials');
     } catch (error) {
@@ -38,7 +38,7 @@ export const createTestimonial = createAsyncThunk(
     try {
       const response = await apiService.createTestimonial(testimonial);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to create testimonial');
     } catch (error) {
@@ -53,7 +53,7 @@ export const updateTestimonial = createAsyncThunk(
     try {
       const response = await apiService.updateTestimonial(id, testimonial);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to update testimonial');
     } catch (error) {
@@ -96,7 +96,7 @@ const testimonialsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchTestimonials.fulfilled, (state, action: PayloadAction<Testimonial[]>) => {
+      .addCase(fetchTestimonials.fulfilled, (state, action) => {
         state.loading = false;
         state.testimonials = action.payload;
         state.lastFetched = Date.now();
@@ -111,7 +111,7 @@ const testimonialsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createTestimonial.fulfilled, (state, action: PayloadAction<Testimonial>) => {
+      .addCase(createTestimonial.fulfilled, (state, action) => {
         state.loading = false;
         state.testimonials.push(action.payload);
         state.error = null;
@@ -125,7 +125,7 @@ const testimonialsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateTestimonial.fulfilled, (state, action: PayloadAction<Testimonial>) => {
+      .addCase(updateTestimonial.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.testimonials.findIndex((t: Testimonial) => t.id === action.payload.id);
         if (index !== -1) {
@@ -142,7 +142,7 @@ const testimonialsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteTestimonial.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteTestimonial.fulfilled, (state, action) => {
         state.loading = false;
         state.testimonials = state.testimonials.filter((t: Testimonial) => t.id !== action.payload);
         state.error = null;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import SampleDataCreator from '../SampleDataCreator/SampleDataCreator';
+import { API_CONFIG } from '../../config/api';
 import './Dashboard.css';
 
 interface DashboardStats {
@@ -72,7 +73,7 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/dashboard/overview/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/dashboard/overview/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json'
@@ -91,7 +92,7 @@ const Dashboard: React.FC = () => {
 
   const fetchAnalyticsData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/dashboard/analytics/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/dashboard/analytics/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json'

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../services/apiService';
 import type { ProcessStep } from '../../types';
 
@@ -17,13 +17,13 @@ const initialState: ProcessStepsState = {
 };
 
 // Async thunks
-export const fetchProcessSteps = createAsyncThunk(
+export const fetchProcessSteps = createAsyncThunk<any[]>(
   'processSteps/fetchProcessSteps',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getProcessSteps();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch process steps');
     } catch (error) {
@@ -38,7 +38,7 @@ export const createProcessStep = createAsyncThunk(
     try {
       const response = await apiService.createProcessStep(step);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to create process step');
     } catch (error) {
@@ -53,7 +53,7 @@ export const updateProcessStep = createAsyncThunk(
     try {
       const response = await apiService.updateProcessStep(id, step);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to update process step');
     } catch (error) {
@@ -96,7 +96,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProcessSteps.fulfilled, (state, action: PayloadAction<ProcessStep[]>) => {
+      .addCase(fetchProcessSteps.fulfilled, (state, action) => {
         state.loading = false;
         state.processSteps = action.payload;
         state.lastFetched = Date.now();
@@ -111,7 +111,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createProcessStep.fulfilled, (state, action: PayloadAction<ProcessStep>) => {
+      .addCase(createProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         state.processSteps.push(action.payload);
         state.error = null;
@@ -125,7 +125,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProcessStep.fulfilled, (state, action: PayloadAction<ProcessStep>) => {
+      .addCase(updateProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.processSteps.findIndex((s: ProcessStep) => s.id === action.payload.id);
         if (index !== -1) {
@@ -142,7 +142,7 @@ const processStepsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProcessStep.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteProcessStep.fulfilled, (state, action) => {
         state.loading = false;
         state.processSteps = state.processSteps.filter((s: ProcessStep) => s.id !== action.payload);
         state.error = null;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_CONFIG } from '../../config/api';
 
 const SampleDataCreator: React.FC = () => {
   const [creating, setCreating] = useState(false);
@@ -36,7 +37,7 @@ const SampleDataCreator: React.FC = () => {
 
       const customers = [];
       for (const customerData of customersData) {
-        const response = await fetch('http://localhost:8000/api/customers/', {
+        const response = await fetch(`${API_CONFIG.BASE_URL}/api/customers/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ const SampleDataCreator: React.FC = () => {
 
       for (const projectData of projectsData) {
         if (projectData.customer) {
-          await fetch('http://localhost:8000/api/requirements/', {
+          await fetch(`${API_CONFIG.BASE_URL}/api/requirements/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ const SampleDataCreator: React.FC = () => {
 
       for (const estimationData of estimationsData) {
         if (estimationData.customer) {
-          await fetch('http://localhost:8000/api/estimations/', {
+          await fetch(`${API_CONFIG.BASE_URL}/api/estimations/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

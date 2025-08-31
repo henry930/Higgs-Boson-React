@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../../services/apiService';
+import { API_CONFIG } from '../../../config/api';
 import type { Page } from '../../../types';
 
 interface PagesState {
@@ -19,13 +20,13 @@ const initialState: PagesState = {
 };
 
 // Async thunks
-export const fetchPages = createAsyncThunk(
+export const fetchPages = createAsyncThunk<any[]>(
   'pages/fetchPages',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getPages();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch pages');
     } catch (error) {
@@ -34,12 +35,12 @@ export const fetchPages = createAsyncThunk(
   }
 );
 
-export const fetchPageBySlug = createAsyncThunk(
+export const fetchPageBySlug = createAsyncThunk<any[], string>(
   'pages/fetchPageBySlug',
   async (slug: string, { rejectWithValue }) => {
     try {
       // Use direct fetch since it's proven to work reliably
-      const response = await fetch(`http://127.0.0.1:8000/api/pages/slug/${encodeURIComponent(slug)}/`);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/pages/slug/${encodeURIComponent(slug)}/`);
       
       if (response.status === 404) {
         return rejectWithValue(`Page with slug "${slug}" not found`);
@@ -71,7 +72,7 @@ export const createPage = createAsyncThunk(
     try {
       const response = await apiService.createPage(page);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to create page');
     } catch (error) {
@@ -86,7 +87,7 @@ export const updatePage = createAsyncThunk(
     try {
       const response = await apiService.updatePage(id, page);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to update page');
     } catch (error) {
@@ -116,7 +117,7 @@ export const incrementPageViews = createAsyncThunk(
     try {
       const response = await apiService.incrementPageViews(slug);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to increment page views');
     } catch (error) {
@@ -148,7 +149,7 @@ const pagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchPages.fulfilled, (state, action: PayloadAction<Page[]>) => {
+      .addCase(fetchPages.fulfilled, (state, action) => {
         state.loading = false;
         state.pages = action.payload;
         state.lastFetched = Date.now();
@@ -164,7 +165,7 @@ const pagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchPageBySlug.fulfilled, (state, action: PayloadAction<Page>) => {
+      .addCase(fetchPageBySlug.fulfilled, (state, action) => {
         console.log('✅ Redux: fetchPageBySlug.fulfilled with payload:', action.payload);
         state.loading = false;
         state.currentPage = action.payload;
@@ -181,7 +182,7 @@ const pagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createPage.fulfilled, (state, action: PayloadAction<Page>) => {
+      .addCase(createPage.fulfilled, (state, action) => {
         state.loading = false;
         state.pages.push(action.payload);
         state.error = null;
@@ -195,7 +196,7 @@ const pagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updatePage.fulfilled, (state, action: PayloadAction<Page>) => {
+      .addCase(updatePage.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.pages.findIndex((p: Page) => p.id === action.payload.id);
         if (index !== -1) {
@@ -215,7 +216,7 @@ const pagesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deletePage.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deletePage.fulfilled, (state, action) => {
         state.loading = false;
         state.pages = state.pages.filter((p: Page) => p.id !== action.payload);
         if (state.currentPage?.id === action.payload) {
@@ -228,7 +229,7 @@ const pagesSlice = createSlice({
         state.error = action.payload as string;
       })
       // Increment page views
-      .addCase(incrementPageViews.fulfilled, (state, action: PayloadAction<Page>) => {
+      .addCase(incrementPageViews.fulfilled, (state, action) => {
         if (state.currentPage?.id === action.payload.id) {
           state.currentPage = action.payload;
         }

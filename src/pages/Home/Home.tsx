@@ -142,7 +142,7 @@ const Home = () => {
           </div>
           
           <div className="feature-grid">
-            {benefits.map((benefit, index) => (
+            {Array.isArray(benefits) && benefits.map((benefit, index) => (
               <div key={index} className="feature-card">
                 <div className="feature-icon" dangerouslySetInnerHTML={{ __html: benefit.icon }}>
                 </div>
@@ -163,7 +163,7 @@ const Home = () => {
           </div>
           
           <div className="feature-grid">
-            {processSteps.map((step, index) => (
+            {Array.isArray(processSteps) && processSteps.map((step, index) => (
               <div key={index} className="card card-hover">
                 <div className="card-body text-center">
                   <div className="feature-icon mb-4">
@@ -218,7 +218,7 @@ const Home = () => {
           </div>
           
           <div className="feature-grid">
-            {testimonials.slice(0, 3).map((testimonial, index) => (
+            {Array.isArray(testimonials) && testimonials.slice(0, 3).map((testimonial, index) => (
               <div key={index} className="card card-hover">
                 <div className="card-body">
                   <div className="mb-4">

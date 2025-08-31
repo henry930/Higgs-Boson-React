@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { apiService } from '../services/apiService'
+import { API_CONFIG } from '../config/api'
 
 describe('Complete API Service Tests', () => {
   beforeEach(() => {
@@ -88,7 +89,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getBenefits()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/benefits', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/benefits`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockBenefit])
     })
@@ -99,7 +100,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createBenefit(mockBenefit)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/benefits', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/benefits`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockBenefit)
@@ -113,7 +114,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateBenefit(1, mockBenefit)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/benefits/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/benefits/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockBenefit)
@@ -127,7 +128,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteBenefit(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/benefits/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/benefits/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -142,7 +143,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getProcessSteps()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/process-steps', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/process-steps`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockProcessStep])
     })
@@ -153,7 +154,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createProcessStep(mockProcessStep)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/process-steps', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/process-steps`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockProcessStep)
@@ -167,7 +168,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateProcessStep(1, mockProcessStep)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/process-steps/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/process-steps/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockProcessStep)
@@ -181,7 +182,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteProcessStep(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/process-steps/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/process-steps/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -196,7 +197,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getTestimonials()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/testimonials', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/testimonials`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockTestimonial])
     })
@@ -207,7 +208,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createTestimonial(mockTestimonial)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/testimonials', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/testimonials`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockTestimonial)
@@ -221,7 +222,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateTestimonial(1, mockTestimonial)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/testimonials/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/testimonials/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockTestimonial)
@@ -235,7 +236,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteTestimonial(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/testimonials/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/testimonials/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -250,7 +251,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getHeroSlides()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/hero-slides', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/hero-slides`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockHeroSlide])
     })
@@ -261,7 +262,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createHeroSlide(mockHeroSlide)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/hero-slides', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/hero-slides`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockHeroSlide)
@@ -275,7 +276,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateHeroSlide(1, mockHeroSlide)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/hero-slides/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/hero-slides/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockHeroSlide)
@@ -289,7 +290,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteHeroSlide(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/hero-slides/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/hero-slides/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -304,7 +305,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getTeamMembers()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/team', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/team`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockTeamMember])
     })
@@ -315,7 +316,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createTeamMember(mockTeamMember)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/team', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/team`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockTeamMember)
@@ -329,7 +330,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateTeamMember(1, mockTeamMember)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/team/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/team/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockTeamMember)
@@ -343,7 +344,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteTeamMember(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/team/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/team/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -358,7 +359,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getServices()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockService])
     })
@@ -369,7 +370,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createService(mockService)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockService)
@@ -383,7 +384,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updateService(1, mockService)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockService)
@@ -397,7 +398,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deleteService(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/services/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/services/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -412,7 +413,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getPages()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual([mockPage])
     })
@@ -423,7 +424,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getPageBySlug('test-page')
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages/slug/test-page', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages/slug/test-page`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual(mockPage)
     })
@@ -434,7 +435,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.getPageBySlug('test page with spaces')
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages/slug/test%20page%20with%20spaces', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages/slug/test%20page%20with%20spaces`, expect.any(Object))
       expect(result.status).toBe('success')
     })
 
@@ -444,7 +445,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.createPage(mockPage)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify(mockPage)
@@ -458,7 +459,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.updatePage(1, mockPage)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT',
         body: JSON.stringify(mockPage)
@@ -472,7 +473,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.deletePage(1)
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages/1', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages/1`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'DELETE'
       })
@@ -485,7 +486,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.incrementPageViews('test-page')
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/pages/slug/test-page/views', {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/pages/slug/test-page/views`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST'
       })
@@ -501,7 +502,7 @@ describe('Complete API Service Tests', () => {
 
       const result = await apiService.healthCheck()
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/health', expect.any(Object))
+      expect(mockFetch).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/health`, expect.any(Object))
       expect(result.status).toBe('success')
       expect(result.data).toEqual(healthData)
     })

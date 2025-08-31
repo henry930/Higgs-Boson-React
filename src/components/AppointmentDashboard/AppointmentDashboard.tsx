@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from '../../config/api';
 import styles from './AppointmentDashboard.module.scss';
 
 interface Appointment {
@@ -39,7 +40,7 @@ const AppointmentDashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/appointments/dashboard/');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/appointments/dashboard/`);
       if (response.ok) {
         const data = await response.json();
         setDashboardData(data);

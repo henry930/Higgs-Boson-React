@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiService } from '../../services/apiService';
 import type { HeroSlide } from '../../types';
 
@@ -17,13 +17,13 @@ const initialState: HeroSlidesState = {
 };
 
 // Async thunks
-export const fetchHeroSlides = createAsyncThunk(
+export const fetchHeroSlides = createAsyncThunk<any[]>(
   'heroSlides/fetchHeroSlides',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getHeroSlides();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to fetch hero slides');
     } catch (error) {
@@ -38,7 +38,7 @@ export const createHeroSlide = createAsyncThunk(
     try {
       const response = await apiService.createHeroSlide(slide);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to create hero slide');
     } catch (error) {
@@ -53,7 +53,7 @@ export const updateHeroSlide = createAsyncThunk(
     try {
       const response = await apiService.updateHeroSlide(id, slide);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as any[];
       }
       throw new Error(response.message || 'Failed to update hero slide');
     } catch (error) {
@@ -96,7 +96,7 @@ const heroSlidesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchHeroSlides.fulfilled, (state, action: PayloadAction<HeroSlide[]>) => {
+      .addCase(fetchHeroSlides.fulfilled, (state, action) => {
         state.loading = false;
         state.heroSlides = action.payload;
         state.lastFetched = Date.now();
@@ -111,7 +111,7 @@ const heroSlidesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createHeroSlide.fulfilled, (state, action: PayloadAction<HeroSlide>) => {
+      .addCase(createHeroSlide.fulfilled, (state, action) => {
         state.loading = false;
         state.heroSlides.push(action.payload);
         state.error = null;
@@ -125,7 +125,7 @@ const heroSlidesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateHeroSlide.fulfilled, (state, action: PayloadAction<HeroSlide>) => {
+      .addCase(updateHeroSlide.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.heroSlides.findIndex((s: HeroSlide) => s.id === action.payload.id);
         if (index !== -1) {
@@ -142,7 +142,7 @@ const heroSlidesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteHeroSlide.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteHeroSlide.fulfilled, (state, action) => {
         state.loading = false;
         state.heroSlides = state.heroSlides.filter((s: HeroSlide) => s.id !== action.payload);
         state.error = null;

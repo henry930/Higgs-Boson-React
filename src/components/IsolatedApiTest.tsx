@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { API_CONFIG } from '../config/api';
 
 const IsolatedApiTest: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -15,7 +16,7 @@ const IsolatedApiTest: React.FC = () => {
       setState({ loading: true, data: null, error: null });
       
       // Direct fetch call bypassing our API service
-      fetch(`http://localhost:8000/api/pages/slug/${encodeURIComponent(slug)}/`)
+      fetch(`${API_CONFIG.BASE_URL}/api/pages/slug/${encodeURIComponent(slug)}/`)
         .then(response => {
           console.log('IsolatedApiTest: Response status:', response.status);
           if (!response.ok) {

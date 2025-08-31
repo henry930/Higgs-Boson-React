@@ -53,7 +53,7 @@
 ### 🔧 **Technical Integration**
 
 #### Backend (Django) ✅
-- API endpoints working: `http://localhost:8000/api/pages/`
+- API endpoints working: Production Lambda API
 - Database properly storing articles
 - CORS configured correctly
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { dataService } from '../../services/supabaseDataService';
+import { API_CONFIG } from '../../config/api';
 import styles from './AICustomerService.module.scss';
 
 interface Message {
@@ -81,7 +82,7 @@ const AICustomerService: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/ai-chat/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/ai-chat/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

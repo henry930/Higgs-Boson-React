@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_CONFIG } from '../../config/api';
 import styles from './SimpleCalendarBooking.module.scss';
 
 interface SimpleCalendarBookingProps {
@@ -210,7 +211,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
     }
 
     try {
-      const response = await fetch('/api/appointments/', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/appointments/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

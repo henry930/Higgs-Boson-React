@@ -34,13 +34,13 @@ const initialState: ServicesState = {
 };
 
 // Async thunks
-export const fetchServices = createAsyncThunk(
+export const fetchServices = createAsyncThunk<Service[]>(
   'services/fetchServices',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiService.getServices();
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as Service[];
       }
       throw new Error(response.message || 'Failed to fetch services');
     } catch (error) {
@@ -49,13 +49,13 @@ export const fetchServices = createAsyncThunk(
   }
 );
 
-export const createService = createAsyncThunk(
+export const createService = createAsyncThunk<Service, Omit<Service, 'id' | 'created_at' | 'updated_at'>>(
   'services/createService',
   async (service: Omit<Service, 'id' | 'created_at' | 'updated_at'>, { rejectWithValue }) => {
     try {
       const response = await apiService.createService(service);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as Service;
       }
       throw new Error(response.message || 'Failed to create service');
     } catch (error) {
@@ -64,13 +64,13 @@ export const createService = createAsyncThunk(
   }
 );
 
-export const updateService = createAsyncThunk(
+export const updateService = createAsyncThunk<Service, { id: number; service: Partial<Service> }>(
   'services/updateService',
   async ({ id, service }: { id: number; service: Partial<Service> }, { rejectWithValue }) => {
     try {
       const response = await apiService.updateService(id, service);
       if (response.status === 'success' && response.data) {
-        return response.data;
+        return response.data as Service;
       }
       throw new Error(response.message || 'Failed to update service');
     } catch (error) {

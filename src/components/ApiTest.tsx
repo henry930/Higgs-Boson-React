@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_CONFIG } from '../config/api';
 
 const ApiTest: React.FC = () => {
   const [result, setResult] = useState<string>('');
@@ -7,7 +8,7 @@ const ApiTest: React.FC = () => {
   const testApi = async (endpoint: string) => {
     setLoading(true);
     try {
-      const url = `http://localhost:8000${endpoint}`;
+      const url = `${API_CONFIG.BASE_URL}${endpoint}`;
       console.log('Testing API:', url);
       
       const response = await fetch(url);
