@@ -474,7 +474,7 @@ const SimpleCalendarBooking: React.FC<SimpleCalendarBookingProps> = ({
 
           <div className={styles.contactInfo}>
             <h4>Alternative Contact Methods</h4>
-            <p><strong>Email:</strong> henry930@gmail.com</p>
+            <p><strong>Email:</strong> info@higgsbosonconsultancy.co.uk</p>
             <p><strong>Available:</strong> Monday - Friday, 9 AM - 5 PM</p>
             <p><strong>Response Time:</strong> Within 24 hours</p>
           </div>

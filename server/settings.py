@@ -174,14 +174,18 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development - prints to console
-# For production, use SMTP:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your-app-password'
+# Use SMTP backend for sending actual emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'noreply@higgsboson.com')  # Set this in .env file
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')  # Set this in .env file
+
+# Fallback to console backend if SMTP credentials are not provided
+if not EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    print("⚠️  EMAIL_HOST_PASSWORD not set - using console backend (emails will only print to console)")
 
 DEFAULT_FROM_EMAIL = 'noreply@higgsboson.com'
 ADMIN_EMAIL = 'henry930@gmail.com'
@@ -256,3 +260,9 @@ DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@higgsbosonconsultancy
 
 # Admin Email Settings
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'henry930@gmail.com')
+
+# Google Calendar API Settings
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID', '')
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET', '')
+GOOGLE_SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE', os.path.join(os.path.dirname(__file__), 'google-service-account.json'))
+GOOGLE_CALENDAR_ID = os.getenv('GOOGLE_CALENDAR_ID', '39764d8b641ac5b7fbcfd8d44556875fc14a9f51bb842a6496f4e6a0048ea80a@group.calendar.google.com')  # Your business calendar ID

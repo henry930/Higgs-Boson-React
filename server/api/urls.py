@@ -10,6 +10,7 @@ from .views import (
     CompanyDashboardView, JobApplicationViewSet, job_positions, schedule_notification,
     AppointmentViewSet
 )
+from .google_calendar_views import GoogleCalendarViewSet
 from .dashboard_views import DashboardViewSet
 from .auth_views import login_view, register_view, logout_view, user_profile
 
@@ -37,6 +38,9 @@ router.register(r'job-applications', JobApplicationViewSet)
 
 # Appointment endpoints
 router.register(r'appointments', AppointmentViewSet)
+
+# Google Calendar endpoints
+router.register(r'google-calendar', GoogleCalendarViewSet, basename='google-calendar')
 
 urlpatterns = [
     path('', include(router.urls)),

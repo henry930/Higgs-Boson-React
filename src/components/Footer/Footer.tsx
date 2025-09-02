@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoSvg from '../../assets/logo.svg';
+import { NewsletterService } from '../../services';
 import styles from './Footer.module.scss';
 
 const Footer: React.FC = () => {
@@ -133,6 +134,9 @@ const Footer: React.FC = () => {
             <p className={styles.copyright}>
               © 2025 Higgs Boson. All rights reserved.
             </p>
+            <a href="mailto:info@higgsbosonconsultancy.co.uk" className={styles.emailLink}>
+              info@higgsbosonconsultancy.co.uk
+            </a>
             <Link to="/privacy-policy" className={styles.privacyLink}>
               Privacy Policy
             </Link>

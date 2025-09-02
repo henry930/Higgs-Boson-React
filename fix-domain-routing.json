@@ -1,0 +1,29 @@
+{
+    "Comment": "Update domains to point to the correct CloudFront distribution with SSL",
+    "Changes": [
+        {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "higgsbosonconsultancy.co.uk",
+                "Type": "A",
+                "AliasTarget": {
+                    "HostedZoneId": "Z2FDTNDATAQYW2",
+                    "DNSName": "d3gw6huejagng9.cloudfront.net.",
+                    "EvaluateTargetHealth": false
+                }
+            }
+        },
+        {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "www.higgsbosonconsultancy.co.uk",
+                "Type": "A",
+                "AliasTarget": {
+                    "HostedZoneId": "Z2FDTNDATAQYW2",
+                    "DNSName": "d3gw6huejagng9.cloudfront.net.",
+                    "EvaluateTargetHealth": false
+                }
+            }
+        }
+    ]
+}

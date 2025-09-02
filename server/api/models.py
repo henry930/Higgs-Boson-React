@@ -911,6 +911,7 @@ class Appointment(models.Model):
     ]
     
     SERVICE_CHOICES = [
+        ('Free Consultation (20 min)', 'Free Consultation (20 min)'),
         ('Web Development', 'Web Development'),
         ('Mobile App Development', 'Mobile App Development'),
         ('Cloud Solutions', 'Cloud Solutions'),
@@ -938,6 +939,11 @@ class Appointment(models.Model):
     duration = models.IntegerField(default=30)  # Duration in minutes (30-minute appointments)
     meeting_link = models.URLField(blank=True)  # Zoom/Teams link if online
     notes = models.TextField(blank=True)  # Internal notes
+    
+    # Google Calendar Integration
+    google_calendar_event_id = models.CharField(max_length=500, blank=True, null=True)
+    google_calendar_id = models.CharField(max_length=500, blank=True, default='primary')
+    calendar_created = models.BooleanField(default=False)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

@@ -51,7 +51,7 @@ if [ ! -f "package.json" ]; then
 fi
 
 # Build the React app
-npm run build
+npx vite build --mode production
 
 if [ ! -d "dist" ]; then
     echo -e "${RED}❌ Build failed. 'dist' directory not found.${NC}"

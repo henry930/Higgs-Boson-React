@@ -62,21 +62,11 @@ const Contact = () => {
                   </div>
                   <div className={styles.methodContent}>
                     <h3 className={styles.methodTitle}>Contact Email</h3>
-                    <p className={styles.methodText}>hello@higgsbosonconsultancy.com<br />projects@higgsbosonconsultancy.com</p>
+                    <p className={styles.methodText}>info@higgsbosonconsultancy.co.uk</p>
                   </div>
                 </div>
 
-                <div className={styles.contactMethod}>
-                  <div className={styles.methodIcon}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6.62 10.79C8.06 13.62 10.38 15.94 13.21 17.38L15.41 15.18C15.69 14.9 16.08 14.82 16.43 14.93C17.55 15.3 18.75 15.5 20 15.5C20.55 15.5 21 15.95 21 16.5V20C21 20.55 20.55 21 20 21C10.61 21 3 13.39 3 4C3 3.45 3.45 3 4 3H7.5C8.05 3 8.5 3.45 8.5 4C8.5 5.25 8.7 6.45 9.07 7.57C9.18 7.92 9.1 8.31 8.82 8.59L6.62 10.79Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className={styles.methodContent}>
-                    <h3 className={styles.methodTitle}>Contact Phone</h3>
-                    <p className={styles.methodText}>+1 (555) 123-4567<br />Available Mon-Fri 9AM-6PM EST</p>
-                  </div>
-                </div>
+
               </div>
             </div>
 
@@ -106,7 +96,7 @@ const Contact = () => {
                     <div className={styles.messageContent}>
                       <p><strong>Hello, I am Sarah, your AI Project Assistant.</strong></p>
                       
-                      <p>First, please provide me with your company name, contact person, contact email, and contact phone.</p>
+                      <p>First, please provide me with your company name, contact person, and contact email.</p>
                       
                       <p>Then, please give me your project requirements. Please be detailed, as this will be included in the contract later.</p>
                       

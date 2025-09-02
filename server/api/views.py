@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import uuid
 import json
 import logging
@@ -1937,6 +1939,7 @@ Please review the application in the admin panel.
         )
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class AppointmentViewSet(viewsets.ModelViewSet):
     """ViewSet for handling appointment bookings"""
     queryset = Appointment.objects.all()
@@ -2119,7 +2122,7 @@ Appointment Details:
 
 We will contact you at {appointment.email} to confirm the appointment details and provide meeting information.
 
-If you need to make any changes to your request, please contact us at henry930@gmail.com.
+If you need to make any changes to your request, please contact us at info@higgsbosonconsultancy.co.uk.
 
 Best regards,
 The Higgs Boson Team

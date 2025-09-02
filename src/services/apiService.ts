@@ -1,13 +1,12 @@
 import { API_CONFIG } from '../config/api';
+// Import static data service for front page content
+import { staticDataService } from './staticDataService';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 const STATIC_MODE = API_CONFIG.STATIC_MODE;
 
 console.log('🔧 API_BASE_URL configured as:', API_BASE_URL);
 console.log('🔧 STATIC_MODE:', STATIC_MODE);
-
-// Import fallback data
-import { fallbackData } from '../data/fallbackData';
 
 // Add a connectivity test - only if not in static mode
 const testConnectivity = async () => {
@@ -102,30 +101,9 @@ class ApiService {
 
   // Benefits
   async getBenefits() {
-    if (STATIC_MODE) {
-      console.log('📦 Static mode: Using fallback benefits data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.benefits,
-        message: 'Using fallback data (static mode)'
-      };
-    }
-    
-    try {
-      const result = await this.request<any[]>('/api/benefits/');
-      return {
-        status: 'success' as const,
-        data: result,
-        message: 'Data fetched successfully'
-      };
-    } catch (error) {
-      console.log('📦 Using fallback benefits data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.benefits,
-        message: 'Using fallback data (backend unavailable)'
-      };
-    }
+    // Always use static JSON for front page data to save Lambda costs
+    console.log('� Using static JSON for benefits data');
+    return staticDataService.getBenefits();
   }
 
   async createBenefit(benefit: any) {
@@ -174,30 +152,9 @@ class ApiService {
 
   // Process Steps
   async getProcessSteps() {
-    if (STATIC_MODE) {
-      console.log('📦 Static mode: Using fallback process steps data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.processSteps,
-        message: 'Using fallback data (static mode)'
-      };
-    }
-    
-    try {
-      const result = await this.request<any[]>('/api/process-steps/');
-      return {
-        status: 'success' as const,
-        data: result,
-        message: 'Data fetched successfully'
-      };
-    } catch (error) {
-      console.log('📦 Using fallback process steps data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.processSteps,
-        message: 'Using fallback data (backend unavailable)'
-      };
-    }
+    // Always use static JSON for front page data to save Lambda costs
+    console.log('� Using static JSON for process steps data');
+    return staticDataService.getProcessSteps();
   }
 
   async createProcessStep(step: any) {
@@ -246,37 +203,9 @@ class ApiService {
 
   // Testimonials
   async getTestimonials() {
-    console.log('📡 ApiService.getTestimonials called');
-    
-    if (STATIC_MODE) {
-      console.log('📦 Static mode: Using fallback testimonials data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.testimonials,
-        message: 'Using fallback data (static mode)'
-      };
-    }
-    
-    try {
-      console.log('📡 Attempting API call to /api/testimonials/');
-      const result = await this.request<any[]>('/api/testimonials/');
-      console.log('📡 API call successful, result:', result);
-      
-      // Standardize response format
-      return {
-        status: 'success' as const,
-        data: result,
-        message: 'Data fetched successfully'
-      };
-    } catch (error) {
-      console.log('📦 API call failed, using fallback testimonials data');
-      console.log('📦 Error was:', error);
-      return {
-        status: 'success' as const,
-        data: fallbackData.testimonials,
-        message: 'Using fallback data (backend unavailable)'
-      };
-    }
+    // Always use static JSON for front page data to save Lambda costs
+    console.log('� Using static JSON for testimonials data');
+    return staticDataService.getTestimonials();
   }
 
   async createTestimonial(testimonial: any) {
@@ -325,30 +254,9 @@ class ApiService {
 
   // Hero Slides
   async getHeroSlides() {
-    if (STATIC_MODE) {
-      console.log('📦 Static mode: Using fallback hero slides data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.heroSlides,
-        message: 'Using fallback data (static mode)'
-      };
-    }
-    
-    try {
-      const result = await this.request<any[]>('/api/hero-slides/');
-      return {
-        status: 'success' as const,
-        data: result,
-        message: 'Data fetched successfully'
-      };
-    } catch (error) {
-      console.log('📦 Using fallback hero slides data');
-      return {
-        status: 'success' as const,
-        data: fallbackData.heroSlides,
-        message: 'Using fallback data (backend unavailable)'
-      };
-    }
+    // Always use static JSON for front page data to save Lambda costs
+    console.log('� Using static JSON for hero slides data');
+    return staticDataService.getHeroSlides();
   }
 
   async createHeroSlide(slide: any) {

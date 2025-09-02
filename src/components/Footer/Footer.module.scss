@@ -230,6 +230,18 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
+  .emailLink {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 500;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
   .privacyLink {
     color: #6b7280;
     text-decoration: none;
