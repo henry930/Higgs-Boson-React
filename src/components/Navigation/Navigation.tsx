@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Link, useLocation } from 'react-router-dom';
 import GoogleCalendarScheduler from '../GoogleCalendarScheduler';
 import logoSvg from '../../assets/logo.svg';
 import styles from './Navigation.module.scss';
@@ -9,9 +8,8 @@ const Navigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,24 +20,23 @@ const Navigation: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   // CloudEmployee-inspired navigation structure
   const mainNavigation = [
     { path: '/how-it-works', label: 'How it works' },
     { path: '/about', label: 'About us' },
+    { 
+      path: '/solutions', 
+      label: 'Solutions',
+      submenu: [
+        { path: '/solutions/ai-developer-hiring', label: 'AI-Powered Developer hiring' },
+        { path: '/solutions/ai-project-estimation', label: 'AI-Powered Project Estimation' },
+        { path: '/solutions/ai-issues-fixer', label: 'AI-Powered Issues Fixer' }
+      ]
+    },
     { path: '/services', label: 'Services' },
     { path: '/price-comparison', label: 'Pricing' },
     { path: '/careers', label: 'Careers' },
     { path: '/contact', label: 'Contact' },
-  ];
-
-  const userNavigation = [
-    { path: '/dashboard', label: 'Dashboard', requiresAuth: true },
-    { path: '/admin', label: 'Admin', requiresAuth: true, requiresStaff: true },
   ];
 
   return (
@@ -62,76 +59,87 @@ const Navigation: React.FC = () => {
           <div className={styles.menu}>
             {/* Main navigation links */}
             {mainNavigation.map((item) => (
-              <Link
+              <div 
                 key={item.path}
-                to={item.path}
-                className={`${styles.navLink} ${
-                  location.pathname === item.path ? styles.active : ''
-                }`}
+                className={styles.navItem}
+                onMouseEnter={() => item.submenu && setActiveDropdown(item.path)}
+                onMouseLeave={() => item.submenu && setActiveDropdown(null)}
               >
-                {item.label}
-              </Link>
+                {item.submenu ? (
+                  <div className={styles.dropdownContainer}>
+                    <span
+                      className={`${styles.navLink} ${
+                        location.pathname.startsWith(item.path) ? styles.active : ''
+                      }`}
+                    >
+                      {item.label}
+                      <svg 
+                        width="12" 
+                        height="12" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        className={styles.dropdownIcon}
+                      >
+                        <path d="M7 10l5 5 5-5z" fill="currentColor"/>
+                      </svg>
+                    </span>
+                    {activeDropdown === item.path && (
+                      <div className={styles.submenu}>
+                        {item.submenu.map((subitem) => (
+                          <Link
+                            key={subitem.path}
+                            to={subitem.path}
+                            className={`${styles.submenuLink} ${
+                              location.pathname === subitem.path ? styles.active : ''
+                            }`}
+                          >
+                            {subitem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`${styles.navLink} ${
+                      location.pathname === item.path ? styles.active : ''
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )}
+              </div>
             ))}
-
-            {/* User-specific navigation */}
-            {user && userNavigation.map((item) => {
-              if (item.requiresStaff && !user.is_staff) return null;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`${styles.navLink} ${
-                    location.pathname === item.path ? styles.active : ''
-                  } ${item.label === 'Admin' ? styles.adminLink : ''}`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
             
             {/* Auth section */}
-            {user ? (
-              <div className={styles.authSection}>
-                <span className={styles.userName}>Hello, {user.username}</span>
-                <button onClick={handleLogout} className={styles.logoutBtn}>
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className={styles.authButtons}>
-                <button 
-                  onClick={() => {
-                    console.log('🎯 Schedule a Call button clicked in Navigation');
-                    setIsSchedulerOpen(true);
-                  }}
-                  className={styles.scheduleCall}
-                >
-                  Schedule a Call
-                </button>
-                <Link to="/login" className={styles.loginBtn}>
-                  Login
-                </Link>
-              </div>
-            )}
+            <div className={styles.authButtons}>
+              <button 
+                onClick={() => {
+                  console.log('🎯 Schedule a Call button clicked in Navigation');
+                  setIsSchedulerOpen(true);
+                }}
+                className={styles.scheduleCall}
+              >
+                Schedule a Call
+              </button>
+            </div>
           </div>
 
           {/* Mobile menu button */}
           <button
             className={styles.mobileMenuButton}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
           >
-            <div className={`${styles.hamburger} ${isMobileMenuOpen ? styles.open : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
-        </div>
 
-        {/* Mobile Navigation */}
-        <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-          <div className={styles.mobileMenuContent}>
-            {/* Main navigation for mobile */}
+          {/* Mobile Navigation */}
+          <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
+            {/* Mobile navigation links */}
             {mainNavigation.map((item) => (
               <Link
                 key={item.path}
@@ -144,61 +152,20 @@ const Navigation: React.FC = () => {
                 {item.label}
               </Link>
             ))}
-
-            {/* User navigation for mobile */}
-            {user && userNavigation.map((item) => {
-              if (item.requiresStaff && !user.is_staff) return null;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`${styles.mobileNavLink} ${
-                    location.pathname === item.path ? styles.active : ''
-                  } ${item.label === 'Admin' ? styles.adminLink : ''}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
             
             {/* Mobile auth section */}
-            {user ? (
-              <div className={styles.mobileAuthSection}>
-                <div className={styles.mobileUserInfo}>
-                  Hello, {user.username}
-                </div>
-                <button 
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
-                  }} 
-                  className={styles.mobileLogoutBtn}
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className={styles.mobileAuthButtons}>
-                <button 
-                  onClick={() => {
-                    console.log('🎯 Schedule a Call button clicked in Mobile Navigation');
-                    setIsSchedulerOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={styles.mobileScheduleCall}
-                >
-                  Schedule a Call
-                </button>
-                <Link 
-                  to="/login" 
-                  className={styles.mobileLoginBtn}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              </div>
-            )}
+            <div className={styles.mobileAuthButtons}>
+              <button 
+                onClick={() => {
+                  console.log('🎯 Schedule a Call button clicked in Mobile Navigation');
+                  setIsSchedulerOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={styles.scheduleCall}
+              >
+                Schedule a Call
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -208,7 +175,6 @@ const Navigation: React.FC = () => {
         key={isSchedulerOpen ? 'open' : 'closed'} // Force remount when opening
         isOpen={isSchedulerOpen}
         onClose={() => setIsSchedulerOpen(false)}
-        userEmail={user?.email}
       />
     </nav>
   );

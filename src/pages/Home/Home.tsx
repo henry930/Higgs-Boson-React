@@ -1,13 +1,21 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { useHomeDataRedux } from '../../hooks/useHomeDataRedux';
+import { fallbackData } from '../../data/fallbackData';
 import GoogleCalendarScheduler from '../../components/GoogleCalendarScheduler';
 import HeroCarousel from '../../components/HeroCarousel/HeroCarousel';
 import SEO from '../../components/SEO/SEO';
 import styles from './Home.module.scss';
 
 const Home = () => {
-  const { data, loading, error, apiConnected } = useHomeDataRedux();
+  // Use static data directly instead of Redux
+  const data = {
+    benefits: fallbackData.benefits,
+    processSteps: fallbackData.processSteps,
+    testimonials: fallbackData.testimonials,
+    heroSlides: fallbackData.heroSlides
+  };
+  const loading = false;
+  const error = null;
   const { benefits, processSteps, testimonials: apiTestimonials, heroSlides: apiHeroSlides } = data;
   // Transform API testimonials to expected format
   const testimonials = apiTestimonials && apiTestimonials.length > 0
@@ -19,9 +27,16 @@ const Home = () => {
       }))
     : [];
   const [showScheduler, setShowScheduler] = useState(false);
-  
-  // Show notification for offline mode
-  const isUsingFallback = !apiConnected;
+
+  // Image mapping for hero slides
+  const getBackgroundImage = (imageName: string): string => {
+    const imageMap: { [key: string]: string } = {
+      aiDevelopment: '/images/how-it-works-hero-bg.jpg',
+      enterpriseSolutions: '/images/step3-strategy.jpg', 
+      expertTeams: '/images/step4-development.jpg'
+    };
+    return imageMap[imageName] || '/images/how-it-works-hero-bg.jpg';
+  };
 
   // Transform API hero slides to component format, or use fallback
   const heroSlides = apiHeroSlides && apiHeroSlides.length > 0 
@@ -29,7 +44,7 @@ const Home = () => {
         id: slide.id,
         title: slide.title,
         subtitle: slide.subtitle || '',
-        backgroundImage: slide.background_image || '/images/how-it-works-hero-bg.jpg',
+        backgroundImage: getBackgroundImage(slide.background_image),
         primaryButton: {
           text: slide.primary_button_text || 'Get Started',
           action: () => slide.primary_button_action === 'schedule' ? setShowScheduler(true) : null
@@ -118,13 +133,8 @@ const Home = () => {
         title="Higgs Boson Consultancy Ltd | AI & Technology Solutions"
         description="Transform your business with our AI-powered solutions. Expert consultancy in machine learning, data science, and digital transformation."
         keywords="AI consultancy, machine learning, data science, technology solutions, digital transformation, artificial intelligence, business automation"
-        url="https://higgsboson.tech/"
+        url="https://higgsbosonconsultancy.co.uk/"
       />
-      {isUsingFallback && (
-        <div className={styles.fallbackNotice}>
-          <p>⚠️ Using offline content - some features may be limited</p>
-        </div>
-      )}
 
       {/* Hero Carousel Section */}
       <HeroCarousel 
@@ -290,7 +300,7 @@ const Home = () => {
               Join forward-thinking companies that have already revolutionized their software development with our AI-powered approach. Experience faster delivery, lower costs, and superior quality.
             </p>
             <div className="d-flex flex-column align-items-center gap-4">
-              <Link to="/contact" className="btn btn-primary btn-lg">
+              <Link to="/schedule-a-call" className="btn btn-primary btn-lg">
                 Start Your Transformation
               </Link>
               <p className={styles.disclaimer}>

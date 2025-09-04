@@ -15,7 +15,7 @@ const Contact = () => {
         title="Contact Us"
         description="Get in touch with Higgs Boson Consultancy Ltd for AI and technology solutions. Contact our experts for consultation and project estimation."
         keywords="contact higgs boson, AI consultation, technology consultation, project estimation, get quote"
-        url="https://higgsboson.tech/contact"
+        url="https://higgsbosonconsultancy.co.uk/contact"
       />
       <div className={styles.heroSection}>
         <div className={styles.container}>

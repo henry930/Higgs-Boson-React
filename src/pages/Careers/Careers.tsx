@@ -110,9 +110,9 @@ const Careers: React.FC = () => {
     <div className={styles.careers}>
       <SEO 
         title="Careers"
-        description="Join Higgs Boson Consultancy Ltd - Help us revolutionize software development with AI. Explore career opportunities in AI, machine learning, and technology."
-        keywords="careers higgs boson, AI jobs, machine learning careers, technology jobs, software development careers, AI consultancy jobs"
-        url="https://higgsboson.tech/careers"
+        description="Join our team of AI and technology experts. Explore career opportunities at Higgs Boson Consultancy and help shape the future of AI-powered development."
+        keywords="careers, AI jobs, technology careers, software development jobs, machine learning careers"
+        url="https://higgsbosonconsultancy.co.uk/careers"
       />
       {/* Hero Section */}
       <section className={styles.hero}>

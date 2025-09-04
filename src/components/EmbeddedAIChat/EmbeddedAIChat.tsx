@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_CONFIG } from '../../config/api';
 import styles from './EmbeddedAIChat.module.scss';
 
 interface Message {
@@ -64,7 +63,7 @@ const EmbeddedAIChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/ai-chat/`, {
+      const response = await fetch('https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/webhooks/github', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

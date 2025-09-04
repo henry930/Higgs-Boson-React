@@ -3,8 +3,8 @@ import { useState, lazy, Suspense } from 'react';
 import StackIcon from 'tech-stack-icons';
 import styles from './Services.module.scss';
 
-// Lazy load the calendar component
-const SimpleCalendarBooking = lazy(() => import('../../components/SimpleCalendarBooking/SimpleCalendarBooking'));
+// Lazy load the Google calendar component
+const GoogleCalendarScheduler = lazy(() => import('../../components/GoogleCalendarScheduler/GoogleCalendarScheduler'));
 
 // Simple icon fallback component
 const DefaultIcon = ({ name }: { name: string }) => (
@@ -320,7 +320,7 @@ const Services = () => {
               <button onClick={openBookingModal} className={styles.primaryButton}>
                 Get Started Today
               </button>
-              <Link to="/contact" className={styles.secondaryButton}>
+              <Link to="/schedule-a-call" className={styles.secondaryButton}>
                 Contact Sales
               </Link>
             </div>
@@ -340,7 +340,7 @@ const Services = () => {
               ×
             </button>
             <Suspense fallback={<div>Loading booking calendar...</div>}>
-              <SimpleCalendarBooking isOpen={bookingModalOpen} onClose={closeBookingModal} />
+              <GoogleCalendarScheduler isOpen={bookingModalOpen} onClose={closeBookingModal} />
             </Suspense>
           </div>
         </div>

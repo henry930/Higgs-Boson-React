@@ -39,9 +39,9 @@ const About = () => {
     <div className={styles.about}>
       <SEO 
         title="About Us"
-        description="Learn about Higgs Boson Consultancy Ltd - pioneering AI development and transforming businesses through cutting-edge technology and innovative solutions."
-        keywords="about higgs boson, AI company, technology consultancy, AI development, business transformation, company history"
-        url="https://higgsboson.tech/about"
+        description="Learn about Higgs Boson Consultancy Ltd - Our mission, team, and commitment to delivering innovative AI and technology solutions for businesses worldwide."
+        keywords="about higgs boson, AI consultancy team, company mission, technology experts"
+        url="https://higgsbosonconsultancy.co.uk/about"
       />
       <div className={styles.heroSection}>
         <div className={styles.container}>
@@ -114,7 +114,7 @@ const About = () => {
               with our AI-powered solutions.
             </p>
             <div className={styles.ctaButtons}>
-              <a href="/contact" className={styles.primaryButton}>Start Your Project</a>
+              <a href="/schedule-a-call" className={styles.primaryButton}>Start Your Project</a>
               <a href="/services" className={styles.secondaryButton}>View Our Services</a>
             </div>
           </div>

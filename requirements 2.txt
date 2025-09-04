@@ -1,0 +1,13 @@
+# Django and related packages
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Database
+# SQLite is included with Python, no additional package needed
+
+# Development dependencies
+python-decouple==3.8
+
+# Optional: for better development experience
+django-extensions==3.2.3

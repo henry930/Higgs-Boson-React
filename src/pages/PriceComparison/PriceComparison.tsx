@@ -229,9 +229,9 @@ const PriceComparison = () => {
     <div className={styles.priceComparison}>
       <SEO 
         title="Price Comparison"
-        description="Compare the true cost of building an in-house UK development team versus partnering with Higgs Boson Consultancy. Calculate potential savings with our cost comparison tool."
-        keywords="price comparison, development costs, UK developer salaries, cost calculator, in-house vs outsourcing, development team costs"
-        url="https://higgsboson.tech/price-comparison"
+        description="Compare AI development costs and see how Higgs Boson Consultancy delivers premium solutions at competitive rates with faster delivery times."
+        keywords="AI development pricing, cost comparison, software development rates, AI consultancy pricing"
+        url="https://higgsbosonconsultancy.co.uk/price-comparison"
       />
       {/* Hero Section */}
       <section className={styles.heroSection}>
@@ -578,9 +578,9 @@ const PriceComparison = () => {
         <div className={styles.container}>
           <h2>Ready to build your UK development team?</h2>
           <p>Get started with experienced UK developers. No hiring hassles, no employment costs.</p>
-          <div className={styles.ctaButtons}>
-            <Link to="/contact" className={styles.primaryButton}>Get Your Quote</Link>
-            <Link to="/project-estimation" className={styles.secondaryButton}>Project Estimation</Link>
+                    <div className={styles.ctaButtons}>
+            <Link to="/schedule-a-call" className={styles.primaryButton}>Get Your Quote</Link>
+            <Link to="/services" className={styles.secondaryButton}>View Services</Link>
           </div>
         </div>
       </section>

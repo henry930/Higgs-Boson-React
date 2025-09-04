@@ -1,0 +1,281 @@
+@use '../../styles/variables' as *;
+
+.scheduleCall {
+  min-height: 100vh;
+  background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
+}
+
+.heroSection {
+  padding: 120px 0 80px;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+.heroContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.heroContent {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+}
+
+.accent {
+  color: $accent-color;
+  background: linear-gradient(45deg, $accent-color, $secondary-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+  opacity: 0.9;
+  line-height: 1.6;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.benefitItem {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  h3 {
+    font-size: 1.3rem;
+    margin: 1rem 0 0.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    opacity: 0.9;
+    line-height: 1.5;
+  }
+}
+
+.benefitIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.schedulerSection {
+  padding: 80px 0;
+  background: white;
+}
+
+.schedulerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 4rem;
+  align-items: start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+.schedulerWrapper {
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: $gray-900;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+}
+
+.sectionSubtitle {
+  font-size: 1.2rem;
+  color: $gray-600;
+  margin-bottom: 3rem;
+  line-height: 1.6;
+}
+
+.googleCalendar {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.infoPanel {
+  background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: $primary-color;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: $primary-color;
+  }
+}
+
+.expectationsList {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2.5rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+
+    strong {
+      color: $primary-color;
+    }
+  }
+}
+
+.checkIcon {
+  color: $success-color;
+  font-weight: bold;
+  margin-right: 1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.contactInfo {
+  padding-top: 2rem;
+  border-top: 1px solid #dee2e6;
+
+  p {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+}
+
+.contactDetails {
+  margin-top: 1rem;
+  
+  p {
+    color: $gray-600;
+    font-size: 0.95rem;
+  }
+}
+
+.testimonialsSection {
+  padding: 80px 0;
+  background: linear-gradient(135deg, $gray-50 0%, white 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.testimonialCard {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid $gray-200;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.testimonialText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: $gray-800;
+  font-style: italic;
+}
+
+.testimonialAuthor {
+  strong {
+    display: block;
+    font-weight: 600;
+    color: $primary-color;
+    margin-bottom: 0.25rem;
+  }
+
+  span {
+    color: $gray-600;
+    font-size: 0.95rem;
+  }
+}
+
+// Success and error colors for better UX  
+$success-color: #28a745;
+$error-color: #dc3545;
+$warning-color: #ffc107;

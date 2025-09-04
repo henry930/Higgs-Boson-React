@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import StackIcon from 'tech-stack-icons';
 import SEO from '../../components/SEO/SEO';
+import GoogleCalendarScheduler from '../../components/GoogleCalendarScheduler/GoogleCalendarScheduler';
 import styles from './Services.module.scss';
-import SimpleCalendarBooking from '../../components/SimpleCalendarBooking/SimpleCalendarBooking';
 
 // Import custom SVG icons as URLs
 import AdobeXdSVG from '../../assets/tech/adobe-xd.svg';
@@ -69,9 +69,7 @@ const Services = () => {
   
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<string>('Frontend');
-  const [bookingModalOpen, setBookingModalOpen] = useState<boolean>(false);
-  
-  console.log('📋 bookingModalOpen state:', bookingModalOpen);
+  const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
   
   const techCategories = [
     'Frontend', 
@@ -457,9 +455,9 @@ const Services = () => {
     <div className={styles.services}>
       <SEO 
         title="Our Services"
-        description="Comprehensive AI and technology services including machine learning, web development, mobile apps, data science, and digital transformation solutions."
-        keywords="AI services, machine learning services, web development, mobile development, data science, cloud solutions, digital transformation"
-        url="https://higgsboson.tech/services"
+        description="Comprehensive AI and technology services including machine learning, data science, software development, and digital transformation solutions for businesses."
+        keywords="AI services, machine learning, data science, software development, digital transformation, technology consulting"
+        url="https://higgsbosonconsultancy.co.uk/services"
       />
       {/* Hero Section */}
       <section className={styles.heroSection}>
@@ -468,12 +466,12 @@ const Services = () => {
             <h1 className={styles.heroTitle}>
               Complete Development Solutions for <span className={styles.accent}>Every Business Need</span>
             </h1>
-            <p className={styles.heroDescription}>
+                        <p>
               From team building to specialized development, AI integration to business consultation - 
               we provide comprehensive technology services to scale your business.
             </p>
             <div className={styles.heroButtons}>
-              <Link to="/contact" className={styles.primaryButton}>Get Started</Link>
+              <Link to="/schedule-a-call" className={styles.primaryButton}>Get Started</Link>
               <Link to="/price-comparison" className={styles.secondaryButton}>View Pricing</Link>
             </div>
           </div>
@@ -496,7 +494,7 @@ const Services = () => {
                 <div className={`${styles.serviceIcon} ${service.featured ? styles.featuredIcon : ''}`}>{service.icon}</div>
                 <h3 className={styles.serviceTitle}>{service.title}</h3>
                 <p className={styles.serviceDescription}>{service.description}</p>
-                <Link to="/contact" className={`${styles.serviceButton} ${service.featured ? styles.featuredButton : ''}`}>Learn More</Link>
+                <Link to="/schedule-a-call" className={`${styles.serviceButton} ${service.featured ? styles.featuredButton : ''}`}>Learn More</Link>
               </div>
             ))}
           </div>
@@ -519,7 +517,7 @@ const Services = () => {
                 <div className={styles.developerIcon}>{developer.icon}</div>
                 <h3 className={styles.developerTitle}>{developer.title}</h3>
                 <p className={styles.developerDescription}>{developer.description}</p>
-                <Link to="/contact" className={styles.developerButton}>Hire Now</Link>
+                <Link to="/schedule-a-call" className={styles.developerButton}>Hire Now</Link>
               </div>
             ))}
           </div>
@@ -542,7 +540,7 @@ const Services = () => {
                 <div className={styles.aiIcon}>{service.icon}</div>
                 <h3 className={styles.aiTitle}>{service.title}</h3>
                 <p className={styles.aiDescription}>{service.description}</p>
-                <Link to="/contact" className={styles.aiButton}>Get Started</Link>
+                <Link to="/schedule-a-call" className={styles.aiButton}>Get Started</Link>
               </div>
             ))}
           </div>
@@ -567,7 +565,7 @@ const Services = () => {
                 <p className={styles.consultationDescription}>{service.description}</p>
                 <button 
                   className={styles.consultationButton} 
-                  onClick={() => setBookingModalOpen(true)}
+                  onClick={() => setCalendarOpen(true)}
                 >
                   Schedule Consultation
                 </button>
@@ -656,7 +654,7 @@ const Services = () => {
             <div className={styles.ctaButtons}>
               <button 
                 className={styles.primaryButton}
-                onClick={() => setBookingModalOpen(true)}
+                onClick={() => setCalendarOpen(true)}
               >
                 Start Your Project
               </button>
@@ -666,11 +664,10 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Booking Modal */}
-      <SimpleCalendarBooking 
-        key={bookingModalOpen ? 'open' : 'closed'} // Force remount when opening
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)} 
+      {/* Google Calendar Booking Modal */}
+      <GoogleCalendarScheduler 
+        isOpen={calendarOpen}
+        onClose={() => setCalendarOpen(false)} 
       />
     </div>
   );

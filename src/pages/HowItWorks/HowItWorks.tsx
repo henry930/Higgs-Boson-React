@@ -36,9 +36,9 @@ const HowItWorks = () => {
     <div className={styles.howItWorks}>
       <SEO 
         title="How It Works"
-        description="Learn how Higgs Boson Consultancy delivers AI-powered development solutions. Our streamlined process makes finding and working with top technical talent simple and cost-effective."
-        keywords="how it works, AI development process, technical talent, development methodology, project workflow"
-        url="https://higgsboson.tech/how-it-works"
+        description="Discover our proven AI-powered development process. Learn how we deliver high-quality software solutions 75% faster while reducing costs by 70%."
+        keywords="AI development process, software development methodology, how it works, development workflow"
+        url="https://higgsbosonconsultancy.co.uk/how-it-works"
       />
       {/* Hero Section */}
       <section className={styles.heroSection}>
@@ -51,7 +51,7 @@ const HowItWorks = () => {
               We've simplified the process of finding, hiring, and retaining top technical talent with AI-powered development - all at a fraction of the cost of traditional hiring.
             </p>
             <div className={styles.heroButtons}>
-              <Link to="/contact" className={styles.primaryButton}>
+              <Link to="/schedule-a-call" className={styles.primaryButton}>
                 Start Hiring
               </Link>
               <Link to="/about" className={styles.secondaryButton}>
@@ -84,7 +84,7 @@ const HowItWorks = () => {
               Our AI-driven process is the game-changer. Where traditional agencies focus on basic skill matching, we go far beyond that, into AI optimization, solution-focused automation, business intelligence, and more.
             </p>
             <div className={styles.ctaButtons}>
-              <Link to="/contact" className={styles.primaryButton}>Book A Call</Link>
+              <Link to="/schedule-a-call" className={styles.primaryButton}>Book A Call</Link>
               <Link to="/services" className={styles.secondaryButton}>Learn More</Link>
             </div>
           </div>
@@ -295,7 +295,7 @@ const HowItWorks = () => {
               You might have concerns about AI integration and that's why, in addition to technical excellence and rigorous testing, we also ensure:
             </p>
             <div className={styles.ctaButtons}>
-              <Link to="/contact" className={styles.primaryButton}>View Pricing</Link>
+              <Link to="/schedule-a-call" className={styles.primaryButton}>View Pricing</Link>
             </div>
           </div>
 
@@ -392,7 +392,7 @@ const HowItWorks = () => {
           </div>
 
           <div className={styles.ctaButtons}>
-            <Link to="/contact" className={styles.primaryButton}>Start Hiring</Link>
+            <Link to="/schedule-a-call" className={styles.primaryButton}>Start Hiring</Link>
             <Link to="/about" className={styles.secondaryButton}>Learn More About Us</Link>
           </div>
         </div>
@@ -404,8 +404,8 @@ const HowItWorks = () => {
           <div className={styles.sectionHeader}>
             <h2>Let's Build Your Perfect AI Solution Together</h2>
             <div className={styles.ctaButtons}>
-              <Link to="/contact" className={styles.primaryButton}>Book A Call</Link>
-              <Link to="/contact" className={styles.secondaryButton}>Start Hiring</Link>
+              <Link to="/schedule-a-call" className={styles.primaryButton}>Book A Call</Link>
+              <Link to="/schedule-a-call" className={styles.secondaryButton}>Start Hiring</Link>
             </div>
           </div>
         </div>

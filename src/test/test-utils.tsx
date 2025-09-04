@@ -1,24 +1,20 @@
 import { render } from '@testing-library/react'
 import type { RenderOptions } from '@testing-library/react'
 import type { ReactElement } from 'react'
-import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
-import { store } from '../store'
 import { AppProvider } from '../context/AppContext'
 import { ThemeProvider } from '../context/ThemeContext'
 
-// Custom render function that includes providers
+// Custom render function that includes providers (without Redux)
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <AppProvider>
-          <BrowserRouter>
-            {children}
-          </BrowserRouter>
-        </AppProvider>
-      </ThemeProvider>
-    </Provider>
+    <ThemeProvider>
+      <AppProvider>
+        <BrowserRouter>
+          {children}
+        </BrowserRouter>
+      </AppProvider>
+    </ThemeProvider>
   )
 }
 

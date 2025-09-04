@@ -8,9 +8,9 @@ const ProjectEstimation: React.FC = () => {
     <div className={styles.projectEstimation}>
       <SEO 
         title="Project Estimation"
-        description="Get a detailed project estimate through Sarah, our AI Assistant. Comprehensive project estimation for your technology and AI development needs."
-        keywords="project estimation, AI project estimation, development cost estimation, project calculator, software development quotes"
-        url="https://higgsboson.tech/project-estimation"
+        description="Get accurate project estimates for your AI and software development needs. Use our estimation tool to understand costs and timelines."
+        keywords="project estimation, development cost calculator, AI project planning, software development estimate"
+        url="https://higgsbosonconsultancy.co.uk/project-estimation"
       />
       <div className={styles.heroSection}>
         <div className={styles.container}>

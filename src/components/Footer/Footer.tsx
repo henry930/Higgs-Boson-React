@@ -1,10 +1,53 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoSvg from '../../assets/logo.svg';
-import { NewsletterService } from '../../services';
 import styles from './Footer.module.scss';
 
 const Footer: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Save email to localStorage for this demo
+      const existingEmails = JSON.parse(localStorage.getItem('newsletterSubscriptions') || '[]');
+      
+      if (existingEmails.includes(email)) {
+        alert('This email is already subscribed to our newsletter.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      existingEmails.push(email);
+      localStorage.setItem('newsletterSubscriptions', JSON.stringify(existingEmails));
+      
+      // Show success state
+      setIsSubscribed(true);
+      setEmail('');
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        setIsSubscribed(false);
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
@@ -103,16 +146,31 @@ const Footer: React.FC = () => {
               <p className={styles.subscribeText}>
                 Everything you need to find, manage and retain exceptional tech talent - delivered monthly.
               </p>
-              <form className={styles.subscribeForm}>
-                <input 
-                  type="email" 
-                  placeholder="Enter your email"
-                  className={styles.emailInput}
-                />
-                <button type="submit" className={styles.subscribeBtn}>
-                  Subscribe
-                </button>
-              </form>
+              {isSubscribed ? (
+                <div className={styles.successMessage}>
+                  <p style={{ color: '#4CAF50', fontWeight: 'bold', margin: '10px 0' }}>
+                    Thank you for subscribed our newsletter!
+                  </p>
+                </div>
+              ) : (
+                <form className={styles.subscribeForm} onSubmit={handleNewsletterSubmit}>
+                  <input 
+                    type="email" 
+                    placeholder="Enter your email"
+                    className={styles.emailInput}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    className={styles.subscribeBtn}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

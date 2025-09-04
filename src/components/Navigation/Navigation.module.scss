@@ -92,6 +92,64 @@
       display: none;
     }
 
+    .navItem {
+      position: relative;
+    }
+
+    .dropdownContainer {
+      position: relative;
+    }
+
+    .dropdownIcon {
+      margin-left: 0.5rem;
+      transition: transform 0.2s ease;
+    }
+
+    .submenu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0;
+      min-width: 280px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 1001;
+      animation: fadeInUp 0.2s ease;
+    }
+
+    .submenuLink {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #6b7280;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: #f9fafb;
+        color: #000;
+      }
+
+      &.active {
+        color: $primary-color;
+        background: rgba($primary-color, 0.05);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .navLink {
       color: #6b7280;
       text-decoration: none;

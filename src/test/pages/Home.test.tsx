@@ -19,10 +19,6 @@ vi.mock('../../hooks/useHomeDataRedux', () => ({
   }))
 }))
 
-vi.mock('../../store/hooks', () => ({
-  useAppSelector: vi.fn(() => ({}))
-}))
-
 describe('Home Page', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -42,34 +38,11 @@ describe('Home Page', () => {
     }).not.toThrow()
   })
 
-  it('displays loading state', async () => {
-    const { useHomeDataRedux } = await import('../../hooks/useHomeDataRedux')
-    vi.mocked(useHomeDataRedux).mockReturnValue({
-      data: { benefits: [], processSteps: [], testimonials: [], heroSlides: [] },
-      loading: true,
-      error: null,
-      apiConnected: true,
-      refetch: vi.fn()
-    })
-
+  it('displays static content correctly', async () => {
+    // Home component now uses static data, so no mocking needed
     render(<Home />)
     
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
-  })
-
-  it('displays error state', async () => {
-    const { useHomeDataRedux } = await import('../../hooks/useHomeDataRedux')
-    vi.mocked(useHomeDataRedux).mockReturnValue({
-      data: { benefits: [], processSteps: [], testimonials: [], heroSlides: [] },
-      loading: false,
-      error: 'Test error',
-      apiConnected: false,
-      refetch: vi.fn()
-    })
-
-    render(<Home />)
-    
-    expect(screen.getByText('Error Loading Content')).toBeInTheDocument()
-    expect(screen.getByText('Test error')).toBeInTheDocument()
+    // Test that the component renders without errors
+    expect(screen.getByRole('main')).toBeInTheDocument()
   })
 })

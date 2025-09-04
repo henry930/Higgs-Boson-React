@@ -14,5 +14,3 @@ export { default as GoogleCalendarScheduler } from './GoogleCalendarScheduler';
 
 // AI Customer Service Components
 export { default as AICustomerService } from './AICustomerService/AICustomerService';
-export { default as AdminDashboard } from './AdminDashboard/AdminDashboard';
-export { default as Dashboard } from './Dashboard/Dashboard';
