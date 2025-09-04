@@ -173,11 +173,22 @@ prisma/dev.db
 
 # Environment variables
 .env
+.env.*
+!.env.example
+!.env.*.example
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-!.env.example
+.env.production
+.env.s3
+.env.lambda
+.env.github-pages
+# Catch numbered copies like ".env 2"
+.env*[0-9]
+server/.env*
+# iCloud files
+*.env*.icloud
 
 # Development scripts
 test_services.sh
