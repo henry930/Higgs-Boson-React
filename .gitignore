@@ -230,6 +230,9 @@ SENSITIVE_CREDENTIALS.md
 **/lambda-deployment.zip
 **/cloudfront-config.json
 **/dns-records.json
+# Google service account credentials
+google-service-account.json
+**/google-service-account.json
 deployment/lambda/lambda_deployment.zip
 deployment/migrate-to-new-account.sh
 **/.serverless/
