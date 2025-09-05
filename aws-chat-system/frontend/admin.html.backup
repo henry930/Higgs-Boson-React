@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Website Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            gap: 1rem;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        
+        .chat-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .terminal-section {
+            flex: 1;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            transition: background-color 0.3s;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        .terminal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #374151;
+            color: #10b981;
+            font-weight: 600;
+            font-family: 'Monaco', 'Consolas', monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .clear-terminal {
+            background: #374151;
+            color: #10b981;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .terminal-output {
+            flex: 1;
+            padding: 1rem;
+            color: #10b981;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .ai-message {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            margin-right: 2rem;
+            margin-left: 0.5rem;
+        }
+        
+        .status-message {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-bar {
+            background: rgba(55, 65, 81, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .quick-actions {
+            padding: 1rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .quick-action-button {
+            margin: 0.25rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .quick-action-button:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            color: #64748b;
+            font-style: italic;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .terminal-line {
+            margin-bottom: 0.25rem;
+        }
+        
+        .terminal-command {
+            color: #60a5fa;
+        }
+        
+        .terminal-success {
+            color: #10b981;
+        }
+        
+        .terminal-error {
+            color: #ef4444;
+        }
+        
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .auth-modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal">
+            <h2>🔐 Authentication Required</h2>
+            <p>Please enter your access credentials:</p>
+            <input type="password" class="auth-input" id="authKey" placeholder="Enter access key">
+            <button class="auth-button" onclick="authenticate()">Connect</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>🤖 AI Website Management System</h1>
+        <p>Claude-powered website updates • Real-time execution • AWS infrastructure</p>
+    </div>
+    
+    <div class="container">
+        <div class="chat-section">
+            <div class="chat-header">
+                <span>💬 Chat with AI Assistant</span>
+                <div class="connection-status">
+                    <div class="status-dot" id="connectionDot"></div>
+                    <span id="connectionStatus">Connecting...</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="typing-indicator" id="typingIndicator">
+                    AI is thinking...
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <strong>Quick Actions:</strong><br>
+                <button class="quick-action-button" onclick="sendQuickMessage('Change the hero title on the homepage')">Update Hero Title</button>
+                <button class="quick-action-button" onclick="sendQuickMessage('Update our contact information')">Update Contact Info</button>
+                <button class="quick-action-button" onclick="sendQuickMessage('Add a new service to our offerings')">Add New Service</button>
+                <button class="quick-action-button" onclick="sendQuickMessage('Build and deploy the website to production')">Deploy Changes</button>
+            </div>
+            
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Type your request... e.g., 'Change the hero title to Welcome to Innovation'"
+                    onkeypress="handleKeyPress(event)"
+                    disabled
+                >
+                <button class="send-button" id="sendButton" onclick="sendMessage()" disabled>Send</button>
+            </div>
+        </div>
+        
+        <div class="terminal-section">
+            <div class="terminal-header">
+                <span>🖥️ Terminal Output</span>
+                <button class="clear-terminal" onclick="clearTerminal()">Clear</button>
+            </div>
+            
+            <div class="terminal-output" id="terminalOutput">
+<span class="terminal-command">$ AI Website Management System v1.0</span>
+<span class="terminal-success">$ Connected to: AWS Infrastructure</span>
+<span class="terminal-success">$ Repository: henry930/Higgs-Boson-React</span>
+<span class="terminal-command">$ Status: Waiting for authentication...</span>
+
+Ready to process your website management requests!
+Authenticate to begin making changes.
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <div>
+            <span id="systemStatus">System: Initializing...</span>
+        </div>
+        <div>
+            Last Activity: <span id="lastActivity">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        class AIWebsiteManager {
+            constructor() {
+                this.ws = null;
+                this.isConnected = false;
+                this.sessionId = this.generateSessionId();
+                this.authenticated = false;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                
+                this.initializeElements();
+            }
+            
+            initializeElements() {
+                this.chatInput = document.getElementById('chatInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.terminalOutput = document.getElementById('terminalOutput');
+                this.connectionDot = document.getElementById('connectionDot');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.authOverlay = document.getElementById('authOverlay');
+                
+                // Focus the auth input
+                document.getElementById('authKey').focus();
+            }
+            
+            generateSessionId() {
+                return 'session_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            authenticate() {
+                const authKey = document.getElementById('authKey').value;
+                
+                // Simple authentication - in production, this would be more secure
+                if (authKey.length > 0) {
+                    this.authenticated = true;
+                    this.authOverlay.style.display = 'none';
+                    this.connect();
+                    this.updateSystemStatus('System: Authenticated ✅');
+                } else {
+                    alert('Please enter an access key');
+                }
+            }
+            
+            connect() {
+                try {
+                    // Replace with your actual WebSocket URL from CloudFormation output
+                    const wsUrl = 'wss://your-api-id.execute-api.us-east-1.amazonaws.com/prod';
+                    
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        this.onConnect();
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        this.onMessage(JSON.parse(event.data));
+                    };
+                    
+                    this.ws.onclose = () => {
+                        this.onDisconnect();
+                    };
+                    
+                    this.ws.onerror = (error) => {
+                        this.onError(error);
+                    };
+                    
+                } catch (error) {
+                    console.error('Connection error:', error);
+                    this.simulateConnection(); // Fallback to demo mode
+                }
+            }
+            
+            onConnect() {
+                this.isConnected = true;
+                this.reconnectAttempts = 0;
+                this.updateConnectionStatus('Connected', true);
+                this.enableInput();
+                this.addWelcomeMessage();
+                this.updateSystemStatus('System: Connected to AWS ✅');
+                this.addTerminalLine('$ WebSocket connection established', 'success');
+            }
+            
+            onDisconnect() {
+                this.isConnected = false;
+                this.updateConnectionStatus('Disconnected', false);
+                this.disableInput();
+                this.attemptReconnect();
+            }
+            
+            onError(error) {
+                console.error('WebSocket error:', error);
+                this.addTerminalLine('$ Connection error: ' + error.message, 'error');
+            }
+            
+            onMessage(data) {
+                switch (data.type) {
+                    case 'ai_response':
+                        this.addAIMessage(data.message);
+                        break;
+                    case 'terminal_output':
+                        this.addTerminalOutput(data.output);
+                        break;
+                    case 'status':
+                        this.addStatusMessage(data.message);
+                        break;
+                    default:
+                        console.log('Unknown message type:', data.type);
+                }
+                
+                this.hideTypingIndicator();
+                this.updateLastActivity();
+            }
+            
+            sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (message && this.isConnected) {
+                    this.addUserMessage(message);
+                    this.showTypingIndicator();
+                    
+                    this.ws.send(JSON.stringify({
+                        action: 'chat',
+                        message: message,
+                        sessionId: this.sessionId
+                    }));
+                    
+                    this.chatInput.value = '';
+                    this.addTerminalLine('$ Processing: ' + message, 'command');
+                } else if (message) {
+                    // Demo mode fallback
+                    this.simulateResponse(message);
+                }
+            }
+            
+            simulateConnection() {
+                // Demo mode when WebSocket is not available
+                setTimeout(() => {
+                    this.isConnected = true;
+                    this.updateConnectionStatus('Connected (Demo)', true);
+                    this.enableInput();
+                    this.addWelcomeMessage();
+                    this.updateSystemStatus('System: Demo Mode ⚠️');
+                    this.addTerminalLine('$ Running in demo mode', 'success');
+                }, 1000);
+            }
+            
+            simulateResponse(message) {
+                this.addUserMessage(message);
+                this.showTypingIndicator();
+                this.addTerminalLine('$ Processing: ' + message, 'command');
+                
+                setTimeout(() => {
+                    if (message.toLowerCase().includes('deploy')) {
+                        this.simulateDeployment();
+                    } else if (message.toLowerCase().includes('hero') || message.toLowerCase().includes('title')) {
+                        this.simulateHeroUpdate(message);
+                    } else {
+                        this.addAIMessage(`I understand you want to: "${message}". In the full system, I would analyze your request and make the necessary changes to your website. This includes updating files, running builds, and deploying to production.`);
+                    }
+                    this.hideTypingIndicator();
+                }, 2000);
+            }
+            
+            simulateDeployment() {
+                this.addAIMessage('Starting deployment process for your website...');
+                
+                const deploySteps = [
+                    '$ npm run build',
+                    'Building production files...',
+                    '✅ Build completed successfully',
+                    '$ aws s3 sync dist/ s3://your-bucket/',
+                    'Uploading files to S3...',
+                    '✅ Files uploaded successfully',
+                    '$ aws cloudfront create-invalidation',
+                    '✅ CloudFront cache invalidated',
+                    '🚀 Deployment complete!'
+                ];
+                
+                deploySteps.forEach((step, index) => {
+                    setTimeout(() => {
+                        const type = step.startsWith('$') ? 'command' : 
+                                   step.startsWith('✅') || step.startsWith('🚀') ? 'success' : 'normal';
+                        this.addTerminalLine(step, type);
+                        
+                        if (index === deploySteps.length - 1) {
+                            this.addAIMessage('🎉 Your website has been successfully deployed! All changes are now live at higgsbosonconsultancy.co.uk');
+                        }
+                    }, index * 800);
+                });
+            }
+            
+            simulateHeroUpdate(message) {
+                this.addAIMessage(`I'll update the hero section based on your request: "${message}"`);
+                
+                setTimeout(() => {
+                    this.addTerminalLine('$ Updating hero section...', 'command');
+                }, 500);
+                
+                setTimeout(() => {
+                    this.addTerminalLine('$ Modified: src/data/hero.json', 'normal');
+                    this.addTerminalLine('✅ Hero content updated successfully', 'success');
+                    this.addAIMessage('The hero section has been updated! Would you like me to deploy these changes to make them live?');
+                }, 1500);
+            }
+            
+            addWelcomeMessage() {
+                this.addAIMessage(`Hello! I'm your AI website management assistant powered by Claude. I can help you:
+
+• Update website content (text, images, etc.)
+• Modify code files in your repository  
+• Run builds and deployments
+• Manage your GitHub repository
+
+Just tell me what changes you'd like to make and I'll handle everything! For example:
+- "Change the hero title to 'Welcome to Innovation'"
+- "Update our contact email"
+- "Add a new service section"
+- "Deploy the latest changes"`);
+            }
+            
+            addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.innerHTML = `<strong>You:</strong> ${this.escapeHtml(message)}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addAIMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = `<strong>🤖 AI Assistant:</strong> ${this.formatMessage(message)}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addStatusMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message status-message';
+                messageDiv.textContent = message;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addTerminalLine(text, type = 'normal') {
+                const line = document.createElement('div');
+                line.className = `terminal-line terminal-${type}`;
+                line.textContent = text;
+                this.terminalOutput.appendChild(line);
+                this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+            }
+            
+            addTerminalOutput(output) {
+                const lines = output.split('\n');
+                lines.forEach(line => {
+                    if (line.trim()) {
+                        const type = line.startsWith('$') ? 'command' :
+                                   line.startsWith('✅') ? 'success' :
+                                   line.startsWith('❌') ? 'error' : 'normal';
+                        this.addTerminalLine(line, type);
+                    }
+                });
+            }
+            
+            showTypingIndicator() {
+                this.typingIndicator.style.display = 'block';
+                this.scrollToBottom();
+            }
+            
+            hideTypingIndicator() {
+                this.typingIndicator.style.display = 'none';
+            }
+            
+            updateConnectionStatus(status, connected) {
+                this.connectionStatus.textContent = status;
+                this.connectionDot.className = connected ? 'status-dot connected' : 'status-dot';
+            }
+            
+            updateSystemStatus(status) {
+                document.getElementById('systemStatus').textContent = status;
+            }
+            
+            updateLastActivity() {
+                document.getElementById('lastActivity').textContent = new Date().toLocaleTimeString();
+            }
+            
+            enableInput() {
+                this.chatInput.disabled = false;
+                this.sendButton.disabled = false;
+                this.chatInput.focus();
+            }
+            
+            disableInput() {
+                this.chatInput.disabled = true;
+                this.sendButton.disabled = true;
+            }
+            
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            formatMessage(message) {
+                // Convert line breaks and format lists
+                return message
+                    .replace(/\n/g, '<br>')
+                    .replace(/• /g, '<br>• ')
+                    .replace(/- /g, '<br>- ');
+            }
+            
+            attemptReconnect() {
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    this.updateSystemStatus(`System: Reconnecting... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                    setTimeout(() => this.connect(), 2000);
+                } else {
+                    this.updateSystemStatus('System: Connection failed - Demo mode');
+                    this.simulateConnection();
+                }
+            }
+        }
+        
+        // Global functions
+        let aiManager;
+        
+        function initializeApp() {
+            aiManager = new AIWebsiteManager();
+        }
+        
+        function authenticate() {
+            aiManager.authenticate();
+        }
+        
+        function sendMessage() {
+            aiManager.sendMessage();
+        }
+        
+        function sendQuickMessage(message) {
+            aiManager.chatInput.value = message;
+            aiManager.sendMessage();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function clearTerminal() {
+            document.getElementById('terminalOutput').innerHTML = '<span class="terminal-success">$ Terminal cleared</span>\n';
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>

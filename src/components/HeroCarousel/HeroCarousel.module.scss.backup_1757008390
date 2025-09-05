@@ -1,4 +1,3 @@
-@use 'sass:color';
 // Hero Carousel styles - inspired by how-it-works page
 @use '../../styles/variables' as *;
 
@@ -72,7 +71,7 @@
 
 .heroAccent {
   color: $secondary-color;
-  background: linear-gradient(135deg, $secondary-color, color.scale($secondary-color, $lightness: 10%));
+  background: linear-gradient(135deg, $secondary-color, lighten($secondary-color, 10%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -125,7 +124,7 @@
   box-shadow: 0 4px 12px rgba(223, 244, 110, 0.3);
   
   &:hover {
-    background: color.scale($secondary-color, $lightness: -8%);
+    background: darken($secondary-color, 8%);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(223, 244, 110, 0.4);
   }

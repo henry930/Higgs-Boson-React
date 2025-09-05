@@ -5,6 +5,7 @@ import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import NotificationCenter from './components/NotificationCenter/NotificationCenter';
 import AICustomerService from './components/AICustomerService/AICustomerService';
 import SupabaseTest from './components/SupabaseTest';
+import { AdminDashboard } from './components/AdminDashboard/AdminDashboard';
 import Home from './pages/Home/Home';
 import About from './pages/About/About';
 import Services from './pages/Services/Services';
@@ -40,6 +41,7 @@ function App() {
                   <Route path="/schedule-a-call" element={<ScheduleCall />} />
                   <Route path="/careers" element={<Careers />} />
                   <Route path="/project-estimation" element={<ProjectEstimation />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/supabase-test" element={<SupabaseTest />} />
                   <Route path="/404" element={<NotFound />} />
                   {/* Catch-all route for 404 */}

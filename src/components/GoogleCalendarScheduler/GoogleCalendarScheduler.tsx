@@ -134,9 +134,9 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
 
     try {
       const dateStr = date.format('YYYY-MM-DD');
-      console.log('📡 Making API request to:', `${API_CONFIG.BASE_URL}/api/google-calendar/live-availability/?date=${dateStr}`);
+      console.log('📡 Making API request to:', `${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/live-availability?date=${dateStr}`);
       
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/google-calendar/live-availability/?date=${dateStr}`, {
+      const response = await fetch(`${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/live-availability?date=${dateStr}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -214,7 +214,7 @@ const GoogleCalendarScheduler: React.FC<GoogleCalendarSchedulerProps> = ({
 
       console.log('📤 Sending appointment data:', appointmentData);
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/google-calendar/book/`, {
+      const response = await fetch(`${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

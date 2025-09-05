@@ -82,7 +82,7 @@ const AICustomerService: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/ai-chat/`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/chat/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,6 +91,7 @@ const AICustomerService: React.FC = () => {
           session_id: sessionId,
           message: messageText,
           customer_info: customerInfo,
+          use_ai: true, // Ensure we use Claude Sonnet AI
         }),
       });
 

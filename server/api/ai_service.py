@@ -1,7 +1,10 @@
 """
-AI Service Integration for Customer Service
+AI Service Integration for Customer Service (Claude Sonnet via AWS Bedrock)
 """
-from openai import OpenAI
+import boto3
+from botocore.exceptions import ClientError
+import os
+import json
 from django.conf import settings
 from typing import Dict, List, Optional
 import json
@@ -12,12 +15,9 @@ class AIServiceManager:
     """Manage AI service integration with custom training"""
     
     def __init__(self):
-        # Set your OpenAI API key from Django settings
-        self.api_key = getattr(settings, 'OPENAI_API_KEY', None)
-        self.client = None
-        
-        if self.api_key and self.api_key != 'your-openai-api-key-here':
-            self.client = OpenAI(api_key=self.api_key)
+        # AWS Bedrock Claude Sonnet setup
+        self.bedrock = boto3.client('bedrock-runtime', region_name=os.getenv('AWS_REGION', 'us-east-1'))
+        self.model_id = os.getenv('CLAUDE_MODEL_ID', 'anthropic.claude-3-5-sonnet-20240620-v1:0')
         
         # Get business configuration from settings
         self.business_config = getattr(settings, 'BUSINESS_CONFIG', {
@@ -424,20 +424,13 @@ When customer confirms an estimation, respond with something like:
 """
 
     def get_ai_response(self, conversation_history: List[Dict], user_message: str) -> str:
-        """Get AI response with custom business context"""
-        
-        if not self.client:
-            return "I'm here to help you with your project! However, our AI service is currently being configured. Let me assist you using our comprehensive consultation process. Could you tell me more about your project requirements?"
-        
+        """Get AI response using Claude Sonnet via AWS Bedrock"""
         try:
-            # Prepare messages for AI
+            # Prepare messages for Claude
             messages = [
                 {"role": "system", "content": self.create_system_prompt()}
             ]
-            
-            # Add conversation history (last 10 messages for context) - handle empty history
             if conversation_history and isinstance(conversation_history, (list, tuple)) and len(conversation_history) > 0:
-                # Safely get last 10 messages
                 last_messages = conversation_history[-10:] if len(conversation_history) >= 10 else conversation_history
                 for msg in last_messages:
                     if isinstance(msg, dict) and msg.get('content'):
@@ -445,35 +438,28 @@ When customer confirms an estimation, respond with something like:
                             "role": "user" if msg.get('is_user') else "assistant",
                             "content": str(msg.get('content', ''))
                         })
-            
-            # Add current message
             messages.append({"role": "user", "content": user_message})
-            
-            # Call OpenAI API with new format
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",  # Cost-effective option
-                messages=messages,
-                max_tokens=500,  # Limit response length to control costs
-                temperature=0.7,  # Balanced creativity
-                presence_penalty=0.1,  # Reduce repetition
-                frequency_penalty=0.1
+
+            # Claude expects a specific message format
+            payload = {
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 500,
+                "messages": messages
+            }
+            response = self.bedrock.invoke_model(
+                modelId=self.model_id,
+                body=json.dumps(payload)
             )
-            
-            ai_response = response.choices[0].message.content.strip()
-            
-            # Check if customer is confirming an estimate
+            response_body = json.loads(response['body'].read())
+            ai_response = response_body['content'][0]['text'].strip()
+
             if self.detect_customer_confirmation(user_message):
                 self.handle_customer_confirmation(conversation_history, user_message, ai_response)
-            
             return ai_response
-            
         except Exception as e:
-            # Log the specific error for debugging
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f"AI Service Error: {str(e)}", exc_info=True)
-            
-            # Enhanced fallback system with Sarah personality
+            logger.error(f"Claude Service Error: {str(e)}", exc_info=True)
             return self.get_mock_sarah_response(user_message, conversation_history)
     
     def detect_customer_confirmation(self, user_message: str) -> bool:

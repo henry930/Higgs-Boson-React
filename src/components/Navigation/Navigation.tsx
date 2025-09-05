@@ -128,43 +128,47 @@ const Navigation: React.FC = () => {
 
           {/* Mobile menu button */}
           <button
-            className={styles.mobileMenuButton}
+            className={`${styles.mobileMenuButton} ${isMobileMenuOpen ? styles.open : ''}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle mobile menu"
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <div className={`${styles.hamburger} ${isMobileMenuOpen ? styles.open : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </button>
 
           {/* Mobile Navigation */}
           <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-            {/* Mobile navigation links */}
-            {mainNavigation.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`${styles.mobileNavLink} ${
-                  location.pathname === item.path ? styles.active : ''
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-            
-            {/* Mobile auth section */}
-            <div className={styles.mobileAuthButtons}>
-              <button 
-                onClick={() => {
-                  console.log('🎯 Schedule a Call button clicked in Mobile Navigation');
-                  setIsSchedulerOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className={styles.scheduleCall}
-              >
-                Schedule a Call
-              </button>
+            <div className={styles.mobileMenuContent}>
+              {/* Mobile navigation links */}
+              {mainNavigation.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`${styles.mobileNavLink} ${
+                    location.pathname === item.path ? styles.active : ''
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              
+              {/* Mobile auth section */}
+              <div className={styles.mobileAuthButtons}>
+                <button 
+                  onClick={() => {
+                    console.log('🎯 Schedule a Call button clicked in Mobile Navigation');
+                    setIsSchedulerOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={styles.mobileScheduleCall}
+                >
+                  Schedule a Call
+                </button>
+              </div>
             </div>
           </div>
         </div>

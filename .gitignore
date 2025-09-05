@@ -240,3 +240,56 @@ deployment/lambda/.serverless/
 *.zip
 **/serverless-state.json
 **/cloudformation-template-*.json
+
+# Project-specific directories (local development and deployment)
+deployment-scripts/
+archive/
+testing/
+
+# Lambda deployment and build directories
+lambda_deploy/
+test_venv/
+lambda_env_template.txt
+lambda_requirements.txt
+
+# Development and deployment artifacts  
+quick-deploy.sh
+setup.sh
+restart_system.sh
+stop_system.sh
+setup-s3-bucket.sh
+setup_api_gateway.sh
+monitor_ssl.sh
+verify-s3-deployment.sh
+start-dev.sh
+
+# Legacy and backup files
+**/package 2.json
+**/package-lock 2.json
+**/requirements 2.txt
+**/tsconfig 2.json
+**/tsconfig.app 2.json
+**/tsconfig.node 2.json
+**/vite.config 2.ts
+**/vite.config 3.ts
+**/vite.config 4.ts
+**/vite.config.test 2.ts
+vite.config.test.ts
+**/restart_system 2.sh
+**/setup 2.sh
+**/stop_system 2.sh
+
+# Configuration and test files
+old_dist_config.json
+updated_dist_config.json
+current_dist_config.json
+disabled_dist_config.json
+response.json
+ssl-validation-records.json
+ssl_validation_instructions.md
+supabase_setup.sql
+test_lambda_calendar.py
+**/services faq
+
+# Python scripts and utilities
+update_benefit_icons.py

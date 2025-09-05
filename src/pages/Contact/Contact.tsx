@@ -5,10 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const Contact = () => {
   const navigate = useNavigate();
 
-  const handleEnlargeChat = () => {
-    navigate('/project-estimation');
-  };
-
   return (
     <div className={styles.contact}>
       <SEO 
@@ -70,55 +66,49 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className={styles.aiAssistantSection}>
-              <div className={styles.chatBox}>
-                <div className={styles.chatHeader}>
-                  <div className={styles.headerContent}>
-                    <h4>Sarah - AI Project Assistant</h4>
-                    <p>Ready to help with your project estimation</p>
+            <div className={styles.actionSection}>
+              <div className={styles.actionGrid}>
+                <div className={styles.actionCard}>
+                  <div className={styles.cardIcon}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 15.5C18.75 15.5 17.55 15.3 16.43 14.93C16.08 14.82 15.69 14.9 15.41 15.18L13.21 17.38C10.38 15.94 8.06 13.62 6.62 10.79L8.82 8.59C9.1 8.31 9.18 7.92 9.07 7.57C8.7 6.45 8.5 5.25 8.5 4C8.5 3.45 8.05 3 7.5 3H4C3.45 3 3 3.45 3 4C3 13.39 10.61 21 20 21C20.55 21 21 20.55 21 20V16.5C21 15.95 20.55 15.5 20 15.5Z" fill="currentColor"/>
+                    </svg>
                   </div>
-                  <div className={styles.headerActions}>
-                    <div className={styles.statusIndicator}>
-                      <span className={styles.onlineStatus}></span>
-                      Online
-                    </div>
-                    <button className={styles.enlargeButton} onClick={handleEnlargeChat} title="Open full estimation interface">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 14H5V19H10V17H7V14ZM5 10H7V7H10V5H5V10ZM17 17H14V19H19V14H17V17ZM14 5V7H17V10H19V5H14Z" fill="currentColor"/>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.cardTitle}>Schedule A Call</h3>
+                    <p className={styles.cardDescription}>
+                      Book a consultation with our experts.
+                    </p>
+                    <button 
+                      className={styles.actionButton}
+                      onClick={() => navigate('/schedule-a-call')}
+                    >
+                      Book Consultation
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z" fill="currentColor"/>
                       </svg>
                     </button>
                   </div>
                 </div>
-                
-                <div className={styles.chatMessages}>
-                  <div className={styles.welcomeMessage}>
-                    <div className={styles.aiAvatar}>👩‍💼</div>
-                    <div className={styles.messageContent}>
-                      <p><strong>Hello, I am Sarah, your AI Project Assistant.</strong></p>
-                      
-                      <p>First, please provide me with your company name, contact person, and contact email.</p>
-                      
-                      <p>Then, please give me your project requirements. Please be detailed, as this will be included in the contract later.</p>
-                      
-                      <p><strong>Our daily rate is £160. All startups and NGOs receive a 20% discount.</strong></p>
-                      
-                      <p>This estimation is preliminary - our specialist will contact you later for a deeper understanding of your needs.</p>
-                      
-                      <p><strong>Let's start!</strong></p>
-                    </div>
+
+                <div className={styles.actionCard}>
+                  <div className={styles.cardIcon}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor"/>
+                    </svg>
                   </div>
-                </div>
-                
-                <div className={styles.chatInput}>
-                  <div className={styles.inputContainer}>
-                    <input 
-                      type="text" 
-                      placeholder="Type your message here..."
-                      className={styles.messageInput}
-                    />
-                    <button className={styles.sendButton}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor"/>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.cardTitle}>Project Advice</h3>
+                    <p className={styles.cardDescription}>
+                      Get expert advice and estimates using AI.
+                    </p>
+                    <button 
+                      className={styles.actionButton}
+                      onClick={() => navigate('/project-estimation')}
+                    >
+                      Get Advice
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z" fill="currentColor"/>
                       </svg>
                     </button>
                   </div>

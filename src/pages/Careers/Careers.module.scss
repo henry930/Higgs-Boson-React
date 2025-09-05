@@ -1,4 +1,5 @@
 @use '../../styles/variables' as *;
+@use 'sass:color';
 
 .careers {
   width: 100%;
@@ -570,7 +571,7 @@
 
 .highlight {
   color: $accent-color;
-  background: linear-gradient(135deg, $accent-color, lighten($accent-color, 15%));
+  background: linear-gradient(135deg, $accent-color, color.scale($accent-color, $lightness: 15%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -669,7 +670,7 @@
   box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
   
   &:hover {
-    background: darken($accent-color, 8%);
+    background: color.scale($accent-color, $lightness: -8%);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
   }

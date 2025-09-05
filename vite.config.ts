@@ -24,6 +24,13 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: true
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern'
+        }
+      }
+    },
     // @ts-ignore - vitest config
     test: {
       globals: true,

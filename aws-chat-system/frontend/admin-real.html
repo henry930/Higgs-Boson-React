@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Website Management System - LIVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            gap: 1rem;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        
+        .chat-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .terminal-section {
+            flex: 1;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            transition: background-color 0.3s;
+        }
+        
+        .status-dot.connected {
+            background: #10b981;
+        }
+        
+        .terminal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #374151;
+            color: #10b981;
+            font-weight: 600;
+            font-family: 'Monaco', 'Consolas', monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .terminal-output {
+            flex: 1;
+            padding: 1rem;
+            color: #10b981;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .ai-message {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            margin-right: 2rem;
+            margin-left: 0.5rem;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .input-help {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            align-self: flex-end;
+            height: fit-content;
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .warning-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 1rem;
+            margin: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 AI Website Management System <span class="live-indicator">LIVE</span></h1>
+        <p>Real Claude AI • Live file modification • Instant deployment</p>
+    </div>
+    
+    <div class="warning-banner">
+        ⚡ CAUTION: This system makes REAL changes to your website files. Changes are immediately live on https://d1b7dst1qwphev.cloudfront.net/
+    </div>
+    
+    <div class="container">
+        <div class="chat-section">
+            <div class="chat-header">
+                <span>💬 Chat with AI Assistant (LIVE)</span>
+                <div class="connection-status">
+                    <div class="status-dot" id="connectionDot"></div>
+                    <span id="connectionStatus">Connecting...</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="chat-input-container">
+                <div class="input-help">
+                    🔥 <strong>LIVE MODE:</strong> Your requests will immediately modify website files and deploy changes!
+                </div>
+                <div class="input-row">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Describe your website changes in detail... (LIVE SYSTEM - CHANGES ARE IMMEDIATE!)
+
+Examples:
+• Change the homepage hero title to 'Digital Innovation Experts'
+• Update the first testimonial to mention our excellent AI consulting services
+• Add a new benefit about our 24/7 support
+• Modify the process steps to include a free consultation"
+                        onkeypress="handleKeyPress(event)"
+                        disabled
+                        rows="4"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()" disabled>
+                        Send Request
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="terminal-section">
+            <div class="terminal-header">
+                <span>🖥️ Live Terminal Output</span>
+            </div>
+            
+            <div class="terminal-output" id="terminalOutput">
+<span style="color: #60a5fa;">$ AI Website Management System v2.0 - LIVE MODE</span>
+<span style="color: #10b981;">$ Connected to: Real AWS Infrastructure</span>
+<span style="color: #10b981;">$ Repository: Live Website Files</span>
+<span style="color: #f59e0b;">$ CAUTION: All changes are immediately deployed</span>
+
+Ready to process your LIVE website management requests!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class LiveAIWebsiteManager {
+            constructor() {
+                this.ws = null;
+                this.isConnected = false;
+                this.sessionId = this.generateSessionId();
+                
+                this.initializeElements();
+                this.connect();
+            }
+            
+            initializeElements() {
+                this.chatInput = document.getElementById('chatInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.terminalOutput = document.getElementById('terminalOutput');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.connectionDot = document.getElementById('connectionDot');
+            }
+            
+            generateSessionId() {
+                return 'session_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            connect() {
+                try {
+                    const wsUrl = 'wss://802jzmxh1f.execute-api.us-east-1.amazonaws.com/prod';
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        this.isConnected = true;
+                        this.updateConnectionStatus('Connected (LIVE)', true);
+                        this.enableInput();
+                        this.addWelcomeMessage();
+                        this.addTerminalLine('$ Connected to LIVE AWS infrastructure', 'success');
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        this.handleMessage(data);
+                    };
+                    
+                    this.ws.onclose = () => {
+                        this.isConnected = false;
+                        this.updateConnectionStatus('Disconnected', false);
+                        this.disableInput();
+                        this.addTerminalLine('$ Connection lost - attempting reconnect...', 'error');
+                        setTimeout(() => this.connect(), 3000);
+                    };
+                    
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.addTerminalLine('$ WebSocket error occurred', 'error');
+                    };
+                    
+                } catch (error) {
+                    console.error('Connection error:', error);
+                    this.simulateConnection();
+                }
+            }
+            
+            handleMessage(data) {
+                switch (data.type) {
+                    case 'ai_response':
+                        this.addAIMessage(data.message);
+                        break;
+                    case 'terminal':
+                        this.addTerminalLine(data.output, 'normal');
+                        break;
+                    case 'success':
+                        this.addSuccessMessage(data.message, data.files, data.url);
+                        break;
+                    case 'error':
+                        this.addErrorMessage(data.message);
+                        break;
+                    case 'status':
+                        this.addStatusMessage(data.message);
+                        break;
+                }
+            }
+            
+            sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (message && this.isConnected) {
+                    this.addUserMessage(message);
+                    
+                    this.ws.send(JSON.stringify({
+                        action: 'chat',
+                        message: message,
+                        sessionId: this.sessionId
+                    }));
+                    
+                    this.chatInput.value = '';
+                } else if (message) {
+                    this.addErrorMessage('Not connected to server. Please wait for connection...');
+                }
+            }
+            
+            addWelcomeMessage() {
+                this.addAIMessage(`🔥 **LIVE AI Website Management System**
+
+I'm now connected to your REAL website infrastructure! I can:
+
+• **Modify actual files** in your S3 bucket
+• **Update content** like hero titles, testimonials, benefits
+• **Deploy changes instantly** to your live website
+• **Invalidate CloudFront cache** for immediate visibility
+
+⚠️ **IMPORTANT**: This is NOT a demo - all changes are REAL and IMMEDIATE!
+
+🎯 **Example Live Requests**:
+- "Change the hero title to 'Digital Innovation Leaders'"
+- "Update the first testimonial to mention our excellent AI services"
+- "Add a new benefit about 24/7 customer support"
+
+Your changes will be visible immediately at: https://d1b7dst1qwphev.cloudfront.net/`);
+            }
+            
+            addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.innerHTML = `<strong>You:</strong> ${this.escapeHtml(message)}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addAIMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = `<strong>🤖 Claude (LIVE):</strong> ${this.formatMessage(message)}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addSuccessMessage(message, files, url) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                let content = `<strong>✅ Success:</strong> ${message}`;
+                if (files && files.length > 0) {
+                    content += `<br><strong>Modified files:</strong> ${files.join(', ')}`;
+                }
+                if (url) {
+                    content += `<br><strong>🌐 View live:</strong> <a href="${url}" target="_blank">${url}</a>`;
+                }
+                messageDiv.innerHTML = content;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addErrorMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = `<strong>❌ Error:</strong> ${message}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addStatusMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ai-message';
+                messageDiv.innerHTML = `<strong>ℹ️ Status:</strong> ${message}`;
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+            
+            addTerminalLine(text, type = 'normal') {
+                const line = document.createElement('div');
+                const colors = {
+                    command: '#60a5fa',
+                    success: '#10b981',
+                    error: '#ef4444',
+                    normal: '#10b981'
+                };
+                line.style.color = colors[type] || colors.normal;
+                line.textContent = text;
+                this.terminalOutput.appendChild(line);
+                this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+            }
+            
+            updateConnectionStatus(status, connected) {
+                this.connectionStatus.textContent = status;
+                this.connectionDot.className = connected ? 'status-dot connected' : 'status-dot';
+            }
+            
+            enableInput() {
+                this.chatInput.disabled = false;
+                this.sendButton.disabled = false;
+                this.chatInput.focus();
+            }
+            
+            disableInput() {
+                this.chatInput.disabled = true;
+                this.sendButton.disabled = true;
+            }
+            
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            formatMessage(message) {
+                return message
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/• /g, '<br>• ');
+            }
+            
+            simulateConnection() {
+                // Fallback if WebSocket fails
+                setTimeout(() => {
+                    this.isConnected = false;
+                    this.updateConnectionStatus('WebSocket Failed', false);
+                    this.addTerminalLine('$ WebSocket connection failed', 'error');
+                    this.addErrorMessage('Could not connect to live system. Please check the deployment.');
+                }, 2000);
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            if (window.aiManager) {
+                window.aiManager.sendMessage();
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            window.aiManager = new LiveAIWebsiteManager();
+        });
+    </script>
+</body>
+</html>

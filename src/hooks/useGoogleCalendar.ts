@@ -1,4 +1,4 @@
-// Google Calendar Integration Hook
+// Google Calendar Integration Hook - Lambda API Version
 import { useState, useEffect } from 'react';
 import { API_CONFIG } from '../config/api';
 
@@ -12,7 +12,7 @@ interface AvailabilityResponse {
   availableSlots: string[];
   bookedSlots: string[];
   message: string;
-  calendar_connected: boolean;
+  source: string;
 }
 
 interface AppointmentData {
@@ -23,144 +23,94 @@ interface AppointmentData {
   service: string;
   preferred_date: string;
   preferred_time: string;
-  message?: string;
+  description?: string;
 }
 
 export const useGoogleCalendar = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true); // Always true since we use Lambda API directly
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check connection status
+  // Check connection status - Lambda API is always available
   const checkConnectionStatus = async (): Promise<CalendarConnectionStatus> => {
     try {
-      const response = await fetch(`${API_CONFIG.DJANGO_BASE_URL}/google-calendar/calendar_status/`);
-      const data = await response.json();
-      setIsConnected(data.connected);
-      return data;
+      // Test the Lambda API availability endpoint
+      const response = await fetch(`${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/live-availability?date=${new Date().toISOString().split('T')[0]}`);
+      if (response.ok) {
+        setIsConnected(true);
+        return { connected: true, message: 'Lambda Calendar API is available' };
+      } else {
+        setIsConnected(false);
+        return { connected: false, message: 'Lambda Calendar API unavailable' };
+      }
     } catch (error) {
       console.error('Error checking calendar status:', error);
       setError('Failed to check calendar connection');
+      setIsConnected(false);
       return { connected: false, message: 'Connection check failed' };
     }
   };
 
-  // Get OAuth authorization URL
+  // Get OAuth authorization URL - Not needed for Lambda API
   const getAuthUrl = async (): Promise<string | null> => {
-    try {
-      const response = await fetch(`${API_CONFIG.DJANGO_BASE_URL}/google-calendar/auth_url/`);
-      const data = await response.json();
-      return data.auth_url;
-    } catch (error) {
-      console.error('Error getting auth URL:', error);
-      setError('Failed to get authorization URL');
-      return null;
-    }
+    console.log('OAuth not required for Lambda API');
+    return null;
   };
 
-  // Handle OAuth callback
+  // Handle OAuth callback - Not needed for Lambda API
   const handleCallback = async (code: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${API_CONFIG.DJANGO_BASE_URL}/google-calendar/callback/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setIsConnected(true);
-        setError(null);
-        return true;
-      } else {
-        setError(data.error || 'Failed to connect calendar');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error handling callback:', error);
-      setError('Failed to complete calendar connection');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
+    console.log('OAuth callback not required for Lambda API');
+    return true;
   };
 
-  // Connect to Google Calendar
+  // Connect to Google Calendar - Not needed for Lambda API
   const connectCalendar = async (): Promise<void> => {
-    try {
-      const authUrl = await getAuthUrl();
-      if (authUrl) {
-        // Open in popup window
-        const popup = window.open(
-          authUrl,
-          'google-calendar-auth',
-          'width=500,height=600,scrollbars=yes'
-        );
-
-        // Listen for popup to close or send message
-        const checkClosed = setInterval(() => {
-          if (popup?.closed) {
-            clearInterval(checkClosed);
-            // Check if connection was successful
-            checkConnectionStatus();
-          }
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Error connecting calendar:', error);
-      setError('Failed to initiate calendar connection');
-    }
+    console.log('Manual connection not required for Lambda API');
+    setIsConnected(true);
   };
 
-  // Disconnect Google Calendar
+  // Disconnect Google Calendar - Not applicable for Lambda API
   const disconnectCalendar = async (): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${API_CONFIG.DJANGO_BASE_URL}/google-calendar/disconnect/`, {
-        method: 'POST',
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setIsConnected(false);
-        setError(null);
-        return true;
-      } else {
-        setError('Failed to disconnect calendar');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error disconnecting calendar:', error);
-      setError('Failed to disconnect calendar');
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
+    console.log('Disconnect not applicable for Lambda API');
+    return true;
   };
 
-  // Get availability from Google Calendar
+  // Get availability from Google Calendar via Lambda API
   const getAvailability = async (date: string): Promise<AvailabilityResponse | null> => {
     try {
+      setIsLoading(true);
       const response = await fetch(
-        `${API_CONFIG.DJANGO_BASE_URL}/google-calendar/availability/?date=${date}`
+        `${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/live-availability?date=${date}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
       );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch availability: ${response.status} ${response.statusText}`);
+      }
+
       const data = await response.json();
+      setError(null);
       return data;
     } catch (error) {
       console.error('Error getting availability:', error);
       setError('Failed to get availability');
       return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Create appointment with Google Calendar integration
+  // Create appointment with Google Calendar integration via Lambda API
   const createAppointment = async (appointmentData: AppointmentData): Promise<any> => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_CONFIG.DJANGO_BASE_URL}/google-calendar/create_appointment/`, {
+      const response = await fetch(`${API_CONFIG.CALENDAR_API_URL}/api/google-calendar/book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,8 +118,13 @@ export const useGoogleCalendar = () => {
         body: JSON.stringify(appointmentData),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to create appointment: ${response.status}`);
+      }
+
       const data = await response.json();
-      if (data.status === 'success') {
+      if (data.success) {
         setError(null);
         return data;
       } else {

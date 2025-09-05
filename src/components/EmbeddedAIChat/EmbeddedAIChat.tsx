@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { API_CONFIG } from '../../config/api';
 import styles from './EmbeddedAIChat.module.scss';
 
 interface Message {
@@ -30,13 +32,76 @@ const EmbeddedAIChat: React.FC = () => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [requirementComplete, setRequirementComplete] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      // Scroll the messages container to the bottom instead of scrolling the entire page
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  const parseMessageWithLinks = (text: string) => {
+    // Parse markdown-style links: [text](link)
+    const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = linkPattern.exec(text)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Add the link
+      const linkText = match[1];
+      const linkUrl = match[2];
+      
+      if (linkUrl.startsWith('/')) {
+        // Internal link - use React Router
+        parts.push(
+          <button 
+            key={match.index}
+            onClick={() => navigate(linkUrl)}
+            className={styles.inlineLink}
+          >
+            {linkText}
+          </button>
+        );
+      } else {
+        // External link
+        parts.push(
+          <a 
+            key={match.index}
+            href={linkUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className={styles.inlineLink}
+          >
+            {linkText}
+          </a>
+        );
+      }
+      
+      lastIndex = linkPattern.lastIndex;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 1 ? parts : text;
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Small delay to ensure DOM is updated before scrolling
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   useEffect(() => {
@@ -63,7 +128,7 @@ const EmbeddedAIChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod/webhooks/github', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,6 +137,7 @@ const EmbeddedAIChat: React.FC = () => {
           session_id: sessionId,
           message: messageText,
           customer_info: customerInfo,
+          use_ai: true, // Ensure we use Claude Sonnet AI
         }),
       });
 
@@ -124,7 +190,7 @@ const EmbeddedAIChat: React.FC = () => {
 
   return (
     <div className={styles.embeddedChat}>
-      <div className={styles.messagesContainer}>
+      <div className={styles.messagesContainer} ref={messagesContainerRef}>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -140,7 +206,10 @@ const EmbeddedAIChat: React.FC = () => {
               <div className={styles.messageText}>
                 {message.message.split('\n').map((line, index) => (
                   <React.Fragment key={index}>
-                    {line}
+                    {typeof parseMessageWithLinks(line) === 'string' 
+                      ? parseMessageWithLinks(line)
+                      : parseMessageWithLinks(line)
+                    }
                     {index < message.message.split('\n').length - 1 && <br />}
                   </React.Fragment>
                 ))}
