@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Revolutionize Your Software Development with AI",
+    "subtitle": "Accelerate delivery by 75% and reduce costs by 70% with our AI-powered development platform. Experience the future of software engineering today.",
+    "primary_button_text": "Start Your Project",
+    "primary_button_action": "/contact",
+    "secondary_button_text": "View Services", 
+    "secondary_button_link": "/services",
+    "background_image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+    "stats": "",
+    "slide_order": 1,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "title": "Enterprise-Grade AI Solutions",
+    "subtitle": "Transform your business with cutting-edge AI technologies. From machine learning to automation, we deliver solutions that scale with your growth.", 
+    "primary_button_text": "Get Started",
+    "primary_button_action": "/contact",
+    "secondary_button_text": "Learn More",
+    "secondary_button_link": "/about",
+    "background_image": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1926&q=80",
+    "stats": "",
+    "slide_order": 2,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "title": "Expert Teams, Proven Results",
+    "subtitle": "Work with seasoned AI researchers and developers who have delivered 100+ successful projects for companies ranging from startups to Fortune 500 enterprises.",
+    "primary_button_text": "Schedule Consultation", 
+    "primary_button_action": "/contact",
+    "secondary_button_text": "See Case Studies",
+    "secondary_button_link": "/services",
+    "background_image": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+    "stats": "",
+    "slide_order": 3,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]

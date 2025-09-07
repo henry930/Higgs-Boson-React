@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "number": 1,
+    "title": "Discovery & Strategy",
+    "description": "We analyze your requirements and create a comprehensive development strategy using AI-assisted project planning and risk assessment.",
+    "order": 1,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2, 
+    "number": 2,
+    "title": "AI-Accelerated Development",
+    "description": "Our expert teams leverage cutting-edge AI tools to accelerate coding, testing, and deployment while ensuring quality standards.",
+    "order": 2,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "number": 3, 
+    "title": "Delivery & Evolution",
+    "description": "Expert project managers ensure seamless delivery and provide ongoing maintenance, updates, and feature enhancements.",
+    "order": 3,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]

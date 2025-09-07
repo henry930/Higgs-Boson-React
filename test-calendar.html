@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar API Test</title>
+</head>
+<body>
+    <h1>Calendar API Test</h1>
+    <button onclick="testCalendarAPI()">Test Calendar API</button>
+    <div id="result"></div>
+
+    <script>
+        // Auto-test on page load
+        window.onload = function() {
+            testCalendarAPI();
+        };
+
+        async function testCalendarAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            const apiUrl = 'https://fqsgv6rshb.execute-api.us-east-1.amazonaws.com/prod/api/google-calendar/live-availability?date=2025-09-05';
+            
+            try {
+                console.log('🔗 Testing API URL:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Response data:', data);
+                    resultDiv.innerHTML = `
+                        <h3>✅ Success!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Available Slots:</strong> ${data.availableSlots ? data.availableSlots.length : 0}</p>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <pre style="background: #f5f5f5; padding: 10px; overflow: auto; max-height: 200px;">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    console.error('❌ Response not ok:', response.status, response.statusText);
+                    const errorText = await response.text();
+                    console.error('❌ Error response body:', errorText);
+                    resultDiv.innerHTML = `
+                        <h3>❌ Failed!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>StatusText:</strong> ${response.statusText}</p>
+                        <p><strong>Error Body:</strong> ${errorText}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Fetch error:', error);
+                resultDiv.innerHTML = `
+                    <h3>❌ Error!</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Type:</strong> ${error.name}</p>
+                    <p><strong>Stack:</strong> ${error.stack}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

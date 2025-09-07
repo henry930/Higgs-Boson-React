@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "quote": "Higgs Boson Consultancy transformed our development process completely. We delivered our major product launch 3 months ahead of schedule with 60% cost savings.",
+    "author_name": "Sarah Johnson",
+    "author_title": "CTO", 
+    "company": "TechFlow Solutions",
+    "rating": 5,
+    "order": 1,
+    "active": true,
+    "featured": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "quote": "The AI-powered development approach is revolutionary. Our team productivity increased by 75% while maintaining the highest quality standards.",
+    "author_name": "Michael Chen",
+    "author_title": "VP Engineering",
+    "company": "DataVision Corp",
+    "rating": 5,
+    "order": 2,
+    "active": true,
+    "featured": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "quote": "Working with Higgs Boson was a game-changer. They delivered enterprise-grade solutions that would have taken our team 12 months in just 3 months.",
+    "author_name": "Emily Rodriguez", 
+    "author_title": "Product Director",
+    "company": "InnovateLab",
+    "rating": 5,
+    "order": 3,
+    "active": true,
+    "featured": true,
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "updated_at": "2024-01-01T00:00:00.000Z"
+  }
+]
